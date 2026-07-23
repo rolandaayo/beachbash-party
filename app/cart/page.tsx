@@ -3,6 +3,7 @@
 import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/tickets";
 import Link from "next/link";
+import OrderSteps from "@/components/OrderSteps";
 
 export default function CartPage() {
   const { items, removeFromCart, updateQuantity, totalItems, totalPrice } =
@@ -28,6 +29,7 @@ export default function CartPage() {
           <p className="tag mb-3 w-fit">Your Order</p>
           <h1 className="font-black text-3xl sm:text-4xl text-white">Cart</h1>
         </div>
+        <OrderSteps current="cart" />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Items */}

@@ -1,40 +1,38 @@
 import Link from "next/link";
 import { formatNaira } from "@/lib/tickets";
 
-export const metadata = {
-  title: "About — BEACHBASH PARTY",
-};
+export const metadata = { title: "About — BEACHBASH PARTY" };
 
 export default function AboutPage() {
   return (
-    <div className="pt-24 pb-20 px-4 sm:px-6">
+    <div className="pt-20 pb-20 px-5">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="float-anim inline-block text-6xl mb-6">🏖️</div>
-          <p className="text-orange-400 font-bold tracking-widest text-sm uppercase mb-3">
-            The Story
-          </p>
-          <h1 className="font-black text-5xl sm:text-7xl text-white mb-6">
+          <div className="float-anim inline-block text-5xl mb-5 opacity-80">
+            🏖️
+          </div>
+          <p className="tag mx-auto w-fit mb-4">The Story</p>
+          <h1 className="font-black text-4xl sm:text-6xl text-white mb-4">
             About BEACHBASH
           </h1>
-          <p className="text-zinc-400 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-white/35 text-sm max-w-lg mx-auto leading-relaxed">
             One night, one beach, one Lagos experience you&apos;ll never forget.
           </p>
         </div>
 
-        {/* Story */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20 items-center">
+        {/* What is it */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 items-center">
           <div>
-            <h2 className="text-white font-black text-3xl mb-4">
+            <h2 className="text-white font-black text-2xl mb-4">
               What Is BEACHBASH?
             </h2>
-            <div className="flex flex-col gap-4 text-zinc-400 leading-relaxed">
+            <div className="flex flex-col gap-3 text-white/40 text-sm leading-relaxed">
               <p>
                 BEACHBASH PARTY is a one-night-only beach party experience
                 happening on{" "}
-                <strong className="text-white">October 10, 2026</strong> in{" "}
-                <strong className="text-white">Lagos, Nigeria</strong>.
+                <span className="text-white/80">October 10, 2026</span> in{" "}
+                <span className="text-white/80">Lagos, Nigeria</span>.
               </p>
               <p>
                 This is not a festival. It&apos;s not a weekend retreat.
@@ -43,49 +41,46 @@ export default function AboutPage() {
               </p>
               <p>
                 Live performances, world-class DJ sets, premium bars, and the
-                Lagos ocean as your backdrop. If you know, you know.
+                Lagos ocean as your backdrop.
               </p>
             </div>
           </div>
-          <div className="ticket-card rounded-3xl p-8 text-center">
-            <div className="text-6xl mb-4">🌊</div>
-            <h3 className="text-white font-black text-2xl mb-2">
+          <div className="card rounded-2xl p-7 text-center">
+            <div className="text-5xl mb-3 opacity-60">🌊</div>
+            <h3 className="text-white font-black text-xl mb-2">
               One Show Only
             </h3>
-            <p className="text-zinc-400 text-sm leading-relaxed">
-              No second dates. No alternative venues. This is a one-time event.
-              When the tickets are gone, they&apos;re gone.
+            <p className="text-white/35 text-xs leading-relaxed">
+              No second dates. No alternative venues. When the tickets are gone,
+              they&apos;re gone.
             </p>
           </div>
         </div>
 
-        {/* Event facts */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-20">
+        {/* Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-16">
           {[
             { label: "Date", value: "Oct 10", sub: "2026" },
             { label: "City", value: "Lagos", sub: "Nigeria 🇳🇬" },
-            { label: "Starts", value: "8 PM", sub: "till dawn" },
+            { label: "Doors", value: "8 PM", sub: "till dawn" },
             { label: "From", value: "₦50K", sub: "per ticket" },
-          ].map((stat) => (
-            <div
-              key={stat.label}
-              className="ticket-card rounded-2xl p-5 text-center"
-            >
-              <p className="text-zinc-500 text-xs uppercase tracking-wider mb-1">
-                {stat.label}
+          ].map((s) => (
+            <div key={s.label} className="card rounded-xl p-4 text-center">
+              <p className="text-white/20 text-[10px] uppercase tracking-widest mb-1">
+                {s.label}
               </p>
-              <p className="text-white font-black text-2xl">{stat.value}</p>
-              <p className="text-zinc-500 text-xs">{stat.sub}</p>
+              <p className="text-white font-black text-xl">{s.value}</p>
+              <p className="text-white/25 text-[11px]">{s.sub}</p>
             </div>
           ))}
         </div>
 
-        {/* What's happening */}
-        <div className="mb-20">
-          <h2 className="text-white font-black text-3xl mb-8 text-center">
+        {/* Timeline */}
+        <div className="mb-16">
+          <h2 className="text-white font-black text-2xl mb-8 text-center">
             What&apos;s Going Down
           </h2>
-          <div className="flex flex-col gap-4">
+          <div className="relative flex flex-col gap-0">
             {[
               {
                 time: "8:00 PM",
@@ -100,7 +95,7 @@ export default function AboutPage() {
               {
                 time: "10:30 PM",
                 title: "Live Performances",
-                desc: "Main stage comes alive. Artists TBA — but trust us, it will be worth it.",
+                desc: "Main stage comes alive. Artists TBA — trust us, it will be worth it.",
               },
               {
                 time: "12:00 AM",
@@ -112,17 +107,23 @@ export default function AboutPage() {
                 title: "DJ Sets Continue",
                 desc: "We keep going until the sun comes up. Lagos doesn't sleep.",
               },
-            ].map((item) => (
-              <div key={item.time} className="flex gap-6 items-start">
-                <div className="flex-shrink-0 w-20 text-right">
-                  <span className="text-orange-400 font-bold text-sm">
-                    {item.time}
-                  </span>
+            ].map((item, i, arr) => (
+              <div key={item.time} className="flex gap-5 items-start">
+                {/* timeline spine */}
+                <div className="flex flex-col items-center shrink-0 pt-1">
+                  <div className="w-2 h-2 rounded-full bg-white/30" />
+                  {i < arr.length - 1 && (
+                    <div className="w-px flex-1 bg-white/8 my-1 min-h-[40px]" />
+                  )}
                 </div>
-                <div className="flex-shrink-0 w-px bg-orange-500/30 self-stretch mt-1" />
-                <div className="pb-4">
-                  <p className="text-white font-bold mb-1">{item.title}</p>
-                  <p className="text-zinc-400 text-sm leading-relaxed">
+                <div className="pb-6">
+                  <p className="text-white/30 text-[11px] font-mono mb-0.5">
+                    {item.time}
+                  </p>
+                  <p className="text-white font-bold text-sm mb-1">
+                    {item.title}
+                  </p>
+                  <p className="text-white/35 text-xs leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -132,12 +133,9 @@ export default function AboutPage() {
         </div>
 
         {/* CTA */}
-        <div className="text-center">
-          <Link
-            href="/tickets"
-            className="btn-orange text-white font-black text-lg px-12 py-5 rounded-full inline-block"
-          >
-            Get Your Ticket — From {formatNaira(50000)} 🎟️
+        <div className="text-center border-t border-white/5 pt-12">
+          <Link href="/tickets" className="btn-primary px-7 py-2.5 text-sm">
+            Get Tickets — From {formatNaira(50000)} 🎟️
           </Link>
         </div>
       </div>

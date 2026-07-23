@@ -31,9 +31,13 @@ export default function RootLayout({
         <CartProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
-          <footer className="border-t border-orange-900/30 py-8 text-center text-sm text-zinc-500">
-            <p>© 2026 BEACHBASH PARTY — Lagos, Nigeria. All rights reserved.</p>
-            <p className="mt-1">One night. One vibe. Oct 10 2026.</p>
+          <footer className="border-t border-white/5 py-8 text-center">
+            <p className="text-white/20 text-xs tracking-wide">
+              © 2026 BEACHBASH PARTY · Lagos, Nigeria
+            </p>
+            <p className="text-white/10 text-[11px] mt-1 tracking-widest uppercase">
+              One Night · One Vibe · Oct 10 2026
+            </p>
           </footer>
         </CartProvider>
       </body>

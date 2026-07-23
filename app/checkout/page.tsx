@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/tickets";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import OrderSteps from "@/components/OrderSteps";
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
@@ -134,6 +135,7 @@ export default function CheckoutPage() {
             Checkout
           </h1>
         </div>
+        <OrderSteps current="checkout" />
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
