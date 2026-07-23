@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { formatNaira } from "@/lib/tickets";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import OrderSteps from "@/components/OrderSteps";
+import Spinner from "@/components/Spinner";
+import LinkButton from "@/components/LinkButton";
 
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
@@ -24,14 +25,14 @@ export default function CheckoutPage() {
   if (items.length === 0) {
     return (
       <div className="pt-32 pb-20 px-5 text-center">
-        <div className="text-6xl mb-5 opacity-30">🛒</div>
-        <h1 className="font-black text-3xl text-white mb-2">
+        <div className="text-6xl mb-5 opacity-20">🛒</div>
+        <h1 className="font-black text-3xl text-[#0a0a0a] mb-2">
           Nothing to Checkout
         </h1>
-        <p className="text-white/35 text-sm mb-8">Add tickets first.</p>
-        <Link href="/tickets" className="btn-primary px-6 py-2.5 text-sm">
+        <p className="text-black/35 text-sm mb-8">Add tickets first.</p>
+        <LinkButton href="/tickets" className="btn-primary px-6 py-2.5 text-sm">
           Browse Tickets
-        </Link>
+        </LinkButton>
       </div>
     );
   }
@@ -59,7 +60,6 @@ export default function CheckoutPage() {
       setErrors(errs);
       return;
     }
-
     setLoading(true);
     try {
       const res = await fetch("http://localhost:4000/api/orders", {
@@ -109,7 +109,7 @@ export default function CheckoutPage() {
     span?: boolean;
   }) => (
     <div className={span ? "sm:col-span-2" : ""}>
-      <label className="block text-white/30 text-[11px] font-semibold uppercase tracking-wider mb-1.5">
+      <label className="block text-black/30 text-[11px] font-semibold uppercase tracking-wider mb-1.5">
         {label}
       </label>
       <input
@@ -121,7 +121,7 @@ export default function CheckoutPage() {
         className={`input ${errors[name] ? "input-error" : ""}`}
       />
       {errors[name] && (
-        <p className="text-red-400/80 text-[11px] mt-1">{errors[name]}</p>
+        <p className="text-red-500/80 text-[11px] mt-1">{errors[name]}</p>
       )}
     </div>
   );
@@ -131,7 +131,7 @@ export default function CheckoutPage() {
       <div className="max-w-4xl mx-auto">
         <div className="mb-10">
           <p className="tag mb-3 w-fit">Final Step</p>
-          <h1 className="font-black text-3xl sm:text-4xl text-white">
+          <h1 className="font-black text-3xl sm:text-4xl text-[#0a0a0a]">
             Checkout
           </h1>
         </div>
@@ -139,10 +139,9 @@ export default function CheckoutPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Form */}
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div className="card rounded-2xl p-6">
-                <p className="text-white font-bold text-sm mb-5">
+                <p className="text-[#0a0a0a] font-bold text-sm mb-5">
                   Your Details
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -175,14 +174,14 @@ export default function CheckoutPage() {
               </div>
 
               <div className="card rounded-2xl p-5">
-                <p className="text-white font-bold text-sm mb-4">Payment</p>
-                <div className="flex items-start gap-3 bg-white/3 border border-white/8 rounded-xl p-4">
+                <p className="text-[#0a0a0a] font-bold text-sm mb-4">Payment</p>
+                <div className="flex items-start gap-3 bg-black/3 border border-black/7 rounded-xl p-4">
                   <span className="text-xl mt-0.5">💳</span>
                   <div>
-                    <p className="text-white/70 font-semibold text-xs mb-1">
+                    <p className="text-black/60 font-semibold text-xs mb-1">
                       Bank Transfer
                     </p>
-                    <p className="text-white/30 text-[11px] leading-relaxed">
+                    <p className="text-black/35 text-[11px] leading-relaxed">
                       Payment details will be emailed after you place your
                       order. Spot reserved for 24 hours.
                     </p>
@@ -191,10 +190,9 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Summary */}
             <div className="lg:col-span-1">
               <div className="card rounded-2xl p-5 sticky top-20">
-                <p className="text-white font-bold text-sm mb-5">Summary</p>
+                <p className="text-[#0a0a0a] font-bold text-sm mb-5">Summary</p>
 
                 <div className="flex flex-col gap-2.5 mb-5">
                   {items.map((item) => (
@@ -202,10 +200,10 @@ export default function CheckoutPage() {
                       key={item.ticket.id}
                       className="flex justify-between text-xs"
                     >
-                      <span className="text-white/35">
+                      <span className="text-black/35">
                         {item.ticket.name} × {item.quantity}
                       </span>
-                      <span className="text-white/60">
+                      <span className="text-black/60">
                         {formatNaira(item.ticket.price * item.quantity)}
                       </span>
                     </div>
@@ -214,10 +212,10 @@ export default function CheckoutPage() {
 
                 <div className="border-t divider pt-4 mb-5">
                   <div className="flex justify-between items-baseline">
-                    <span className="text-white/40 text-xs">
+                    <span className="text-black/40 text-xs">
                       {totalItems} ticket{totalItems !== 1 ? "s" : ""}
                     </span>
-                    <span className="text-white font-black text-lg">
+                    <span className="text-[#0a0a0a] font-black text-lg">
                       {formatNaira(totalPrice)}
                     </span>
                   </div>
@@ -228,10 +226,17 @@ export default function CheckoutPage() {
                   disabled={loading}
                   className="btn-primary w-full justify-center py-2.5 text-xs disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {loading ? "Placing…" : "Place Order 🎟️"}
+                  {loading ? (
+                    <>
+                      <Spinner className="w-3.5 h-3.5" />
+                      <span>Placing order…</span>
+                    </>
+                  ) : (
+                    "Place Order 🎟️"
+                  )}
                 </button>
 
-                <p className="text-white/20 text-[11px] text-center mt-3 leading-relaxed">
+                <p className="text-black/20 text-[11px] text-center mt-3 leading-relaxed">
                   All sales are final. No refunds.
                 </p>
               </div>

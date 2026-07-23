@@ -17,12 +17,9 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  // Close drawer on route change
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
-
-  // Lock body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -37,7 +34,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <span className="text-xl leading-none">🏖️</span>
-            <span className="font-black text-sm tracking-[0.18em] text-white group-hover:text-white/70 transition-colors uppercase">
+            <span className="font-black text-sm tracking-[0.18em] text-[#0a0a0a] group-hover:text-black/50 transition-colors uppercase">
               BeachBash
             </span>
           </Link>
@@ -49,7 +46,7 @@ export default function Navbar() {
                 key={href}
                 href={href}
                 className={`btn-ghost text-xs font-medium tracking-wide ${
-                  pathname === href ? "text-white bg-white/8" : ""
+                  pathname === href ? "text-[#0a0a0a] bg-black/6" : ""
                 }`}
               >
                 {label}
@@ -59,7 +56,6 @@ export default function Navbar() {
 
           {/* Right side */}
           <div className="flex items-center gap-2">
-            {/* Cart */}
             <Link
               href="/cart"
               className="relative btn-primary text-xs py-2 px-4"
@@ -85,14 +81,13 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Hamburger — mobile only */}
             <button
               onClick={() => setOpen(true)}
               aria-label="Open menu"
               className="md:hidden btn-ghost p-2"
             >
               <svg
-                className="w-5 h-5 text-white"
+                className="w-5 h-5 text-[#0a0a0a]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.8}
@@ -112,23 +107,20 @@ export default function Navbar() {
       {/* ── Mobile drawer ───────────────────────────────────────────────── */}
       {open && (
         <>
-          {/* Overlay */}
           <div
-            className="drawer-overlay fixed inset-0 z-[60] bg-black/60"
+            className="drawer-overlay fixed inset-0 z-60 bg-black/30"
             onClick={() => setOpen(false)}
           />
 
-          {/* Panel — slides in from the right */}
-          <div className="drawer-panel fixed top-0 right-0 bottom-0 z-[70] w-72 bg-[#0d0d0d] border-l border-white/8 flex flex-col">
-            {/* Panel header */}
-            <div className="flex items-center justify-between px-6 h-14 border-b border-white/6">
-              <span className="font-black text-sm tracking-[0.18em] text-white uppercase">
+          <div className="drawer-panel fixed top-0 right-0 bottom-0 z-70 w-72 bg-white border-l border-black/7 flex flex-col">
+            <div className="flex items-center justify-between px-6 h-14 border-b border-black/6">
+              <span className="font-black text-sm tracking-[0.18em] text-[#0a0a0a] uppercase">
                 Menu
               </span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="text-white/40 hover:text-white transition-colors"
+                className="text-black/30 hover:text-black transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -146,7 +138,6 @@ export default function Navbar() {
               </button>
             </div>
 
-            {/* Links */}
             <div className="flex flex-col gap-1 p-4 flex-1">
               {NAV_LINKS.map(({ href, label }) => (
                 <Link
@@ -154,8 +145,8 @@ export default function Navbar() {
                   href={href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     pathname === href
-                      ? "bg-white/8 text-white"
-                      : "text-white/50 hover:text-white hover:bg-white/5"
+                      ? "bg-black/6 text-[#0a0a0a]"
+                      : "text-black/40 hover:text-[#0a0a0a] hover:bg-black/4"
                   }`}
                 >
                   {label}
@@ -163,15 +154,14 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Drawer footer */}
-            <div className="p-4 border-t border-white/6">
+            <div className="p-4 border-t border-black/6">
               <Link
                 href="/tickets"
                 className="btn-primary w-full justify-center text-xs py-3"
               >
                 Get Tickets 🎟️
               </Link>
-              <p className="text-center text-white/20 text-[11px] mt-4 tracking-wide">
+              <p className="text-center text-black/20 text-[11px] mt-4 tracking-wide">
                 OCT 10 · LAGOS, NIGERIA
               </p>
             </div>

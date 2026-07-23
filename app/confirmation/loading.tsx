@@ -1,15 +1,18 @@
 import { Skeleton } from "@/components/Skeleton";
+import OrderSteps from "@/components/OrderSteps";
 
 export default function ConfirmationLoading() {
   return (
     <div className="pt-28 pb-20 px-5 max-w-xl mx-auto">
+      <OrderSteps current="confirmation" />
+
       {/* Icon + header */}
       <div className="flex flex-col items-center text-center mb-8">
-        <Skeleton className="h-16 w-16 rounded-full mb-5" />
+        <Skeleton className="h-14 w-14 rounded-full mb-5" />
         <Skeleton className="h-3 w-24 mb-4" />
-        <Skeleton className="h-10 w-64 mb-3" />
-        <Skeleton className="h-4 w-72 mb-2" />
-        <Skeleton className="h-3 w-56" />
+        <Skeleton className="h-9 w-56 mb-3" />
+        <Skeleton className="h-3 w-72 mb-2" />
+        <Skeleton className="h-3 w-52" />
       </div>
 
       {/* Order card */}
@@ -36,10 +39,7 @@ export default function ConfirmationLoading() {
         <Skeleton className="h-3 w-24 mb-3" />
         <div className="flex flex-col gap-2">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton
-              key={i}
-              className={`h-3 w-${["full", "5/6", "4/5", "3/4"][i - 1]}`}
-            />
+            <Skeleton key={i} className="h-3 w-full" />
           ))}
         </div>
       </div>

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #080808;
-  --foreground: #ffffff;
+  --background: #ffffff;
+  --foreground: #0a0a0a;
 }
 
 @theme inline {
@@ -36,39 +36,35 @@ body {
   to   { opacity: 1; }
 }
 
-.float-anim  { animation: float 3.5s ease-in-out infinite; }
-.fade-up     { animation: fadeUp 0.6s ease forwards; }
+.float-anim { animation: float 3.5s ease-in-out infinite; }
+.fade-up    { animation: fadeUp 0.6s ease forwards; }
 
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
 .nav-blur {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  background: rgba(8, 8, 8, 0.85);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
 }
 
 /* ── Mobile drawer ───────────────────────────────────────────────────────── */
-.drawer-overlay {
-  animation: overlayIn 0.25s ease forwards;
-}
-.drawer-panel {
-  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
+.drawer-overlay { animation: overlayIn 0.25s ease forwards; }
+.drawer-panel   { animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
 .card {
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f7f7f7;
+  border: 1px solid rgba(0, 0, 0, 0.07);
   transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(0, 0, 0, 0.16);
   transform: translateY(-3px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
 }
 .card-highlight {
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: #f7f7f7;
+  border: 1px solid rgba(0, 0, 0, 0.18);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
@@ -76,8 +72,8 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #ffffff;
-  color: #080808;
+  background: #0a0a0a;
+  color: #ffffff;
   font-weight: 700;
   font-size: 0.8125rem;
   padding: 9px 20px;
@@ -87,8 +83,8 @@ body {
   white-space: nowrap;
 }
 .btn-primary:hover {
-  background: #e8e8e8;
-  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+  background: #2a2a2a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: translateY(0); }
@@ -98,19 +94,19 @@ body {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: #ffffff;
+  color: #0a0a0a;
   font-weight: 600;
   font-size: 0.8125rem;
   padding: 9px 20px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.25);
+  border: 1px solid rgba(0, 0, 0, 0.22);
   letter-spacing: 0.02em;
   transition: border-color 0.2s ease, background 0.2s ease;
   white-space: nowrap;
 }
 .btn-outline:hover {
-  border-color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.05);
+  border-color: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.04);
 }
 
 .btn-ghost {
@@ -118,7 +114,7 @@ body {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: rgba(255,255,255,0.5);
+  color: rgba(0, 0, 0, 0.4);
   font-weight: 500;
   font-size: 0.8125rem;
   padding: 8px 16px;
@@ -126,34 +122,34 @@ body {
   transition: color 0.2s ease, background 0.2s ease;
 }
 .btn-ghost:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.06);
+  color: #0a0a0a;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* ── Cart badge ──────────────────────────────────────────────────────────── */
 .cart-dot {
-  background: #fff;
-  color: #080808;
+  background: #0a0a0a;
+  color: #ffffff;
 }
 
 /* ── Inputs ──────────────────────────────────────────────────────────────── */
 .input {
   width: 100%;
-  background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #ffffff;
+  color: #0a0a0a;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   outline: none;
 }
-.input::placeholder { color: rgba(255,255,255,0.2); }
-.input:focus { border-color: rgba(255,255,255,0.4); }
-.input-error { border-color: rgba(239, 68, 68, 0.7) !important; }
+.input::placeholder { color: rgba(0, 0, 0, 0.25); }
+.input:focus { border-color: rgba(0, 0, 0, 0.45); }
+.input-error { border-color: rgba(220, 38, 38, 0.6) !important; }
 
 /* ── Divider ─────────────────────────────────────────────────────────────── */
-.divider { border-color: rgba(255,255,255,0.07); }
+.divider { border-color: rgba(0, 0, 0, 0.07); }
 
 /* ── Skeleton shimmer ────────────────────────────────────────────────────── */
 @keyframes shimmer {
@@ -163,22 +159,45 @@ body {
 .animate-pulse {
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.04) 25%,
-    rgba(255,255,255,0.09) 50%,
-    rgba(255,255,255,0.04) 75%
+    rgba(0, 0, 0, 0.04) 25%,
+    rgba(0, 0, 0, 0.08) 50%,
+    rgba(0, 0, 0, 0.04) 75%
   );
   background-size: 800px 100%;
   animation: shimmer 1.6s infinite linear;
 }
 
-/* ── Tag / badge ─────────────────────────────────────────────────────────── */
+/* ── Ticket page specific ─────────────────────────────────────────────────── */
+.ticket-hero {
+  background: #0a0a0a;
+}
+
+.ticket-tier-general {
+  background: #ffffff;
+  border: 1.5px solid rgba(0,0,0,0.09);
+}
+.ticket-tier-vip {
+  background: #0a0a0a;
+  color: #ffffff;
+  border: 1.5px solid #0a0a0a;
+}
+.ticket-tier-vvip {
+  background: #ffffff;
+  border: 1.5px solid rgba(0,0,0,0.09);
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+.live-dot { animation: badgePulse 1.8s ease-in-out infinite; }
 .tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6);
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  color: rgba(0, 0, 0, 0.45);
   font-size: 0.75rem;
   font-weight: 500;
   padding: 4px 12px;

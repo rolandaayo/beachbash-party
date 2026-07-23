@@ -2,39 +2,84 @@
 
 import { useState } from "react";
 import { useCart, TicketType } from "@/context/CartContext";
-import Link from "next/link";
+import Spinner from "@/components/Spinner";
+import LinkButton from "@/components/LinkButton";
 
-export default function AddToCartButton({ ticket }: { ticket: TicketType }) {
+type Variant = "light" | "dark";
+
+export default function AddToCartButton({
+  ticket,
+  variant = "light",
+}: {
+  ticket: TicketType;
+  variant?: Variant;
+}) {
   const { addToCart, items } = useCart();
-  const [added, setAdded] = useState(false);
+  const [state, setState] = useState<"idle" | "loading" | "done">("idle");
 
   const inCart = items.find((i) => i.ticket.id === ticket.id);
 
-  function handleAdd() {
+  async function handleAdd() {
+    if (state !== "idle") return;
+    setState("loading");
+    await new Promise((r) => setTimeout(r, 600));
     addToCart(ticket, 1);
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1400);
+    setState("done");
+    setTimeout(() => setState("idle"), 1600);
   }
+
+  const base =
+    "w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-xs tracking-wide transition-all";
+
+  const stateClass = {
+    idle: "btn-primary",
+    loading:
+      variant === "dark"
+        ? "bg-white/10 text-white/40 cursor-wait"
+        : "bg-black/6 text-black/30 cursor-wait",
+    done:
+      variant === "dark"
+        ? "bg-white/15 text-white/60 cursor-default"
+        : "bg-black/6 text-black/50 cursor-default",
+  }[state];
+
+  // VIP card is dark — invert button to white
+  const idleClass =
+    variant === "dark"
+      ? "w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-xs tracking-wide transition-all bg-white text-[#0a0a0a] hover:bg-white/90"
+      : base;
 
   return (
     <div className="flex flex-col gap-1.5">
       <button
         onClick={handleAdd}
-        className={`w-full font-semibold py-2.5 rounded-xl text-xs tracking-wide transition-all ${
-          added
-            ? "bg-white/10 text-white/60 cursor-default"
-            : "btn-primary justify-center"
-        }`}
+        disabled={state !== "idle"}
+        className={
+          state === "idle"
+            ? variant === "dark"
+              ? idleClass
+              : base + " btn-primary"
+            : base + " " + stateClass
+        }
       >
-        {added ? "✓ Added" : "Add to Cart"}
+        {state === "loading" && <Spinner className="w-3.5 h-3.5" />}
+        {state === "loading" && "Adding…"}
+        {state === "done" && "✓ Added"}
+        {state === "idle" && "Add to Cart"}
       </button>
-      {inCart && !added && (
-        <Link
+
+      {inCart && state === "idle" && (
+        <LinkButton
           href="/cart"
-          className="text-center text-white/30 text-[11px] hover:text-white/60 transition-colors"
+          className={`flex items-center justify-center gap-1.5 text-[11px] transition-colors ${
+            variant === "dark"
+              ? "text-white/40 hover:text-white/70"
+              : "text-black/30 hover:text-black/60"
+          }`}
+          spinnerClass="w-2.5 h-2.5"
         >
           {inCart.quantity} in cart · View →
-        </Link>
+        </LinkButton>
       )}
     </div>
   );

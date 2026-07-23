@@ -1,9 +1,9 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import { Suspense } from "react";
 import OrderSteps from "@/components/OrderSteps";
+import LinkButton from "@/components/LinkButton";
 
 function ConfirmationContent() {
   const params = useSearchParams();
@@ -69,9 +69,9 @@ function ConfirmationContent() {
         </ol>
       </div>
 
-      <Link href="/" className="btn-primary px-7 py-2.5 text-sm">
+      <LinkButton href="/" className="btn-primary px-7 py-2.5 text-sm">
         Back to Home 🏖️
-      </Link>
+      </LinkButton>
     </div>
   );
 }

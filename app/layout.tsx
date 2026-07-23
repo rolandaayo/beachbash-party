@@ -27,15 +27,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geist.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-[#0a0a0a] text-white">
+      <body className="min-h-full flex flex-col bg-white text-[#0a0a0a]">
         <CartProvider>
           <Navbar />
           <main className="flex-1">{children}</main>
-          <footer className="border-t border-white/5 py-8 text-center">
-            <p className="text-white/20 text-xs tracking-wide">
+          <footer className="border-t border-black/6 py-8 text-center">
+            <p className="text-black/25 text-xs tracking-wide">
               © 2026 BEACHBASH PARTY · Lagos, Nigeria
             </p>
-            <p className="text-white/10 text-[11px] mt-1 tracking-widest uppercase">
+            <p className="text-black/15 text-[11px] mt-1 tracking-widest uppercase">
               One Night · One Vibe · Oct 10 2026
             </p>
           </footer>
