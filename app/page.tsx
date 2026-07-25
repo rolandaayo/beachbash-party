@@ -7,41 +7,26 @@ export default function Home() {
   return (
     <div className="pt-14">
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="relative min-h-[96vh] flex items-center justify-center overflow-hidden bg-white">
-        <div
-          className="absolute inset-0 z-0"
-          style={{
-            background:
-              "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,0,0,0.03) 0%, transparent 70%)",
-          }}
-        />
-
-        <div className="relative z-10 text-center px-5 max-w-3xl mx-auto">
-          <div className="tag mb-6 mx-auto w-fit">
-            ONE NIGHT ONLY · OCT 10, 2026
+      <section className="ticket-hero px-5 pt-20 pb-14">
+        <div className="max-w-5xl mx-auto w-full">
+          {/* Live badge */}
+          <div className="inline-flex items-center gap-2 bg-white/8 border border-white/12 rounded-full px-3 py-1.5 mb-8">
+            <span className="live-dot w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
+            <span className="text-white/60 text-[11px] tracking-widest uppercase font-medium">
+              Tickets on sale now
+            </span>
           </div>
 
-          <h1 className="font-black text-[clamp(3.5rem,14vw,8rem)] leading-[0.9] tracking-tight text-[#0a0a0a] mb-5">
+          <h1 className="font-black text-[clamp(3.5rem,12vw,7rem)] text-white leading-none tracking-tight mb-5">
             BEACH
             <br />
-            <span className="text-black/20">BASH</span>
+            <span className="text-white/25">BASH</span>
           </h1>
-
-          <p className="text-black/35 text-sm sm:text-base tracking-widest uppercase mb-2 font-medium">
-            Party 2026
+          <p className="text-white/40 text-sm leading-relaxed max-w-sm mb-8">
+            The biggest beach party Lagos has ever seen. One night only —
+            October 10, 2026. Doors open 8 PM till dawn.
           </p>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-black/30 text-xs sm:text-sm mb-8">
-            <span>📍 Lagos, Nigeria</span>
-            <span className="text-black/12">·</span>
-            <span>📅 October 10, 2026</span>
-            <span className="text-black/12">·</span>
-            <span>🌙 8 PM till dawn</span>
-          </div>
-
-         
-
-          <div className="flex flex-wrap gap-3 justify-center">
+          <div className="flex flex-wrap gap-3">
             <LinkButton
               href="/tickets"
               className="btn-primary px-6 py-2.5 text-sm"
@@ -50,18 +35,48 @@ export default function Home() {
             </LinkButton>
             <LinkButton
               href="/about"
-              className="btn-outline px-6 py-2.5 text-sm"
+              className="inline-flex items-center gap-1.5 bg-white/8 border border-white/12 text-white/70 hover:text-white hover:bg-white/12 transition-colors font-semibold text-sm px-6 py-2.5 rounded-full"
             >
               Learn More
             </LinkButton>
           </div>
         </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-black/20 text-[11px] tracking-widest uppercase">
-          <span>Scroll</span>
-          <div className="w-px h-6 bg-black/12" />
-        </div>
       </section>
+
+      {/* ── MARQUEE ──────────────────────────────────────────────────── */}
+      <div className="overflow-hidden border-y border-black/6 py-4 bg-white select-none">
+        <div className="marquee-track">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex items-center">
+              {[
+                "OCTOBER 10 2026",
+                "FEEL THE ENERGY",
+                "OCTOBER 10 2026",
+                "LAGOS BEACH NIGHT",
+                "OCTOBER 10 2026",
+                "LOSE YOURSELF",
+                "OCTOBER 10 2026",
+                "ONE NIGHT ONLY",
+                "OCTOBER 10 2026",
+                "BE THERE",
+              ].map((word, j) => (
+                <span key={j} className="flex items-center">
+                  <span
+                    className={`whitespace-nowrap font-black tracking-widest uppercase text-sm px-6 ${
+                      word === "OCTOBER 10 2026"
+                        ? "text-[#0a0a0a]"
+                        : "text-black/20"
+                    }`}
+                  >
+                    {word}
+                  </span>
+                  <span className="text-black/15 text-xs">◆</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── WHAT TO EXPECT ───────────────────────────────────────────── */}
       <section className="py-20 px-5 max-w-5xl mx-auto">

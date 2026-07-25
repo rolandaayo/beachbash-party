@@ -54,6 +54,39 @@ export default function TicketsPage() {
         </div>
       </div>
 
+      {/* ── MARQUEE ──────────────────────────────────────────────────── */}
+      <div className="overflow-hidden bg-[#0a0a0a] py-5 select-none border-t border-white/5">
+        <div className="marquee-track-reverse">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i} className="flex items-center">
+              {[
+                { text: "₦50,000", accent: true },
+                { text: "SECURE YOUR SPOT", accent: false },
+                { text: "OCT 10 · LAGOS", accent: true },
+                { text: "LIMITED TICKETS", accent: false },
+                { text: "BEACHBASH 2026", accent: true },
+                { text: "DOORS OPEN 8PM", accent: false },
+                { text: "GENERAL · VIP · VVIP", accent: true },
+                { text: "DON'T MISS THIS", accent: false },
+              ].map((item, j) => (
+                <span key={j} className="flex items-center">
+                  <span
+                    className={`whitespace-nowrap font-black tracking-[0.15em] uppercase px-7 ${
+                      item.accent
+                        ? "text-white text-xl"
+                        : "text-white/20 text-sm"
+                    }`}
+                  >
+                    {item.text}
+                  </span>
+                  <span className="text-white/10 text-base">✦</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* ── TICKET CARDS ───────────────────────────────────────────────── */}
       <div className="bg-white px-5 py-16">
         <div className="max-w-5xl mx-auto">
@@ -67,7 +100,7 @@ export default function TicketsPage() {
           </div>
 
           {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-14">
             {/* GENERAL */}
             <div className="ticket-tier-general rounded-3xl p-7 flex flex-col group hover:-translate-y-1 transition-transform duration-300">
               <div className="flex items-start justify-between mb-6">
