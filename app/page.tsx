@@ -79,105 +79,182 @@ export default function Home() {
       </div>
 
       {/* ── WHAT TO EXPECT ───────────────────────────────────────────── */}
-      <section className="py-20 px-5 max-w-5xl mx-auto">
-        <div className="text-center mb-12">
-          <p className="tag mx-auto w-fit mb-4">The Event</p>
-          <h2 className="font-black text-3xl sm:text-4xl text-[#0a0a0a]">
-            What to Expect
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            {
-              icon: "🎵",
-              title: "Live Performances",
-              desc: "Top Nigerian artists on the main stage all night long.",
-            },
-            {
-              icon: "🌊",
-              title: "Beach Vibes",
-              desc: "Party right on the Lagos shoreline as the waves set the mood.",
-            },
-            {
-              icon: "🍹",
-              title: "Premium Bar",
-              desc: "Curated cocktails, premium spirits, cold drinks all night.",
-            },
-            {
-              icon: "🔥",
-              title: "DJ Sets",
-              desc: "The hottest DJs in Lagos keeping energy through till dawn.",
-            },
-          ].map((item) => (
-            <div key={item.title} className="card rounded-2xl p-6 text-center">
-              <div className="text-3xl mb-3">{item.icon}</div>
-              <h3 className="text-[#0a0a0a] font-bold text-sm mb-1.5">
-                {item.title}
-              </h3>
-              <p className="text-black/35 text-xs leading-relaxed">
-                {item.desc}
-              </p>
+      <section className="py-20 px-5 border-t border-black/6">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+            <div>
+              <p className="tag mb-3 w-fit">The Event</p>
+              <h2 className="font-black text-3xl sm:text-4xl text-[#0a0a0a]">
+                What to Expect
+              </h2>
             </div>
-          ))}
+            <p className="text-black/35 text-sm max-w-xs text-right hidden sm:block">
+              One night. Four reasons you can&apos;t miss it.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              {
+                icon: "🎵",
+                label: "01",
+                title: "Live Performances",
+                desc: "Top Nigerian artists on the main stage all night long.",
+              },
+              {
+                icon: "🌊",
+                label: "02",
+                title: "Beach Vibes",
+                desc: "Party right on the Lagos shoreline as the waves set the mood.",
+              },
+              {
+                icon: "🍹",
+                label: "03",
+                title: "Premium Bar",
+                desc: "Curated cocktails, premium spirits, cold drinks all night.",
+              },
+              {
+                icon: "🔥",
+                label: "04",
+                title: "DJ Sets",
+                desc: "The hottest DJs in Lagos keeping energy through till dawn.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="group flex flex-col p-6 rounded-2xl border border-black/7 bg-white hover:border-black/14 hover:shadow-sm transition-all duration-200"
+              >
+                <div className="flex items-start justify-between mb-8">
+                  <span className="text-black/15 text-[10px] font-bold tracking-widest uppercase">
+                    {item.label}
+                  </span>
+                  <span className="text-xl">{item.icon}</span>
+                </div>
+                <h3 className="text-[#0a0a0a] font-bold text-sm mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-black/40 text-xs leading-relaxed">
+                  {item.desc}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ── TICKET PREVIEW ───────────────────────────────────────────── */}
-      <section className="py-20 px-5 border-t border-black/6">
+      <section className="py-20 px-5 border-t border-black/6 bg-[#fafafa]">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="tag mx-auto w-fit mb-4">Grab Your Spot</p>
-            <h2 className="font-black text-3xl sm:text-4xl text-[#0a0a0a]">
-              Ticket Options
-            </h2>
-            <p className="text-black/35 mt-3 text-sm">
+          <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+            <div>
+              <p className="tag mb-3 w-fit">Grab Your Spot</p>
+              <h2 className="font-black text-3xl sm:text-4xl text-[#0a0a0a]">
+                Ticket Options
+              </h2>
+            </div>
+            <p className="text-black/35 text-sm">
               Limited tickets. Don&apos;t sleep on this.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {TICKETS.map((ticket) => (
               <div
                 key={ticket.id}
-                className={`rounded-2xl p-6 flex flex-col ${ticket.id === "vip" ? "card-highlight ring-1 ring-black/15" : "card"}`}
+                className={`rounded-2xl flex flex-col overflow-hidden border transition-all duration-200 ${
+                  ticket.id === "vip"
+                    ? "bg-[#0a0a0a] border-[#0a0a0a]"
+                    : "bg-white border-black/8 hover:border-black/16 hover:shadow-sm"
+                }`}
               >
-                {ticket.id === "vip" && (
-                  <span className="tag mb-4 w-fit border-black/12">
-                    MOST POPULAR
-                  </span>
-                )}
-                <p className="text-[#0a0a0a] font-black text-lg mb-0.5">
-                  {ticket.name}
-                </p>
-                <p className="text-[#0a0a0a] font-black text-2xl mb-4">
-                  {formatNaira(ticket.price)}
-                </p>
-                <p className="text-black/35 text-xs leading-relaxed mb-5">
-                  {ticket.description}
-                </p>
-                <ul className="flex flex-col gap-2 mb-6 flex-1">
-                  {ticket.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className="flex items-center gap-2 text-xs text-black/50"
-                    >
-                      <span className="text-black/40">✓</span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-                <AddToCartButton ticket={ticket} />
+                {/* Card header */}
+                <div
+                  className={`px-6 pt-6 pb-5 border-b ${ticket.id === "vip" ? "border-white/10" : "border-black/7"}`}
+                >
+                  <div className="flex items-start justify-between mb-5">
+                    <div>
+                      {ticket.id === "vip" && (
+                        <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full px-2.5 py-0.5 mb-2">
+                          <span className="live-dot w-1 h-1 rounded-full bg-green-400 inline-block" />
+                          <span className="text-white/60 text-[10px] font-bold tracking-widest uppercase">
+                            Most popular
+                          </span>
+                        </div>
+                      )}
+                      <p
+                        className={`text-[10px] font-bold tracking-widest uppercase mb-1 ${ticket.id === "vip" ? "text-white/30" : "text-black/30"}`}
+                      >
+                        {ticket.id === "general"
+                          ? "Standard"
+                          : ticket.id === "vip"
+                            ? "Premium"
+                            : "Ultra Premium"}
+                      </p>
+                      <h3
+                        className={`font-black text-xl leading-none ${ticket.id === "vip" ? "text-white" : "text-[#0a0a0a]"}`}
+                      >
+                        {ticket.name}
+                      </h3>
+                    </div>
+                    <span className="text-xl">
+                      {ticket.id === "general"
+                        ? "🎟️"
+                        : ticket.id === "vip"
+                          ? "⭐"
+                          : "👑"}
+                    </span>
+                  </div>
+                  <p
+                    className={`font-black text-3xl leading-none ${ticket.id === "vip" ? "text-white" : "text-[#0a0a0a]"}`}
+                  >
+                    {formatNaira(ticket.price)}
+                  </p>
+                  <p
+                    className={`text-xs mt-1 ${ticket.id === "vip" ? "text-white/30" : "text-black/25"}`}
+                  >
+                    {ticket.id === "vvip" ? "table of 4" : "per person"}
+                  </p>
+                </div>
+
+                {/* Perks list */}
+                <div className="px-6 py-5 flex-1">
+                  <ul className="flex flex-col gap-2.5">
+                    {ticket.perks.map((perk) => (
+                      <li
+                        key={perk}
+                        className={`flex items-center gap-2.5 text-xs ${ticket.id === "vip" ? "text-white/55" : "text-black/50"}`}
+                      >
+                        <span
+                          className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 ${ticket.id === "vip" ? "bg-white/10 text-white/50" : "bg-black/5 text-black/40"}`}
+                        >
+                          ✓
+                        </span>
+                        {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* CTA */}
+                <div className="px-6 pb-6">
+                  <AddToCartButton
+                    ticket={ticket}
+                    variant={ticket.id === "vip" ? "dark" : "light"}
+                  />
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-8">
+          <div className="flex items-center justify-between mt-8 pt-6 border-t border-black/6">
+            <p className="text-black/30 text-xs">
+              Secure checkout · Digital delivery · No printing needed
+            </p>
             <Link
               href="/tickets"
-              className="text-black/35 hover:text-[#0a0a0a] text-xs transition-colors underline underline-offset-4"
+              className="text-[#0a0a0a] text-xs font-semibold hover:opacity-60 transition-opacity flex items-center gap-1"
             >
-              View full ticket details →
+              View full details →
             </Link>
           </div>
         </div>
