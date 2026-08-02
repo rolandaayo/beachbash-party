@@ -32,35 +32,28 @@ export default function AddToCartButton({
     "w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-xs tracking-wide transition-all";
 
   const stateClass = {
-    idle: "btn-primary",
+    idle: "",
     loading:
       variant === "dark"
         ? "bg-white/10 text-white/40 cursor-wait"
-        : "bg-black/6 text-black/30 cursor-wait",
+        : "bg-purple-100 text-purple-300 cursor-wait",
     done:
       variant === "dark"
-        ? "bg-white/15 text-white/60 cursor-default"
-        : "bg-black/6 text-black/50 cursor-default",
+        ? "bg-white/15 text-white/70 cursor-default"
+        : "bg-purple-100 text-purple-500 cursor-default",
   }[state];
 
-  // VIP card is dark — invert button to white
   const idleClass =
     variant === "dark"
-      ? "w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-xl text-xs tracking-wide transition-all bg-white text-[#0a0a0a] hover:bg-white/90"
-      : base;
+      ? `${base} bg-white text-[#4c1d95] font-bold hover:bg-purple-50 transition-colors`
+      : `${base} btn-primary`;
 
   return (
     <div className="flex flex-col gap-1.5">
       <button
         onClick={handleAdd}
         disabled={state !== "idle"}
-        className={
-          state === "idle"
-            ? variant === "dark"
-              ? idleClass
-              : base + " btn-primary"
-            : base + " " + stateClass
-        }
+        className={state === "idle" ? idleClass : `${base} ${stateClass}`}
       >
         {state === "loading" && <Spinner className="w-3.5 h-3.5" />}
         {state === "loading" && "Adding…"}
@@ -74,7 +67,7 @@ export default function AddToCartButton({
           className={`flex items-center justify-center gap-1.5 text-[11px] transition-colors ${
             variant === "dark"
               ? "text-white/40 hover:text-white/70"
-              : "text-black/30 hover:text-black/60"
+              : "text-purple-400 hover:text-purple-700"
           }`}
           spinnerClass="w-2.5 h-2.5"
         >

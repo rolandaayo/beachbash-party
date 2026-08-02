@@ -1,20 +1,25 @@
 @import "tailwindcss";
 
+/* ── Purple palette ──────────────────────────────────────────────────────── */
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
+  --bg:        #faf5ff;
+  --fg:        #1e0a3c;
+  --purple:    #7c3aed;
+  --purple-dk: #4c1d95;
+  --purple-lt: #ede9fe;
+  --muted:     rgba(76, 29, 149, 0.45);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-geist-sans), Arial, sans-serif;
 }
 
@@ -35,7 +40,6 @@ body {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 .float-anim { animation: float 3.5s ease-in-out infinite; }
 .fade-up    { animation: fadeUp 0.6s ease forwards; }
 
@@ -43,8 +47,8 @@ body {
 .nav-blur {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  background: rgba(255, 255, 255, 0.88);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  background: rgba(250, 245, 255, 0.88);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.12);
 }
 
 /* ── Mobile drawer ───────────────────────────────────────────────────────── */
@@ -53,18 +57,18 @@ body {
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
 .card {
-  background: #f7f7f7;
-  border: 1px solid rgba(0, 0, 0, 0.07);
+  background: #ffffff;
+  border: 1px solid rgba(124, 58, 237, 0.1);
   transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
 }
 .card:hover {
-  border-color: rgba(0, 0, 0, 0.16);
+  border-color: rgba(124, 58, 237, 0.28);
   transform: translateY(-3px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 16px 48px rgba(124, 58, 237, 0.1);
 }
 .card-highlight {
-  background: #f7f7f7;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #ffffff;
+  border: 1.5px solid rgba(124, 58, 237, 0.35);
 }
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
@@ -72,7 +76,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #0a0a0a;
+  background: #7c3aed;
   color: #ffffff;
   font-weight: 700;
   font-size: 0.8125rem;
@@ -83,8 +87,8 @@ body {
   white-space: nowrap;
 }
 .btn-primary:hover {
-  background: #2a2a2a;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+  background: #6d28d9;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: translateY(0); }
@@ -94,19 +98,19 @@ body {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: #0a0a0a;
+  color: #7c3aed;
   font-weight: 600;
   font-size: 0.8125rem;
   padding: 9px 20px;
   border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.22);
+  border: 1.5px solid rgba(124, 58, 237, 0.35);
   letter-spacing: 0.02em;
   transition: border-color 0.2s ease, background 0.2s ease;
   white-space: nowrap;
 }
 .btn-outline:hover {
-  border-color: rgba(0, 0, 0, 0.55);
-  background: rgba(0, 0, 0, 0.04);
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
 }
 
 .btn-ghost {
@@ -114,7 +118,7 @@ body {
   align-items: center;
   gap: 6px;
   background: transparent;
-  color: rgba(0, 0, 0, 0.4);
+  color: rgba(76, 29, 149, 0.45);
   font-weight: 500;
   font-size: 0.8125rem;
   padding: 8px 16px;
@@ -122,13 +126,13 @@ body {
   transition: color 0.2s ease, background 0.2s ease;
 }
 .btn-ghost:hover {
-  color: #0a0a0a;
-  background: rgba(0, 0, 0, 0.05);
+  color: #4c1d95;
+  background: rgba(124, 58, 237, 0.06);
 }
 
 /* ── Cart badge ──────────────────────────────────────────────────────────── */
 .cart-dot {
-  background: #0a0a0a;
+  background: #7c3aed;
   color: #ffffff;
 }
 
@@ -136,20 +140,20 @@ body {
 .input {
   width: 100%;
   background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(124, 58, 237, 0.18);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #0a0a0a;
+  color: #1e0a3c;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   outline: none;
 }
-.input::placeholder { color: rgba(0, 0, 0, 0.25); }
-.input:focus { border-color: rgba(0, 0, 0, 0.45); }
+.input::placeholder { color: rgba(76, 29, 149, 0.3); }
+.input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
 .input-error { border-color: rgba(220, 38, 38, 0.6) !important; }
 
 /* ── Divider ─────────────────────────────────────────────────────────────── */
-.divider { border-color: rgba(0, 0, 0, 0.07); }
+.divider { border-color: rgba(124, 58, 237, 0.1); }
 
 /* ── Skeleton shimmer ────────────────────────────────────────────────────── */
 @keyframes shimmer {
@@ -159,36 +163,53 @@ body {
 .animate-pulse {
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.04) 25%,
-    rgba(0, 0, 0, 0.08) 50%,
-    rgba(0, 0, 0, 0.04) 75%
+    rgba(124, 58, 237, 0.04) 25%,
+    rgba(124, 58, 237, 0.09) 50%,
+    rgba(124, 58, 237, 0.04) 75%
   );
   background-size: 800px 100%;
   animation: shimmer 1.6s infinite linear;
 }
 
-/* ── Ticket page specific ─────────────────────────────────────────────────── */
-.ticket-hero {
-  background: #0a0a0a;
+/* ── Tag / badge ─────────────────────────────────────────────────────────── */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(124, 58, 237, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.18);
+  color: #7c3aed;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
 }
 
+/* ── Ticket hero (dark purple) ───────────────────────────────────────────── */
+.ticket-hero {
+  background: linear-gradient(135deg, #2e1065 0%, #4c1d95 60%, #3b0764 100%);
+}
+
+/* ── Ticket tier cards ───────────────────────────────────────────────────── */
 .ticket-tier-general {
   background: #ffffff;
-  border: 1.5px solid rgba(0,0,0,0.09);
+  border: 1.5px solid rgba(124, 58, 237, 0.12);
 }
 .ticket-tier-vip {
-  background: #0a0a0a;
+  background: linear-gradient(135deg, #4c1d95, #6d28d9);
   color: #ffffff;
-  border: 1.5px solid #0a0a0a;
+  border: 1.5px solid #7c3aed;
 }
 .ticket-tier-vvip {
   background: #ffffff;
-  border: 1.5px solid rgba(0,0,0,0.09);
+  border: 1.5px solid rgba(124, 58, 237, 0.12);
 }
 
+/* ── Live dot pulse ──────────────────────────────────────────────────────── */
 @keyframes badgePulse {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.5; }
+  50%       { opacity: 0.4; }
 }
 .live-dot { animation: badgePulse 1.8s ease-in-out infinite; }
 
@@ -207,23 +228,9 @@ body {
   animation: marquee 18s linear infinite;
 }
 .marquee-track:hover { animation-play-state: paused; }
-
 .marquee-track-reverse {
   display: flex;
   width: max-content;
   animation: marquee-reverse 22s linear infinite;
 }
 .marquee-track-reverse:hover { animation-play-state: paused; }
-.tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.09);
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 4px 12px;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-}

@@ -31,22 +31,20 @@ export default function Navbar() {
     <>
       <nav className="nav-blur fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 flex items-center justify-between h-14">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
             <span className="text-xl leading-none">🏖️</span>
-            <span className="font-black text-sm tracking-[0.18em] text-[#0a0a0a] group-hover:text-black/50 transition-colors uppercase">
+            <span className="font-black text-sm tracking-[0.18em] text-[#4c1d95] group-hover:text-purple-400 transition-colors uppercase">
               BeachBash
             </span>
           </Link>
 
-          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={`btn-ghost text-xs font-medium tracking-wide ${
-                  pathname === href ? "text-[#0a0a0a] bg-black/6" : ""
+                  pathname === href ? "text-[#4c1d95] bg-purple-50" : ""
                 }`}
               >
                 {label}
@@ -54,7 +52,6 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right side */}
           <div className="flex items-center gap-2">
             <Link
               href="/cart"
@@ -87,7 +84,7 @@ export default function Navbar() {
               className="md:hidden btn-ghost p-2"
             >
               <svg
-                className="w-5 h-5 text-[#0a0a0a]"
+                className="w-5 h-5 text-[#4c1d95]"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth={1.8}
@@ -104,23 +101,21 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mobile drawer ───────────────────────────────────────────────── */}
       {open && (
         <>
           <div
-            className="drawer-overlay fixed inset-0 z-60 bg-black/30"
+            className="drawer-overlay fixed inset-0 z-60 bg-purple-950/40"
             onClick={() => setOpen(false)}
           />
-
-          <div className="drawer-panel fixed top-0 right-0 bottom-0 z-70 w-72 bg-white border-l border-black/7 flex flex-col">
-            <div className="flex items-center justify-between px-6 h-14 border-b border-black/6">
-              <span className="font-black text-sm tracking-[0.18em] text-[#0a0a0a] uppercase">
+          <div className="drawer-panel fixed top-0 right-0 bottom-0 z-70 w-72 bg-[#faf5ff] border-l border-purple-100 flex flex-col">
+            <div className="flex items-center justify-between px-6 h-14 border-b border-purple-100">
+              <span className="font-black text-sm tracking-[0.18em] text-[#4c1d95] uppercase">
                 Menu
               </span>
               <button
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="text-black/30 hover:text-black transition-colors"
+                className="text-purple-300 hover:text-purple-700 transition-colors"
               >
                 <svg
                   className="w-5 h-5"
@@ -145,8 +140,8 @@ export default function Navbar() {
                   href={href}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     pathname === href
-                      ? "bg-black/6 text-[#0a0a0a]"
-                      : "text-black/40 hover:text-[#0a0a0a] hover:bg-black/4"
+                      ? "bg-purple-100 text-[#4c1d95]"
+                      : "text-purple-400 hover:text-[#4c1d95] hover:bg-purple-50"
                   }`}
                 >
                   {label}
@@ -154,14 +149,14 @@ export default function Navbar() {
               ))}
             </div>
 
-            <div className="p-4 border-t border-black/6">
+            <div className="p-4 border-t border-purple-100">
               <Link
                 href="/tickets"
                 className="btn-primary w-full justify-center text-xs py-3"
               >
                 Get Tickets 🎟️
               </Link>
-              <p className="text-center text-black/20 text-[11px] mt-4 tracking-wide">
+              <p className="text-center text-purple-200 text-[11px] mt-4 tracking-wide">
                 OCT 10 · LAGOS, NIGERIA
               </p>
             </div>
