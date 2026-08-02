@@ -1,12 +1,29 @@
-import { TICKETS, formatNaira } from "@/lib/tickets";
+import { TICKETS, formatNaira, formatNairaFull } from "@/lib/tickets";
 import AddToCartButton from "@/components/AddToCartButton";
 import LinkButton from "@/components/LinkButton";
 
 export const metadata = { title: "Tickets — BEACHBASH PARTY" };
 
+const TIER_ICONS: Record<string, string> = {
+  regular: "🎟️",
+  "table-700": "🥃",
+  "table-1m": "⭐",
+  "table-1.5m": "👑",
+};
+
+const TIER_LABELS: Record<string, string> = {
+  regular: "Early Bird",
+  "table-700": "Table Package",
+  "table-1m": "Premium Table",
+  "table-1.5m": "Ultra VIP",
+};
+
 export default function TicketsPage() {
+  const [regular, t700, t1m, t15m] = TICKETS;
+
   return (
     <div className="pt-14">
+      {/* ── HERO ─────────────────────────────────────────────────────── */}
       <div className="ticket-hero px-5 pt-20 pb-16">
         <div className="max-w-5xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 mb-8">
@@ -32,7 +49,7 @@ export default function TicketsPage() {
                 { label: "Date", value: "Oct 10, 2026" },
                 { label: "City", value: "Lagos 🇳🇬" },
                 { label: "Doors", value: "8:00 PM" },
-                { label: "From", value: formatNaira(50000) },
+                { label: "From", value: "₦40k" },
               ].map((f) => (
                 <div
                   key={f.label}
@@ -49,28 +66,24 @@ export default function TicketsPage() {
         </div>
       </div>
 
-      {/* Marquee */}
+      {/* ── MARQUEE ──────────────────────────────────────────────────── */}
       <div className="overflow-hidden bg-[#2e1065] py-5 select-none border-t border-white/5">
         <div className="marquee-track-reverse">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center">
               {[
-                { text: "₦50,000", accent: true },
+                { text: "₦40K EARLY BIRD", accent: true },
                 { text: "SECURE YOUR SPOT", accent: false },
                 { text: "OCT 10 · LAGOS", accent: true },
-                { text: "LIMITED TICKETS", accent: false },
+                { text: "LIMITED TABLES", accent: false },
                 { text: "BEACHBASH 2026", accent: true },
-                { text: "DOORS OPEN 8PM", accent: false },
-                { text: "GENERAL · VIP · VVIP", accent: true },
+                { text: "PRIVATE CABANA AVAIL.", accent: false },
+                { text: "BOAT · JEEP · VIBES", accent: true },
                 { text: "DON'T MISS THIS", accent: false },
               ].map((item, j) => (
                 <span key={j} className="flex items-center">
                   <span
-                    className={`whitespace-nowrap font-black tracking-[0.15em] uppercase px-7 ${
-                      item.accent
-                        ? "text-white text-xl"
-                        : "text-white/20 text-sm"
-                    }`}
+                    className={`whitespace-nowrap font-black tracking-[0.15em] uppercase px-7 ${item.accent ? "text-white text-xl" : "text-white/20 text-sm"}`}
                   >
                     {item.text}
                   </span>
@@ -82,42 +95,40 @@ export default function TicketsPage() {
         </div>
       </div>
 
-      {/* Cards */}
+      {/* ── TICKET CARDS ─────────────────────────────────────────────── */}
       <div className="bg-[#faf5ff] px-5 py-16">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-4 mb-10">
             <span className="text-[#1e0a3c] font-black text-xl">
-              Choose your tier
+              Choose your experience
             </span>
             <div className="flex-1 h-px bg-purple-100" />
-            <span className="text-purple-300 text-xs">3 options</span>
+            <span className="text-purple-300 text-xs">4 options</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-14">
-            {/* GENERAL */}
-            <div className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300">
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
-                    General
-                  </p>
-                  <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
-                    General
-                    <br />
-                    Access
-                  </h2>
+          {/* ── REGULAR ENTRY ── */}
+          <div className="ticket-tier-general rounded-3xl p-7 mb-5 hover:-translate-y-1 transition-transform duration-300">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
+                    🎟️
+                  </div>
+                  <div>
+                    <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold">
+                      Early Bird
+                    </p>
+                    <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
+                      Regular Entry
+                    </h2>
+                  </div>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-purple-50 flex items-center justify-center text-xl">
-                  🎟️
-                </div>
-              </div>
-              <p className="text-[#1e0a3c] font-black text-4xl leading-none">
-                {formatNaira(TICKETS[0].price)}
-              </p>
-              <p className="text-purple-300 text-xs mt-1 mb-6">per person</p>
-              <div className="flex-1 border-t border-purple-100 pt-5 mb-6">
-                <ul className="flex flex-col gap-3">
-                  {TICKETS[0].perks.map((perk) => (
+                <p className="text-purple-400 text-xs leading-relaxed mb-4">
+                  General entry to the party. Limited early bird pricing
+                  available.
+                </p>
+                <ul className="flex flex-col gap-2">
+                  {regular.perks.map((perk) => (
                     <li
                       key={perk}
                       className="flex items-center gap-2.5 text-xs text-purple-500"
@@ -130,37 +141,99 @@ export default function TicketsPage() {
                   ))}
                 </ul>
               </div>
-              <AddToCartButton ticket={TICKETS[0]} variant="light" />
+              <div className="sm:text-right flex flex-col sm:items-end gap-4">
+                <div>
+                  <p className="text-purple-300 text-xs mb-1">
+                    Girls (Early Bird)
+                  </p>
+                  <p className="text-[#1e0a3c] font-black text-4xl leading-none">
+                    ₦40k
+                  </p>
+                </div>
+                <div>
+                  <p className="text-purple-300 text-xs mb-1">
+                    Guys (Early Bird)
+                  </p>
+                  <p className="text-[#1e0a3c] font-black text-4xl leading-none">
+                    ₦60k
+                  </p>
+                </div>
+                <div className="w-full sm:w-48">
+                  <AddToCartButton ticket={regular} variant="light" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── TABLE PACKAGES ── */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
+            {/* 700K */}
+            <div className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300">
+              <div className="flex items-start justify-between mb-5">
+                <div>
+                  <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
+                    Standing Table
+                  </p>
+                  <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
+                    Table
+                    <br />
+                    700K
+                  </h2>
+                </div>
+                <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
+                  🥃
+                </div>
+              </div>
+              <p className="text-[#1e0a3c] font-black text-3xl leading-none mb-1">
+                {formatNairaFull(700000)}
+              </p>
+              <p className="text-purple-300 text-xs mb-5">2–4 people</p>
+              <div className="flex-1 border-t border-purple-100 pt-4 mb-6">
+                <ul className="flex flex-col gap-2.5">
+                  {t700.perks.map((perk) => (
+                    <li
+                      key={perk}
+                      className="flex items-center gap-2.5 text-xs text-purple-500"
+                    >
+                      <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
+                        ✓
+                      </span>
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <AddToCartButton ticket={t700} variant="light" />
             </div>
 
-            {/* VIP */}
+            {/* 1M — featured */}
             <div className="ticket-tier-vip rounded-3xl p-7 flex flex-col relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-white/20" />
-              <div className="flex items-start justify-between mb-6">
+              <div className="flex items-start justify-between mb-5">
                 <div>
                   <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full px-2.5 py-0.5 mb-2">
                     <span className="live-dot w-1 h-1 rounded-full bg-green-400 inline-block" />
                     <span className="text-white/60 text-[10px] font-bold tracking-widest uppercase">
-                      Most popular
+                      Popular
                     </span>
                   </div>
                   <h2 className="text-white font-black text-xl leading-none">
-                    VIP
+                    Table
                     <br />
-                    Access
+                    1M
                   </h2>
                 </div>
                 <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-xl">
                   ⭐
                 </div>
               </div>
-              <p className="text-white font-black text-4xl leading-none">
-                {formatNaira(TICKETS[1].price)}
+              <p className="text-white font-black text-3xl leading-none mb-1">
+                {formatNairaFull(1000000)}
               </p>
-              <p className="text-white/30 text-xs mt-1 mb-6">per person</p>
-              <div className="flex-1 border-t border-white/10 pt-5 mb-6">
-                <ul className="flex flex-col gap-3">
-                  {TICKETS[1].perks.map((perk) => (
+              <p className="text-white/30 text-xs mb-5">2–6 people</p>
+              <div className="flex-1 border-t border-white/10 pt-4 mb-6">
+                <ul className="flex flex-col gap-2.5">
+                  {t1m.perks.map((perk) => (
                     <li
                       key={perk}
                       className="flex items-center gap-2.5 text-xs text-white/60"
@@ -173,38 +246,43 @@ export default function TicketsPage() {
                   ))}
                 </ul>
               </div>
-              <AddToCartButton ticket={TICKETS[1]} variant="dark" />
+              <AddToCartButton ticket={t1m} variant="dark" />
             </div>
 
-            {/* VVIP */}
-            <div className="ticket-tier-vvip rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300">
-              <div className="flex items-start justify-between mb-6">
+            {/* 1.5M */}
+            <div
+              className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300"
+              style={{
+                background: "linear-gradient(135deg, #faf5ff, #f3e8ff)",
+              }}
+            >
+              <div className="flex items-start justify-between mb-5">
                 <div>
-                  <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
-                    Ultra Premium
+                  <p className="text-purple-400 text-[10px] uppercase tracking-widest font-bold mb-1">
+                    Private Cabana
                   </p>
                   <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
-                    VVIP
-                    <br />
                     Table
+                    <br />
+                    1.5M
                   </h2>
                 </div>
-                <div className="w-10 h-10 rounded-2xl bg-purple-50 flex items-center justify-center text-xl">
+                <div className="w-10 h-10 rounded-2xl bg-purple-200 flex items-center justify-center text-xl">
                   👑
                 </div>
               </div>
-              <p className="text-[#1e0a3c] font-black text-4xl leading-none">
-                {formatNaira(TICKETS[2].price)}
+              <p className="text-[#1e0a3c] font-black text-3xl leading-none mb-1">
+                {formatNairaFull(1500000)}
               </p>
-              <p className="text-purple-300 text-xs mt-1 mb-6">table of 4</p>
-              <div className="flex-1 border-t border-purple-100 pt-5 mb-6">
-                <ul className="flex flex-col gap-3">
-                  {TICKETS[2].perks.map((perk) => (
+              <p className="text-purple-400 text-xs mb-5">2–8 people</p>
+              <div className="flex-1 border-t border-purple-200 pt-4 mb-6">
+                <ul className="flex flex-col gap-2.5">
+                  {t15m.perks.map((perk) => (
                     <li
                       key={perk}
-                      className="flex items-center gap-2.5 text-xs text-purple-500"
+                      className="flex items-center gap-2.5 text-xs text-purple-600"
                     >
-                      <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
+                      <span className="w-4 h-4 rounded-full bg-purple-200 flex items-center justify-center text-[10px] shrink-0 text-purple-500">
                         ✓
                       </span>
                       {perk}
@@ -212,68 +290,65 @@ export default function TicketsPage() {
                   ))}
                 </ul>
               </div>
-              <AddToCartButton ticket={TICKETS[2]} variant="light" />
+              <AddToCartButton ticket={t15m} variant="light" />
             </div>
           </div>
 
-          {/* Comparison */}
+          {/* ── COMPARISON TABLE ─────────────────────────────────────── */}
           <div className="ticket-hero rounded-3xl p-7 mb-10 overflow-x-auto">
             <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-5">
               Quick comparison
             </p>
-            <table className="w-full text-xs min-w-110">
+            <table className="w-full text-xs min-w-[500px]">
               <thead>
                 <tr className="border-b border-white/10">
-                  <th className="text-left text-white/30 font-medium pb-3 w-1/2">
+                  <th className="text-left text-white/30 font-medium pb-3 w-2/5">
                     Feature
                   </th>
-                  <th className="text-center text-white/60 font-bold pb-3">
-                    General
+                  <th className="text-center text-white/50 font-bold pb-3">
+                    Regular
                   </th>
-                  <th className="text-center text-white font-bold pb-3">VIP</th>
-                  <th className="text-center text-white/60 font-bold pb-3">
-                    VVIP
+                  <th className="text-center text-white/50 font-bold pb-3">
+                    700K
+                  </th>
+                  <th className="text-center text-white font-bold pb-3">1M</th>
+                  <th className="text-center text-white/50 font-bold pb-3">
+                    1.5M
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {[
-                  ["Beach access", true, true, true],
-                  ["Main stage", true, true, true],
-                  ["Bar access", true, true, true],
-                  ["VIP lounge", false, true, true],
-                  ["Priority entry", false, true, true],
-                  ["2 free drinks", false, true, true],
-                  ["Private table × 4", false, false, true],
-                  ["Bottle service", false, false, true],
-                  ["Backstage access", false, false, true],
-                  ["Personal host", false, false, true],
-                ].map(([feature, gen, vip, vvip]) => (
+                  ["General entry", true, true, true, true],
+                  ["To & fro boat ride", true, false, false, false],
+                  ["General boat ride", false, true, true, false],
+                  ["Private boat (×8)", false, false, false, true],
+                  ["Safari jeep ride", true, true, true, true],
+                  ["1 Cocktail", true, false, false, false],
+                  ["Food platter", false, true, true, true],
+                  ["Premium spirits", false, "VSOP", "Casa", "Don Julio"],
+                  ["Champagne", false, "×1", "×2", "×2"],
+                  ["Shisha", false, false, true, true],
+                  ["Chivita", false, false, "×1", "×2"],
+                  ["Private cabana", false, false, false, true],
+                ].map(([feature, r, t7, t1, t15]) => (
                   <tr key={feature as string}>
                     <td className="text-white/40 py-2.5">
                       {feature as string}
                     </td>
-                    <td className="text-center py-2.5">
-                      {gen ? (
-                        <span className="text-green-400">✓</span>
-                      ) : (
-                        <span className="text-white/15">—</span>
-                      )}
-                    </td>
-                    <td className="text-center py-2.5">
-                      {vip ? (
-                        <span className="text-green-400">✓</span>
-                      ) : (
-                        <span className="text-white/15">—</span>
-                      )}
-                    </td>
-                    <td className="text-center py-2.5">
-                      {vvip ? (
-                        <span className="text-green-400">✓</span>
-                      ) : (
-                        <span className="text-white/15">—</span>
-                      )}
-                    </td>
+                    {[r, t7, t1, t15].map((val, ci) => (
+                      <td key={ci} className="text-center py-2.5">
+                        {val === true ? (
+                          <span className="text-green-400">✓</span>
+                        ) : val === false ? (
+                          <span className="text-white/15">—</span>
+                        ) : (
+                          <span className="text-purple-300 font-semibold">
+                            {val}
+                          </span>
+                        )}
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>

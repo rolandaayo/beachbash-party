@@ -2,46 +2,76 @@ import { TicketType } from "@/context/CartContext";
 
 export const TICKETS: TicketType[] = [
   {
-    id: "general",
-    name: "General Access",
-    price: 50000,
-    description: "Full access to the main party grounds, live performances, and beach area.",
+    id: "regular",
+    name: "Regular",
+    price: 40000,
+    description: "Early bird entry to the party. Girls ₦40k · Guys ₦60k. To & fro boat ride included.",
     perks: [
-      "Main stage access",
-      "Beach area entry",
-      "Live DJ sets all night",
-      "Bar access",
+      "General entry",
+      "To & fro boat ride",
+      "Safari jeep ride",
+      "1 cocktail",
+      "Early bird pricing",
     ],
   },
   {
-    id: "vip",
-    name: "VIP Access",
-    price: 100000,
-    description: "Premium experience with exclusive lounge, dedicated bar, and priority entry.",
+    id: "table-700",
+    name: "Table 700K",
+    price: 700000,
+    description: "Standing table for 2–4 people with premium spirits and boat access.",
     perks: [
-      "Everything in General",
-      "VIP lounge access",
-      "Dedicated bar + 2 free drinks",
-      "Priority entry (no queue)",
-      "VIP viewing deck",
+      "2–4 people",
+      "Standing table",
+      "Hennessy VSOP",
+      "1 Champagne",
+      "3 Coke",
+      "General boat ride for 4",
+      "Safari jeep ride",
+      "1 Food platter",
     ],
   },
   {
-    id: "vvip",
-    name: "VVIP Table",
-    price: 250000,
-    description: "The full experience. Private table, bottle service, and exclusive backstage access.",
+    id: "table-1m",
+    name: "Table 1M",
+    price: 1000000,
+    description: "Premium table for 2–6 people with top-shelf spirits and full experience.",
     perks: [
-      "Everything in VIP",
-      "Private table for 4",
-      "1 bottle of your choice",
-      "Backstage access",
-      "Personal host",
-      "Complimentary merch pack",
+      "2–6 people",
+      "Casamigos",
+      "2 Champagne",
+      "1 Shisha",
+      "1 Chivita",
+      "Safari jeep ride",
+      "1 Food platter",
+      "General boat ride",
+    ],
+  },
+  {
+    id: "table-1.5m",
+    name: "Table 1.5M",
+    price: 1500000,
+    description: "Ultimate VIP experience for 2–8 people. Private cabana, private boat, and full bottle service.",
+    perks: [
+      "2–8 people",
+      "Don Julio",
+      "2 Champagne",
+      "1 Shisha",
+      "2 Chivita",
+      "Private cabana",
+      "Private boat for 8",
+      "Safari jeep ride",
+      "1 Food platter",
+      "₦500k drinks + ₦400k room + ₦500k boat",
     ],
   },
 ];
 
 export function formatNaira(amount: number): string {
+  if (amount >= 1000000) return `₦${(amount / 1000000).toFixed(amount % 1000000 === 0 ? 0 : 1)}M`;
+  if (amount >= 1000) return `₦${(amount / 1000).toFixed(0)}k`;
+  return `₦${amount.toLocaleString("en-NG")}`;
+}
+
+export function formatNairaFull(amount: number): string {
   return `₦${amount.toLocaleString("en-NG")}`;
 }
