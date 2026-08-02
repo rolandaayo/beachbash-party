@@ -10,28 +10,28 @@ export default function AboutPage() {
         <div className="text-center mb-16">
           <div className="float-anim inline-block text-5xl mb-5">🏖️</div>
           <p className="tag mx-auto w-fit mb-4">The Story</p>
-          <h1 className="font-black text-4xl sm:text-6xl text-[#0a0a0a] mb-4">
+          <h1 className="font-black text-4xl sm:text-6xl text-[#1e0a3c] mb-4">
             About BEACHBASH
           </h1>
-          <p className="text-black/35 text-sm max-w-lg mx-auto leading-relaxed">
+          <p className="text-purple-400 text-sm max-w-lg mx-auto leading-relaxed">
             One night, one beach, one Lagos experience you&apos;ll never forget.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16 items-center">
           <div>
-            <h2 className="text-[#0a0a0a] font-black text-2xl mb-4">
+            <h2 className="text-[#1e0a3c] font-black text-2xl mb-4">
               What Is BEACHBASH?
             </h2>
-            <div className="flex flex-col gap-3 text-black/40 text-sm leading-relaxed">
+            <div className="flex flex-col gap-3 text-purple-400 text-sm leading-relaxed">
               <p>
                 BEACHBASH PARTY is a one-night-only beach party experience
                 happening on{" "}
-                <span className="text-[#0a0a0a] font-medium">
+                <span className="text-[#1e0a3c] font-semibold">
                   October 10, 2026
                 </span>{" "}
                 in{" "}
-                <span className="text-[#0a0a0a] font-medium">
+                <span className="text-[#1e0a3c] font-semibold">
                   Lagos, Nigeria
                 </span>
                 .
@@ -49,10 +49,10 @@ export default function AboutPage() {
           </div>
           <div className="card rounded-2xl p-7 text-center">
             <div className="text-5xl mb-3">🌊</div>
-            <h3 className="text-[#0a0a0a] font-black text-xl mb-2">
+            <h3 className="text-[#1e0a3c] font-black text-xl mb-2">
               One Show Only
             </h3>
-            <p className="text-black/35 text-xs leading-relaxed">
+            <p className="text-purple-400 text-xs leading-relaxed">
               No second dates. No alternative venues. When the tickets are gone,
               they&apos;re gone.
             </p>
@@ -67,17 +67,17 @@ export default function AboutPage() {
             { label: "From", value: "₦50K", sub: "per ticket" },
           ].map((s) => (
             <div key={s.label} className="card rounded-xl p-4 text-center">
-              <p className="text-black/20 text-[10px] uppercase tracking-widest mb-1">
+              <p className="text-purple-300 text-[10px] uppercase tracking-widest mb-1">
                 {s.label}
               </p>
-              <p className="text-[#0a0a0a] font-black text-xl">{s.value}</p>
-              <p className="text-black/25 text-[11px]">{s.sub}</p>
+              <p className="text-[#1e0a3c] font-black text-xl">{s.value}</p>
+              <p className="text-purple-300 text-[11px]">{s.sub}</p>
             </div>
           ))}
         </div>
 
         <div className="mb-16">
-          <h2 className="text-[#0a0a0a] font-black text-2xl mb-8 text-center">
+          <h2 className="text-[#1e0a3c] font-black text-2xl mb-8 text-center">
             What&apos;s Going Down
           </h2>
           <div className="flex flex-col gap-0">
@@ -110,19 +110,19 @@ export default function AboutPage() {
             ].map((item, i, arr) => (
               <div key={item.time} className="flex gap-5 items-start">
                 <div className="flex flex-col items-center shrink-0 pt-1">
-                  <div className="w-2 h-2 rounded-full bg-black/20" />
+                  <div className="w-2 h-2 rounded-full bg-purple-300" />
                   {i < arr.length - 1 && (
-                    <div className="w-px flex-1 bg-black/8 my-1 min-h-10" />
+                    <div className="w-px flex-1 bg-purple-100 my-1 min-h-10" />
                   )}
                 </div>
                 <div className="pb-6">
-                  <p className="text-black/30 text-[11px] font-mono mb-0.5">
+                  <p className="text-purple-300 text-[11px] font-mono mb-0.5">
                     {item.time}
                   </p>
-                  <p className="text-[#0a0a0a] font-bold text-sm mb-1">
+                  <p className="text-[#1e0a3c] font-bold text-sm mb-1">
                     {item.title}
                   </p>
-                  <p className="text-black/35 text-xs leading-relaxed">
+                  <p className="text-purple-400 text-xs leading-relaxed">
                     {item.desc}
                   </p>
                 </div>
@@ -131,7 +131,7 @@ export default function AboutPage() {
           </div>
         </div>
 
-        <div className="text-center border-t border-black/6 pt-12">
+        <div className="text-center border-t border-purple-100 pt-12">
           <LinkButton
             href="/tickets"
             className="btn-primary px-7 py-2.5 text-sm"

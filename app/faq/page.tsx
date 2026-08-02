@@ -59,22 +59,22 @@ function FAQItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div
-      className={`border rounded-xl overflow-hidden transition-colors ${open ? "border-white/15 bg-white/2" : "border-white/6"}`}
+      className={`border rounded-xl overflow-hidden transition-colors ${open ? "border-purple-200 bg-purple-50/50" : "border-purple-100"}`}
     >
       <button
         onClick={() => setOpen(!open)}
         className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
       >
-        <span className="text-white/70 font-medium text-sm">{q}</span>
+        <span className="text-[#1e0a3c] font-medium text-sm">{q}</span>
         <span
-          className={`text-white/30 text-lg shrink-0 transition-transform duration-200 ${open ? "rotate-45" : ""}`}
+          className={`text-purple-300 text-lg shrink-0 transition-transform duration-200 ${open ? "rotate-45" : ""}`}
         >
           +
         </span>
       </button>
       {open && (
-        <div className="px-5 pb-4 border-t border-white/5">
-          <p className="text-white/35 text-xs leading-relaxed pt-3">{a}</p>
+        <div className="px-5 pb-4 border-t border-purple-100">
+          <p className="text-purple-500 text-xs leading-relaxed pt-3">{a}</p>
         </div>
       )}
     </div>
@@ -87,10 +87,12 @@ export default function FAQPage() {
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
           <p className="tag mx-auto w-fit mb-4">Got Questions?</p>
-          <h1 className="font-black text-4xl sm:text-6xl text-white mb-3">
+          <h1 className="font-black text-4xl sm:text-6xl text-[#1e0a3c] mb-3">
             FAQ
           </h1>
-          <p className="text-white/35 text-sm">Everything you need to know.</p>
+          <p className="text-purple-400 text-sm">
+            Everything you need to know.
+          </p>
         </div>
 
         <div className="flex flex-col gap-2 mb-12">
@@ -99,13 +101,12 @@ export default function FAQPage() {
           ))}
         </div>
 
-        {/* Contact */}
         <div className="card rounded-2xl p-7 text-center">
-          <div className="text-3xl mb-3 opacity-50">💬</div>
-          <h2 className="text-white font-black text-lg mb-1.5">
+          <div className="text-3xl mb-3">💬</div>
+          <h2 className="text-[#1e0a3c] font-black text-lg mb-1.5">
             Still have questions?
           </h2>
-          <p className="text-white/30 text-xs mb-5 leading-relaxed">
+          <p className="text-purple-400 text-xs mb-5 leading-relaxed">
             Hit us up via Instagram or email. We&apos;ll get back ASAP.
           </p>
           <a
@@ -117,12 +118,13 @@ export default function FAQPage() {
         </div>
 
         <div className="text-center mt-10">
-          <Link
+          <LinkButton
             href="/tickets"
-            className="text-white/25 hover:text-white/60 text-xs transition-colors underline underline-offset-4"
+            className="text-purple-400 hover:text-purple-700 text-xs transition-colors underline underline-offset-4 inline-flex items-center gap-1"
+            spinnerClass="w-3 h-3"
           >
             Ready to buy? Get your tickets →
-          </Link>
+          </LinkButton>
         </div>
       </div>
     </div>

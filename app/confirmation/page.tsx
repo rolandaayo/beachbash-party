@@ -12,30 +12,29 @@ function ConfirmationContent() {
   return (
     <div className="pt-28 pb-20 px-5 text-center max-w-xl mx-auto">
       <OrderSteps current="confirmation" />
-      <div className="float-anim text-6xl mb-5 opacity-80">🎉</div>
+      <div className="float-anim text-6xl mb-5">🎉</div>
       <p className="tag mx-auto w-fit mb-4">You&apos;re in!</p>
-      <h1 className="font-black text-4xl sm:text-5xl text-white mb-3">
+      <h1 className="font-black text-4xl sm:text-5xl text-[#1e0a3c] mb-3">
         Order Confirmed
       </h1>
-      <p className="text-white/40 text-sm mb-1">
+      <p className="text-purple-400 text-sm mb-1">
         Your tickets for{" "}
-        <span className="text-white font-semibold">BEACHBASH PARTY</span> are
-        reserved.
+        <span className="text-[#1e0a3c] font-semibold">BEACHBASH PARTY</span>{" "}
+        are reserved.
       </p>
-      <p className="text-white/25 text-xs mb-8">
+      <p className="text-purple-300 text-xs mb-8">
         Payment details sent to your email. Complete within 24 hours to secure
         your spot.
       </p>
 
-      {/* Order card */}
       <div className="card rounded-2xl p-6 text-left mb-6">
         <div className="flex items-center gap-3 mb-4">
           <span className="text-xl">🎟️</span>
           <div>
-            <p className="text-white/25 text-[10px] uppercase tracking-widest">
+            <p className="text-purple-300 text-[10px] uppercase tracking-widest">
               Order ID
             </p>
-            <p className="text-white font-black text-base tracking-widest">
+            <p className="text-[#1e0a3c] font-black text-base tracking-widest">
               {orderId}
             </p>
           </div>
@@ -47,21 +46,20 @@ function ConfirmationContent() {
             { label: "Location", val: "Lagos, Nigeria" },
           ].map((r) => (
             <div key={r.label}>
-              <p className="text-white/20 uppercase tracking-wider mb-1 text-[10px]">
+              <p className="text-purple-300 uppercase tracking-wider mb-1 text-[10px]">
                 {r.label}
               </p>
-              <p className="text-white/70 font-semibold">{r.val}</p>
+              <p className="text-purple-700 font-semibold">{r.val}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Next steps */}
-      <div className="bg-white/3 border border-white/8 rounded-2xl p-5 text-left mb-8">
-        <p className="text-white/50 font-bold text-xs uppercase tracking-wider mb-3">
+      <div className="bg-purple-50 border border-purple-100 rounded-2xl p-5 text-left mb-8">
+        <p className="text-[#7c3aed] font-bold text-xs uppercase tracking-wider mb-3">
           Next Steps
         </p>
-        <ol className="flex flex-col gap-2 text-white/35 text-xs list-decimal list-inside leading-relaxed">
+        <ol className="flex flex-col gap-2 text-purple-500 text-xs list-decimal list-inside leading-relaxed">
           <li>Check your email for payment instructions</li>
           <li>Complete payment within 24 hours</li>
           <li>Receive your digital ticket after payment confirmation</li>
@@ -80,7 +78,9 @@ export default function ConfirmationPage() {
   return (
     <Suspense
       fallback={
-        <div className="pt-32 text-center text-white/20 text-sm">Loading…</div>
+        <div className="pt-32 text-center text-purple-300 text-sm">
+          Loading…
+        </div>
       }
     >
       <ConfirmationContent />
