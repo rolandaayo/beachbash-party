@@ -20,10 +20,15 @@ export default function LinkButton({
   const [pending, setPending] = useState(false);
 
   function handleClick(e: MouseEvent<HTMLAnchorElement>) {
-    // Don't spin on modifier keys (open in new tab, etc.)
-    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+    // Don't intercept modifier-key clicks (open in new tab etc.)
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+
     setPending(true);
-    // Safety reset — if navigation takes > 8 s, clear the spinner
+
+    // Fire the global nav-start event so NavigationLoader picks it up
+    window.dispatchEvent(new Event("nav-start"));
+
+    // Safety reset in case navigation never completes
     setTimeout(() => setPending(false), 8000);
   }
 
@@ -31,7 +36,7 @@ export default function LinkButton({
     <Link
       href={href}
       onClick={handleClick}
-      className={`${className} ${pending ? "opacity-70 pointer-events-none" : ""}`}
+      className={`${className} ${pending ? "opacity-75 pointer-events-none" : ""}`}
     >
       {pending ? (
         <>

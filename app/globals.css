@@ -2,12 +2,12 @@
 
 /* ── Purple palette ──────────────────────────────────────────────────────── */
 :root {
-  --bg:        #faf5ff;
-  --fg:        #1e0a3c;
-  --purple:    #7c3aed;
+  --bg: #faf5ff;
+  --fg: #1e0a3c;
+  --purple: #7c3aed;
   --purple-dk: #4c1d95;
   --purple-lt: #ede9fe;
-  --muted:     rgba(76, 29, 149, 0.45);
+  --muted: rgba(76, 29, 149, 0.45);
 }
 
 @theme inline {
@@ -25,23 +25,52 @@ body {
 
 /* ── Animations ──────────────────────────────────────────────────────────── */
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-8px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 @keyframes overlayIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-.float-anim { animation: float 3.5s ease-in-out infinite; }
-.fade-up    { animation: fadeUp 0.6s ease forwards; }
+.float-anim {
+  animation: float 3.5s ease-in-out infinite;
+}
+.fade-up {
+  animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
 .nav-blur {
@@ -52,14 +81,21 @@ body {
 }
 
 /* ── Mobile drawer ───────────────────────────────────────────────────────── */
-.drawer-overlay { animation: overlayIn 0.25s ease forwards; }
-.drawer-panel   { animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.drawer-overlay {
+  animation: overlayIn 0.25s ease forwards;
+}
+.drawer-panel {
+  animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
 
 /* ── Cards ───────────────────────────────────────────────────────────────── */
 .card {
   background: #ffffff;
   border: 1px solid rgba(124, 58, 237, 0.1);
-  transition: border-color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
 .card:hover {
   border-color: rgba(124, 58, 237, 0.28);
@@ -83,7 +119,10 @@ body {
   padding: 9px 20px;
   border-radius: 999px;
   letter-spacing: 0.02em;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
   white-space: nowrap;
 }
 .btn-primary:hover {
@@ -91,7 +130,9 @@ body {
   box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
   transform: translateY(-1px);
 }
-.btn-primary:active { transform: translateY(0); }
+.btn-primary:active {
+  transform: translateY(0);
+}
 
 .btn-outline {
   display: inline-flex;
@@ -105,7 +146,9 @@ body {
   border-radius: 999px;
   border: 1.5px solid rgba(124, 58, 237, 0.35);
   letter-spacing: 0.02em;
-  transition: border-color 0.2s ease, background 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
   white-space: nowrap;
 }
 .btn-outline:hover {
@@ -123,7 +166,9 @@ body {
   font-size: 0.8125rem;
   padding: 8px 16px;
   border-radius: 8px;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 .btn-ghost:hover {
   color: #4c1d95;
@@ -148,17 +193,30 @@ body {
   transition: border-color 0.2s ease;
   outline: none;
 }
-.input::placeholder { color: rgba(76, 29, 149, 0.3); }
-.input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.1); }
-.input-error { border-color: rgba(220, 38, 38, 0.6) !important; }
+.input::placeholder {
+  color: rgba(76, 29, 149, 0.3);
+}
+.input:focus {
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+.input-error {
+  border-color: rgba(220, 38, 38, 0.6) !important;
+}
 
 /* ── Divider ─────────────────────────────────────────────────────────────── */
-.divider { border-color: rgba(124, 58, 237, 0.1); }
+.divider {
+  border-color: rgba(124, 58, 237, 0.1);
+}
 
 /* ── Skeleton shimmer ────────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position:  400px 0; }
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
 }
 .animate-pulse {
   background: linear-gradient(
@@ -208,29 +266,48 @@ body {
 
 /* ── Live dot pulse ──────────────────────────────────────────────────────── */
 @keyframes badgePulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
-.live-dot { animation: badgePulse 1.8s ease-in-out infinite; }
+.live-dot {
+  animation: badgePulse 1.8s ease-in-out infinite;
+}
 
 /* ── Marquee ─────────────────────────────────────────────────────────────── */
 @keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 @keyframes marquee-reverse {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
 }
 .marquee-track {
   display: flex;
   width: max-content;
   animation: marquee 18s linear infinite;
 }
-.marquee-track:hover { animation-play-state: paused; }
+.marquee-track:hover {
+  animation-play-state: paused;
+}
 .marquee-track-reverse {
   display: flex;
   width: max-content;
   animation: marquee-reverse 22s linear infinite;
 }
-.marquee-track-reverse:hover { animation-play-state: paused; }
+.marquee-track-reverse:hover {
+  animation-play-state: paused;
+}

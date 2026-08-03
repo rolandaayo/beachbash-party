@@ -1,9 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import LinkButton from "@/components/LinkButton";
+import Link from "next/link";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -31,30 +32,40 @@ export default function Navbar() {
     <>
       <nav className="nav-blur fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 flex items-center justify-between h-14">
-          <Link href="/" className="flex items-center gap-2 group">
+          {/* Logo */}
+          <Link
+            href="/"
+            onClick={() => window.dispatchEvent(new Event("nav-start"))}
+            className="flex items-center gap-2 group"
+          >
             <span className="text-xl leading-none">🏖️</span>
             <span className="font-black text-sm tracking-[0.18em] text-[#4c1d95] group-hover:text-purple-400 transition-colors uppercase">
               BeachBash
             </span>
           </Link>
 
+          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(({ href, label }) => (
-              <Link
+              <LinkButton
                 key={href}
                 href={href}
+                spinnerClass="w-3 h-3"
                 className={`btn-ghost text-xs font-medium tracking-wide ${
                   pathname === href ? "text-[#4c1d95] bg-purple-50" : ""
                 }`}
               >
                 {label}
-              </Link>
+              </LinkButton>
             ))}
           </div>
 
+          {/* Right side */}
           <div className="flex items-center gap-2">
+            {/* Cart — plain Link, no spinner replacing the icon */}
             <Link
               href="/cart"
+              onClick={() => window.dispatchEvent(new Event("nav-start"))}
               className="relative btn-primary text-xs py-2 px-4"
             >
               <svg
@@ -78,6 +89,7 @@ export default function Navbar() {
               )}
             </Link>
 
+            {/* Hamburger */}
             <button
               onClick={() => setOpen(true)}
               aria-label="Open menu"
@@ -101,6 +113,7 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* Mobile drawer */}
       {open && (
         <>
           <div
@@ -135,9 +148,10 @@ export default function Navbar() {
 
             <div className="flex flex-col gap-1 p-4 flex-1">
               {NAV_LINKS.map(({ href, label }) => (
-                <Link
+                <LinkButton
                   key={href}
                   href={href}
+                  spinnerClass="w-3.5 h-3.5"
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
                     pathname === href
                       ? "bg-purple-100 text-[#4c1d95]"
@@ -145,17 +159,17 @@ export default function Navbar() {
                   }`}
                 >
                   {label}
-                </Link>
+                </LinkButton>
               ))}
             </div>
 
             <div className="p-4 border-t border-purple-100">
-              <Link
+              <LinkButton
                 href="/tickets"
                 className="btn-primary w-full justify-center text-xs py-3"
               >
                 Get Tickets 🎟️
-              </Link>
+              </LinkButton>
               <p className="text-center text-purple-200 text-[11px] mt-4 tracking-wide">
                 OCT 10 · LAGOS, NIGERIA
               </p>
