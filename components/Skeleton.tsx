@@ -1,6 +1,14 @@
-export function Skeleton({ className = "" }: { className?: string }) {
+export function Skeleton({
+  className = "",
+  dark = false,
+}: {
+  className?: string;
+  dark?: boolean;
+}) {
   return (
-    <div className={`rounded-lg bg-purple-100 animate-pulse ${className}`} />
+    <div
+      className={`rounded-lg animate-pulse ${dark ? "bg-white/10" : "bg-purple-100"} ${className}`}
+    />
   );
 }
 
