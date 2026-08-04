@@ -63,7 +63,7 @@ export default function AboutPage() {
           {[
             { label: "Date", value: "Oct 10", sub: "2026" },
             { label: "City", value: "Lagos", sub: "Nigeria 🇳🇬" },
-            { label: "Doors", value: "8 PM", sub: "till dawn" },
+            { label: "Doors", value: "4 PM", sub: "till dawn" },
             { label: "From", value: "₦50K", sub: "per ticket" },
           ].map((s) => (
             <div key={s.label} className="card rounded-xl p-4 text-center">
@@ -83,22 +83,22 @@ export default function AboutPage() {
           <div className="flex flex-col gap-0">
             {[
               {
-                time: "8:00 PM",
+                time: "4:00 PM",
                 title: "Gates Open",
                 desc: "Early entry for all ticket holders. Set up at the beach, grab your first drink.",
               },
               {
-                time: "9:00 PM",
+                time: "5:00 PM",
                 title: "DJ Sets Begin",
                 desc: "The best DJs in Lagos warm up the crowd with Afrobeats, Amapiano, and everything in between.",
               },
               {
-                time: "10:30 PM",
+                time: "6:30 PM",
                 title: "Live Performances",
                 desc: "Main stage comes alive. Artists TBA — trust us, it will be worth it.",
               },
               {
-                time: "12:00 AM",
+                time: "8:00 PM",
                 title: "Peak Hour",
                 desc: "When the energy hits its highest point. The beach is yours.",
               },

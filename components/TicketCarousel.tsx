@@ -6,19 +6,22 @@ import AddToCartButton from "@/components/AddToCartButton";
 import Link from "next/link";
 
 const ICONS: Record<string, string> = {
-  regular: "🎟️",
+  "regular-girls": "👩🏽",
+  "regular-guys": "👨🏽",
   "table-700": "🥃",
   "table-1m": "⭐",
   "table-1.5m": "👑",
 };
 const LABELS: Record<string, string> = {
-  regular: "Early Bird",
+  "regular-girls": "Early Bird",
+  "regular-guys": "Early Bird",
   "table-700": "Standing Table",
   "table-1m": "Premium Table",
   "table-1.5m": "Private Cabana",
 };
 const CAPACITY: Record<string, string> = {
-  regular: "girls ₦40k · guys ₦60k",
+  "regular-girls": "per person",
+  "regular-guys": "per person",
   "table-700": "2–4 people",
   "table-1m": "2–6 people",
   "table-1.5m": "2–8 people",
@@ -142,9 +145,7 @@ export default function TicketCarousel() {
                     <p
                       className={`font-black text-3xl leading-none ${isVip ? "text-white" : "text-[#1e0a3c]"}`}
                     >
-                      {ticket.id === "regular"
-                        ? "₦40k"
-                        : formatNaira(ticket.price)}
+                      {formatNaira(ticket.price)}
                     </p>
                     <p
                       className={`text-xs mt-1 ${isVip ? "text-white/30" : "text-purple-300"}`}

@@ -35,7 +35,7 @@ const FAQS = [
   },
   {
     q: "What time does it start and end?",
-    a: "Gates open at 8:00 PM. The party runs till dawn — we don't set a hard end time.",
+    a: "Gates open at 4:00 PM. The party runs till dawn — we don't set a hard end time.",
   },
   {
     q: "What's in General Access?",

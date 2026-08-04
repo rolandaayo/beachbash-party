@@ -2,10 +2,23 @@ import { TicketType } from "@/context/CartContext";
 
 export const TICKETS: TicketType[] = [
   {
-    id: "regular",
-    name: "Regular",
+    id: "regular-girls",
+    name: "Regular — Girls",
     price: 40000,
-    description: "Early bird entry to the party. Girls ₦40k · Guys ₦60k. To & fro boat ride included.",
+    description: "Early bird entry for ladies. General access to the full party experience.",
+    perks: [
+      "General entry",
+      "To & fro boat ride",
+      "Safari jeep ride",
+      "1 cocktail",
+      "Early bird pricing",
+    ],
+  },
+  {
+    id: "regular-guys",
+    name: "Regular — Guys",
+    price: 60000,
+    description: "Early bird entry for guys. General access to the full party experience.",
     perks: [
       "General entry",
       "To & fro boat ride",

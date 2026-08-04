@@ -22,7 +22,7 @@ export default function Home() {
           </h1>
           <p className="text-white/50 text-sm leading-relaxed max-w-sm mb-8">
             The biggest beach party Lagos has ever seen. One night only —
-            October 10, 2026. Doors open 8 PM till dawn.
+            October 10, 2026. Doors open 4 PM till dawn.
           </p>
           <div className="flex flex-wrap gap-3">
             <LinkButton
@@ -72,11 +72,9 @@ export default function Home() {
         </div>
       </div>
 
- 
-
       {/* ── TICKET CAROUSEL ──────────────────────────────────────────── */}
       <TicketCarousel />
-     {/* ── WHAT TO EXPECT ───────────────────────────────────────────── */}
+      {/* ── WHAT TO EXPECT ───────────────────────────────────────────── */}
       <EventCarousel />
       {/* ── LOCATION ─────────────────────────────────────────────────── */}
       <section className="py-20 px-5 max-w-5xl mx-auto border-t border-purple-100">
@@ -97,7 +95,7 @@ export default function Home() {
                   label: "Date",
                   val: "Saturday, October 10, 2026",
                 },
-                { icon: "🕗", label: "Time", val: "8:00 PM — Till Dawn" },
+                { icon: "🕗", label: "Time", val: "4:00 PM — Till Dawn" },
                 { icon: "📍", label: "City", val: "Lagos, Nigeria" },
                 { icon: "🎟️", label: "From", val: formatNaira(40000) },
               ].map((r) => (

@@ -4,22 +4,8 @@ import LinkButton from "@/components/LinkButton";
 
 export const metadata = { title: "Tickets — BEACHBASH PARTY" };
 
-const TIER_ICONS: Record<string, string> = {
-  regular: "🎟️",
-  "table-700": "🥃",
-  "table-1m": "⭐",
-  "table-1.5m": "👑",
-};
-
-const TIER_LABELS: Record<string, string> = {
-  regular: "Early Bird",
-  "table-700": "Table Package",
-  "table-1m": "Premium Table",
-  "table-1.5m": "Ultra VIP",
-};
-
 export default function TicketsPage() {
-  const [regular, t700, t1m, t15m] = TICKETS;
+  const [girlsTicket, guysTicket, t700, t1m, t15m] = TICKETS;
 
   return (
     <div className="pt-14">
@@ -41,14 +27,14 @@ export default function TicketsPage() {
               </h1>
               <p className="text-white/50 text-sm leading-relaxed max-w-sm">
                 One show. One night. October 10, 2026, Lagos, Nigeria. Doors
-                open 8 PM — till dawn.
+                open 4 PM — till dawn.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {[
                 { label: "Date", value: "Oct 10, 2026" },
                 { label: "City", value: "Lagos 🇳🇬" },
-                { label: "Doors", value: "8:00 PM" },
+                { label: "Doors", value: "4:00 PM" },
                 { label: "From", value: "₦40k" },
               ].map((f) => (
                 <div
@@ -72,7 +58,7 @@ export default function TicketsPage() {
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center">
               {[
-                { text: "₦40K EARLY BIRD", accent: true },
+                { text: "₦40K GIRLS · ₦60K GUYS", accent: true },
                 { text: "SECURE YOUR SPOT", accent: false },
                 { text: "OCT 10 · LAGOS", accent: true },
                 { text: "LIMITED TABLES", accent: false },
@@ -103,66 +89,56 @@ export default function TicketsPage() {
               Choose your experience
             </span>
             <div className="flex-1 h-px bg-purple-100" />
-            <span className="text-purple-300 text-xs">4 options</span>
+            <span className="text-purple-300 text-xs">5 options</span>
           </div>
 
-          {/* ── REGULAR ENTRY ── */}
-          <div className="ticket-tier-general rounded-3xl p-7 mb-5 hover:-translate-y-1 transition-transform duration-300">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
-                    🎟️
-                  </div>
+          {/* ── REGULAR ENTRY — split into 2 cards side by side ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+            {[girlsTicket, guysTicket].map((ticket) => (
+              <div
+                key={ticket.id}
+                className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300"
+              >
+                <div className="flex items-start justify-between mb-5">
                   <div>
-                    <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold">
+                    <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
                       Early Bird
                     </p>
-                    <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
-                      Regular Entry
+                    <h2 className="text-[#1e0a3c] font-black text-2xl leading-none">
+                      {ticket.id === "regular-girls" ? "Girls" : "Guys"}
                     </h2>
                   </div>
+                  <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
+                    {ticket.id === "regular-girls" ? "👩🏽" : "👨🏽"}
+                  </div>
                 </div>
-                <p className="text-purple-400 text-xs leading-relaxed mb-4">
-                  General entry to the party. Limited early bird pricing
-                  available.
+
+                <p className="text-[#1e0a3c] font-black text-4xl leading-none mb-1">
+                  {formatNaira(ticket.price)}
                 </p>
-                <ul className="flex flex-col gap-2">
-                  {regular.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className="flex items-center gap-2.5 text-xs text-purple-500"
-                    >
-                      <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
-                        ✓
-                      </span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
+                <p className="text-purple-300 text-xs mb-5">
+                  per person · early bird
+                </p>
+
+                <div className="flex-1 border-t border-purple-100 pt-4 mb-6">
+                  <ul className="flex flex-col gap-2.5">
+                    {ticket.perks.map((perk) => (
+                      <li
+                        key={perk}
+                        className="flex items-center gap-2.5 text-xs text-purple-500"
+                      >
+                        <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
+                          ✓
+                        </span>
+                        {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <AddToCartButton ticket={ticket} variant="light" />
               </div>
-              <div className="sm:text-right flex flex-col sm:items-end gap-4">
-                <div>
-                  <p className="text-purple-300 text-xs mb-1">
-                    Girls (Early Bird)
-                  </p>
-                  <p className="text-[#1e0a3c] font-black text-4xl leading-none">
-                    ₦40k
-                  </p>
-                </div>
-                <div>
-                  <p className="text-purple-300 text-xs mb-1">
-                    Guys (Early Bird)
-                  </p>
-                  <p className="text-[#1e0a3c] font-black text-4xl leading-none">
-                    ₦60k
-                  </p>
-                </div>
-                <div className="w-full sm:w-48">
-                  <AddToCartButton ticket={regular} variant="light" />
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
           {/* ── TABLE PACKAGES ── */}
@@ -306,7 +282,14 @@ export default function TicketsPage() {
                     Feature
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
-                    Regular
+                    Girls
+                    <br />
+                    <span className="text-white/30 font-normal">₦40k</span>
+                  </th>
+                  <th className="text-center text-white/50 font-bold pb-3">
+                    Guys
+                    <br />
+                    <span className="text-white/30 font-normal">₦60k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     700K
@@ -319,24 +302,31 @@ export default function TicketsPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {[
-                  ["General entry", true, true, true, true],
-                  ["To & fro boat ride", true, false, false, false],
-                  ["General boat ride", false, true, true, false],
-                  ["Private boat (×8)", false, false, false, true],
-                  ["Safari jeep ride", true, true, true, true],
-                  ["1 Cocktail", true, false, false, false],
-                  ["Food platter", false, true, true, true],
-                  ["Premium spirits", false, "VSOP", "Casa", "Don Julio"],
-                  ["Champagne", false, "×1", "×2", "×2"],
-                  ["Shisha", false, false, true, true],
-                  ["Chivita", false, false, "×1", "×2"],
-                  ["Private cabana", false, false, false, true],
-                ].map(([feature, r, t7, t1, t15]) => (
+                  ["General entry", true, true, true, true, true],
+                  ["To & fro boat ride", true, true, false, false, false],
+                  ["General boat ride", false, false, true, true, false],
+                  ["Private boat (×8)", false, false, false, false, true],
+                  ["Safari jeep ride", true, true, true, true, true],
+                  ["1 Cocktail", true, true, false, false, false],
+                  ["Food platter", false, false, true, true, true],
+                  [
+                    "Premium spirits",
+                    false,
+                    false,
+                    "VSOP",
+                    "Casa",
+                    "Don Julio",
+                  ],
+                  ["Champagne", false, false, "×1", "×2", "×2"],
+                  ["Shisha", false, false, false, true, true],
+                  ["Chivita", false, false, false, "×1", "×2"],
+                  ["Private cabana", false, false, false, false, true],
+                ].map(([feature, g, gu, t7, t1, t15]) => (
                   <tr key={feature as string}>
                     <td className="text-white/40 py-2.5">
                       {feature as string}
                     </td>
-                    {[r, t7, t1, t15].map((val, ci) => (
+                    {[g, gu, t7, t1, t15].map((val, ci) => (
                       <td key={ci} className="text-center py-2.5">
                         {val === true ? (
                           <span className="text-green-400">✓</span>
