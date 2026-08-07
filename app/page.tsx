@@ -7,8 +7,34 @@ export default function Home() {
   return (
     <div className="pt-14">
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <section className="ticket-hero px-5 pt-20 pb-14">
-        <div className="max-w-5xl mx-auto w-full">
+      {/*
+        BACKGROUND IMAGE SLOT
+        To add a background image, place your image in /public/hero-bg.jpg
+        and uncomment the style below. The purple overlay stays on top
+        so text remains readable.
+
+        style={{ backgroundImage: "url('/hero-bg.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+      */}
+      <section
+        className="relative min-h-[85vh] flex items-end overflow-hidden"
+        style={{
+          /* ↓ swap this for your image when ready ↓ */
+          background:
+            "linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #3b0764 100%)",
+        }}
+      >
+        {/*
+          ── IMAGE SLOT ──────────────────────────────────────────────
+          When you have a background photo, replace the section style above with:
+            backgroundImage: "url('/hero-bg.jpg')"
+            backgroundSize: "cover"
+            backgroundPosition: "center top"
+          Then this overlay div will darken the photo so text stays sharp.
+        */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#1a0040]/90 via-[#2e1065]/50 to-transparent pointer-events-none" />
+
+        {/* Content sits at the bottom of the hero */}
+        <div className="relative z-10 w-full px-5 pb-14 pt-32 max-w-5xl mx-auto">
           <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 mb-8">
             <span className="live-dot w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
             <span className="text-white/60 text-[11px] tracking-widest uppercase font-medium">
@@ -20,7 +46,7 @@ export default function Home() {
             <br />
             <span className="text-white/25">BASH</span>
           </h1>
-          <p className="text-white/50 text-sm leading-relaxed max-w-sm mb-8">
+          <p className="text-white/55 text-sm leading-relaxed max-w-sm mb-8">
             The biggest beach party Lagos has ever seen. One night only —
             October 10, 2026. Doors open 4 PM till dawn.
           </p>
