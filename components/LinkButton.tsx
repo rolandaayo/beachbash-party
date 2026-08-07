@@ -23,12 +23,17 @@ export default function LinkButton({
     // Don't intercept modifier-key clicks (open in new tab etc.)
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
 
+    // Don't show spinner if we're already on this page
+    const currentPath = window.location.pathname + window.location.search;
+    const targetPath = href.startsWith("/") ? href : `/${href}`;
+    if (
+      currentPath === targetPath ||
+      window.location.pathname === targetPath.split("?")[0]
+    )
+      return;
+
     setPending(true);
-
-    // Fire the global nav-start event so NavigationLoader picks it up
     window.dispatchEvent(new Event("nav-start"));
-
-    // Safety reset in case navigation never completes
     setTimeout(() => setPending(false), 8000);
   }
 

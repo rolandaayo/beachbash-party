@@ -10,45 +10,61 @@ function NavigationLoaderInner() {
 
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const progressRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const progressInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const safetyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track previous path so we know when navigation actually completed
   const prevPath = useRef(pathname + searchParams.toString());
 
-  useEffect(() => {
-    const currentPath = pathname + searchParams.toString();
+  // ── Clear everything ─────────────────────────────────────────────────────
+  function dismiss() {
+    if (progressInterval.current) clearInterval(progressInterval.current);
+    if (safetyTimer.current) clearTimeout(safetyTimer.current);
+    progressInterval.current = null;
+    safetyTimer.current = null;
+    setProgress(100);
+    setTimeout(() => {
+      setLoading(false);
+      setProgress(0);
+    }, 300);
+  }
 
-    if (currentPath !== prevPath.current) {
-      // New route — hide loader
-      prevPath.current = currentPath;
-      setProgress(100);
-      if (timerRef.current) clearTimeout(timerRef.current);
-      if (progressRef.current) clearInterval(progressRef.current);
-      timerRef.current = setTimeout(() => {
-        setLoading(false);
-        setProgress(0);
-      }, 350);
+  // ── Dismiss when route actually changes ──────────────────────────────────
+  useEffect(() => {
+    const current = pathname + searchParams.toString();
+    if (current !== prevPath.current) {
+      prevPath.current = current;
+      if (loading) dismiss();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, searchParams]);
 
-  // Expose a way to start loading from LinkButton
+  // ── Listen for nav-start (only fires when destination ≠ current page) ────
   useEffect(() => {
     function handleStart() {
       setLoading(true);
-      setProgress(10);
-      if (progressRef.current) clearInterval(progressRef.current);
-      progressRef.current = setInterval(() => {
+      setProgress(15);
+
+      if (progressInterval.current) clearInterval(progressInterval.current);
+      progressInterval.current = setInterval(() => {
         setProgress((p) => {
-          if (p >= 85) {
-            clearInterval(progressRef.current!);
-            return 85;
+          if (p >= 82) {
+            clearInterval(progressInterval.current!);
+            return 82;
           }
-          return p + Math.random() * 12;
+          return p + Math.random() * 10;
         });
-      }, 180);
+      }, 200);
+
+      // Hard safety: dismiss after 8 s no matter what
+      if (safetyTimer.current) clearTimeout(safetyTimer.current);
+      safetyTimer.current = setTimeout(dismiss, 8000);
     }
 
     window.addEventListener("nav-start", handleStart);
     return () => window.removeEventListener("nav-start", handleStart);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!loading) return null;
@@ -58,19 +74,18 @@ function NavigationLoaderInner() {
       {/* Top progress bar */}
       <div
         className="fixed top-0 left-0 z-[200] h-0.5 bg-[#7c3aed] transition-all duration-300 ease-out"
-        style={{ width: `${progress}%`, opacity: progress === 100 ? 0 : 1 }}
+        style={{ width: `${progress}%`, opacity: progress >= 100 ? 0 : 1 }}
       />
 
-      {/* Full-screen overlay with spinner */}
+      {/* Full-screen overlay */}
       <div
         className="fixed inset-0 z-[150] flex items-center justify-center"
         style={{
-          background: "rgba(250, 245, 255, 0.75)",
+          background: "rgba(250,245,255,0.75)",
           backdropFilter: "blur(8px)",
         }}
       >
         <div className="flex flex-col items-center gap-4">
-          {/* Spinner ring */}
           <div className="relative w-12 h-12">
             <div className="absolute inset-0 rounded-full border-2 border-purple-100" />
             <div

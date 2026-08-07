@@ -35,7 +35,11 @@ export default function Navbar() {
           {/* Logo */}
           <Link
             href="/"
-            onClick={() => window.dispatchEvent(new Event("nav-start"))}
+            onClick={(e) => {
+              if (window.location.pathname !== "/") {
+                window.dispatchEvent(new Event("nav-start"));
+              }
+            }}
             className="flex items-center gap-2 group"
           >
             <span className="text-xl leading-none">🏖️</span>
@@ -65,7 +69,11 @@ export default function Navbar() {
             {/* Cart — plain Link, no spinner replacing the icon */}
             <Link
               href="/cart"
-              onClick={() => window.dispatchEvent(new Event("nav-start"))}
+              onClick={() => {
+                if (window.location.pathname !== "/cart") {
+                  window.dispatchEvent(new Event("nav-start"));
+                }
+              }}
               className="relative btn-primary text-xs py-2 px-4"
             >
               <svg
