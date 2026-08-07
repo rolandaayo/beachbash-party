@@ -112,7 +112,7 @@ export default function TicketCarousel() {
                   className={`flex-shrink-0 rounded-3xl flex flex-col overflow-hidden transition-all duration-300 ${
                     isActive
                       ? "scale-100 opacity-100 shadow-xl shadow-purple-100"
-                      : "scale-95 opacity-50"
+                      : "scale-95 opacity-40"
                   } ${isVip ? "ticket-tier-vip" : "bg-white border border-purple-100"}`}
                 >
                   {/* Card header */}
@@ -130,12 +130,12 @@ export default function TicketCarousel() {
                           </div>
                         )}
                         <p
-                          className={`text-[10px] font-bold tracking-widest uppercase mb-1 ${isVip ? "text-white/30" : "text-purple-300"}`}
+                          className={`text-[10px] font-bold tracking-widest uppercase mb-1 ${isVip ? "text-white/50" : "text-black/40"}`}
                         >
                           {LABELS[ticket.id]}
                         </p>
                         <h3
-                          className={`font-black text-xl leading-none ${isVip ? "text-white" : "text-[#1e0a3c]"}`}
+                          className={`font-black text-xl leading-none ${isVip ? "text-white" : "text-black"}`}
                         >
                           {ticket.name}
                         </h3>
@@ -143,14 +143,20 @@ export default function TicketCarousel() {
                       <span className="text-2xl">{ICONS[ticket.id]}</span>
                     </div>
                     <p
-                      className={`font-black text-3xl leading-none ${isVip ? "text-white" : "text-[#1e0a3c]"}`}
+                      className={`font-black text-3xl leading-none ${isVip ? "text-white" : "text-black"}`}
                     >
                       {formatNaira(ticket.price)}
                     </p>
                     <p
-                      className={`text-xs mt-1 ${isVip ? "text-white/30" : "text-purple-300"}`}
+                      className={`text-xs mt-1 ${isVip ? "text-white/40" : "text-black/40"}`}
                     >
                       {CAPACITY[ticket.id]}
+                    </p>
+                    {/* Description */}
+                    <p
+                      className={`text-xs mt-3 leading-relaxed ${isVip ? "text-white/60" : "text-black/60"}`}
+                    >
+                      {ticket.description}
                     </p>
                   </div>
 
@@ -160,10 +166,10 @@ export default function TicketCarousel() {
                       {ticket.perks.map((perk) => (
                         <li
                           key={perk}
-                          className={`flex items-center gap-2.5 text-xs ${isVip ? "text-white/60" : "text-purple-500"}`}
+                          className={`flex items-center gap-2.5 text-xs ${isVip ? "text-white/70" : "text-black/70"}`}
                         >
                           <span
-                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 ${isVip ? "bg-white/10 text-white/50" : "bg-purple-100 text-purple-400"}`}
+                            className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 ${isVip ? "bg-white/10 text-white/60" : "bg-black/8 text-black/50"}`}
                           >
                             ✓
                           </span>
