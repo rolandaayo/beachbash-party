@@ -7,30 +7,14 @@ export default function Home() {
   return (
     <div className="pt-14">
       {/* ── HERO ─────────────────────────────────────────────────────── */}
-      {/*
-        BACKGROUND IMAGE SLOT
-        To add a background image, place your image in /public/hero-bg.jpg
-        and uncomment the style below. The purple overlay stays on top
-        so text remains readable.
-
-        style={{ backgroundImage: "url('/hero-bg.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
-      */}
       <section
-        className="relative min-h-[85vh] flex items-end overflow-hidden"
+        className="relative min-h-[75vh] flex items-end overflow-hidden"
         style={{
-          /* ↓ swap this for your image when ready ↓ */
-          background:
-            "linear-gradient(135deg, #2e1065 0%, #4c1d95 50%, #3b0764 100%)",
+          backgroundImage: "url('/hero-bg.jpg')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        {/*
-          ── IMAGE SLOT ──────────────────────────────────────────────
-          When you have a background photo, replace the section style above with:
-            backgroundImage: "url('/hero-bg.jpg')"
-            backgroundSize: "cover"
-            backgroundPosition: "center top"
-          Then this overlay div will darken the photo so text stays sharp.
-        */}
         <div className="absolute inset-0 bg-gradient-to-t from-[#1a0040]/90 via-[#2e1065]/50 to-transparent pointer-events-none" />
 
         {/* Content sits at the bottom of the hero */}
