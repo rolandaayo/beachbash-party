@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import NavigationLoader from "@/components/NavigationLoader";
+import ChatWidget from "@/components/ChatWidget";
 
 const geist = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
                 One Night · One Vibe · Oct 10 2026
               </p>
             </footer>
+            <ChatWidget />
           </CartProvider>
         </AuthProvider>
       </body>

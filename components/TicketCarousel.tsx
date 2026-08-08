@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { TICKETS, formatNaira } from "@/lib/tickets";
 import AddToCartButton from "@/components/AddToCartButton";
 import Link from "next/link";
@@ -27,21 +27,56 @@ const CAPACITY: Record<string, string> = {
   "table-1.5m": "2–8 people",
 };
 
+const AUTO_DELAY = 3000; // ms before auto-scroll starts/resumes
+
 export default function TicketCarousel() {
   const [active, setActive] = useState(0);
   const touchStart = useRef(0);
   const dragDelta = useRef(0);
   const isDragging = useRef(false);
+  const autoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ── Auto-scroll ──────────────────────────────────────────────────────────
+  const startAutoScroll = useCallback(() => {
+    if (autoInterval.current) clearInterval(autoInterval.current);
+    autoInterval.current = setInterval(() => {
+      setActive((a) => (a + 1) % TICKETS.length);
+    }, AUTO_DELAY);
+  }, []);
+
+  const resetAutoScroll = useCallback(() => {
+    // Pause, then resume after AUTO_DELAY
+    if (autoInterval.current) clearInterval(autoInterval.current);
+    if (autoTimer.current) clearTimeout(autoTimer.current);
+    autoTimer.current = setTimeout(startAutoScroll, AUTO_DELAY);
+  }, [startAutoScroll]);
+
+  useEffect(() => {
+    // Kick off auto-scroll after initial delay
+    autoTimer.current = setTimeout(startAutoScroll, AUTO_DELAY);
+    return () => {
+      if (autoTimer.current) clearTimeout(autoTimer.current);
+      if (autoInterval.current) clearInterval(autoInterval.current);
+    };
+  }, [startAutoScroll]);
 
   function next() {
     setActive((a) => Math.min(a + 1, TICKETS.length - 1));
+    resetAutoScroll();
   }
   function prev() {
     setActive((a) => Math.max(a - 1, 0));
+    resetAutoScroll();
+  }
+  function goTo(i: number) {
+    setActive(i);
+    resetAutoScroll();
   }
 
   function onTouchStart(e: React.TouchEvent) {
     touchStart.current = e.touches[0].clientX;
+    if (autoInterval.current) clearInterval(autoInterval.current);
   }
   function onTouchMove(e: React.TouchEvent) {
     dragDelta.current = e.touches[0].clientX - touchStart.current;
@@ -49,12 +84,14 @@ export default function TicketCarousel() {
   function onTouchEnd() {
     if (dragDelta.current < -50) next();
     else if (dragDelta.current > 50) prev();
+    else resetAutoScroll();
     dragDelta.current = 0;
   }
 
   function onMouseDown(e: React.MouseEvent) {
     isDragging.current = true;
     touchStart.current = e.clientX;
+    if (autoInterval.current) clearInterval(autoInterval.current);
   }
   function onMouseMove(e: React.MouseEvent) {
     if (isDragging.current) dragDelta.current = e.clientX - touchStart.current;
@@ -64,6 +101,7 @@ export default function TicketCarousel() {
     isDragging.current = false;
     if (dragDelta.current < -50) next();
     else if (dragDelta.current > 50) prev();
+    else resetAutoScroll();
     dragDelta.current = 0;
   }
 
@@ -95,9 +133,11 @@ export default function TicketCarousel() {
           onMouseLeave={onMouseUp}
         >
           <div
-            className="flex gap-4 transition-transform duration-400 ease-out"
+            className="flex gap-4 transition-transform duration-500 ease-out"
             style={{
-              transform: `translateX(calc(${-active} * (min(75vw, 320px) + 16px)))`,
+              // Mobile: full width minus padding so card fills screen
+              // Desktop (md+): capped at 320px showing peek of next card
+              transform: `translateX(calc(${-active} * (min(calc(100vw - 40px), 320px) + 16px)))`,
             }}
           >
             {TICKETS.map((ticket, i) => {
@@ -107,9 +147,9 @@ export default function TicketCarousel() {
               return (
                 <div
                   key={ticket.id}
-                  onClick={() => setActive(i)}
-                  style={{ minWidth: "min(75vw, 320px)" }}
-                  className={`flex-shrink-0 rounded-3xl flex flex-col overflow-hidden transition-all duration-300 ${
+                  onClick={() => goTo(i)}
+                  style={{ minWidth: "min(calc(100vw - 40px), 320px)" }}
+                  className={`shrink-0 rounded-3xl flex flex-col overflow-hidden transition-all duration-300 ${
                     isActive
                       ? "scale-100 opacity-100 shadow-xl shadow-purple-100"
                       : "scale-95 opacity-40"
@@ -198,7 +238,7 @@ export default function TicketCarousel() {
             {TICKETS.map((_, i) => (
               <button
                 key={i}
-                onClick={() => setActive(i)}
+                onClick={() => goTo(i)}
                 className={`rounded-full transition-all duration-300 ${
                   i === active
                     ? "w-6 h-2 bg-[#7c3aed]"

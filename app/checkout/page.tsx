@@ -1,26 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { formatNaira } from "@/lib/tickets";
 import { useRouter } from "next/navigation";
 import OrderSteps from "@/components/OrderSteps";
 import Spinner from "@/components/Spinner";
 import LinkButton from "@/components/LinkButton";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const PAYSTACK_PK = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
+
 export default function CheckoutPage() {
   const { items, totalItems, totalPrice, clearCart } = useCart();
+  const { user, token } = useAuth();
   const router = useRouter();
 
   const [form, setForm] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    confirmEmail: "",
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
+    email: user?.email ?? "",
+    confirmEmail: user?.email ?? "",
     phone: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+
+  // Pre-fill when user loads
+  useEffect(() => {
+    if (user) {
+      setForm((p) => ({
+        ...p,
+        firstName: p.firstName || user.firstName,
+        lastName: p.lastName || user.lastName,
+        email: p.email || user.email,
+        confirmEmail: p.confirmEmail || user.email,
+      }));
+    }
+  }, [user]);
 
   if (items.length === 0) {
     return (
@@ -60,11 +78,15 @@ export default function CheckoutPage() {
       setErrors(errs);
       return;
     }
+
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:4000/api/orders", {
+      const res = await fetch(`${API_BASE}/api/orders`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
           customer: form,
           tickets: items.map((i) => ({
@@ -76,11 +98,37 @@ export default function CheckoutPage() {
           total: totalPrice,
         }),
       });
-      if (!res.ok) throw new Error();
+
+      if (!res.ok) throw new Error("Order creation failed");
       const data = await res.json();
+
+      // ── Paystack inline ────────────────────────────────────────────────────
+      if (data.paystack?.authorization_url && PAYSTACK_PK) {
+        // Use Paystack inline popup
+        const PaystackPop = (await import("@paystack/inline-js")).default;
+        const popup = new PaystackPop();
+        popup.newTransaction({
+          key: PAYSTACK_PK,
+          email: form.email,
+          amount: totalPrice * 100,
+          ref: data.orderId,
+          onSuccess: () => {
+            clearCart();
+            router.push(`/confirmation?orderId=${data.orderId}&paid=1`);
+          },
+          onCancel: () => {
+            setLoading(false);
+            router.push(`/confirmation?orderId=${data.orderId}`);
+          },
+        });
+        return; // don't setLoading(false) here — popup is open
+      }
+
+      // No Paystack key configured — fall back to bank-transfer flow
       clearCart();
       router.push(`/confirmation?orderId=${data.orderId}`);
-    } catch {
+    } catch (err) {
+      console.error(err);
       const fakeId = `BB-${Date.now().toString(36).toUpperCase()}`;
       clearCart();
       router.push(`/confirmation?orderId=${fakeId}`);
@@ -175,18 +223,33 @@ export default function CheckoutPage() {
 
               <div className="card rounded-2xl p-5">
                 <p className="text-[#1e0a3c] font-bold text-sm mb-4">Payment</p>
-                <div className="flex items-start gap-3 bg-purple-50 border border-purple-100 rounded-xl p-4">
-                  <span className="text-xl mt-0.5">💳</span>
-                  <div>
-                    <p className="text-purple-700 font-semibold text-xs mb-1">
-                      Bank Transfer
-                    </p>
-                    <p className="text-purple-400 text-[11px] leading-relaxed">
-                      Payment details will be emailed after you place your
-                      order. Spot reserved for 24 hours.
-                    </p>
+                {PAYSTACK_PK ? (
+                  <div className="flex items-start gap-3 bg-green-50 border border-green-100 rounded-xl p-4">
+                    <span className="text-xl mt-0.5">💳</span>
+                    <div>
+                      <p className="text-green-700 font-semibold text-xs mb-1">
+                        Paystack — Card / Bank / USSD
+                      </p>
+                      <p className="text-green-600 text-[11px] leading-relaxed">
+                        Secure payment powered by Paystack. You'll be prompted
+                        to pay after placing your order.
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-start gap-3 bg-purple-50 border border-purple-100 rounded-xl p-4">
+                    <span className="text-xl mt-0.5">💳</span>
+                    <div>
+                      <p className="text-purple-700 font-semibold text-xs mb-1">
+                        Bank Transfer
+                      </p>
+                      <p className="text-purple-400 text-[11px] leading-relaxed">
+                        Payment details will be emailed after you place your
+                        order. Spot reserved for 24 hours.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -226,8 +289,10 @@ export default function CheckoutPage() {
                   {loading ? (
                     <>
                       <Spinner className="w-3.5 h-3.5" />
-                      <span>Placing order…</span>
+                      <span>Processing…</span>
                     </>
+                  ) : PAYSTACK_PK ? (
+                    "Pay Now 💳"
                   ) : (
                     "Place Order 🎟️"
                   )}
