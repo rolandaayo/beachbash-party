@@ -9,7 +9,8 @@ import OrderSteps from "@/components/OrderSteps";
 import Spinner from "@/components/Spinner";
 import LinkButton from "@/components/LinkButton";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API_BASE } from "@/lib/api";
+
 const PAYSTACK_PK = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY || "";
 
 export default function CheckoutPage() {

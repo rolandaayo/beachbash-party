@@ -1,4 +1,7 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+import { API_BASE } from "@/lib/api";
+
+export { API_BASE };
+
 export const ADMIN_SECRET =
   process.env.NEXT_PUBLIC_ADMIN_SECRET || "beachbash_admin_2026";
 
