@@ -9,13 +9,22 @@ type Props = {
   onCreated: () => void;
 };
 
-const empty = {
+type FormState = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: "user" | "admin";
+};
+
+const empty: FormState = {
   firstName: "",
   lastName: "",
   email: "",
   password: "",
   phone: "",
-  role: "user" as const,
+  role: "user",
 };
 
 export default function AddUserModal({ open, onClose, onCreated }: Props) {

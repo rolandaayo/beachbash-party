@@ -2,62 +2,29 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { getSocket } from "@/lib/socket";
+import AddUserModal from "@/components/admin/AddUserModal";
+import StatusBadge from "@/components/admin/StatusBadge";
+import {
+  type User,
+  type Order,
+  type Conversation,
+  fetchUsers,
+  fetchOrders,
+  fetchConversations,
+  fetchConversation,
+  deleteUser,
+  updateUser,
+  updateOrderStatus,
+  sendAdminReply,
+  formatNaira,
+  getTicketSales,
+  exportBuyersCsv,
+} from "@/lib/admin";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
-const ADMIN_SECRET =
-  process.env.NEXT_PUBLIC_ADMIN_SECRET || "beachbash_admin_2026";
+type Tab = "dashboard" | "buyers" | "orders" | "users" | "messages";
 
-const adminHeaders = {
-  "Content-Type": "application/json",
-  "x-admin-secret": ADMIN_SECRET,
-};
-
-// ── Types ─────────────────────────────────────────────────────────────────────
-type User = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  role: string;
-  createdAt: string;
-};
-type Order = {
-  orderId: string;
-  status: string;
-  total: number;
-  paidAt: string | null;
-  customer: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-  };
-  tickets: { name: string; quantity: number; price: number }[];
-  createdAt: string;
-};
-type Message = {
-  _id: string;
-  sender: "user" | "admin";
-  text: string;
-  createdAt: string;
-};
-type Conversation = {
-  _id: string;
-  userId: string;
-  userName: string;
-  userEmail: string;
-  lastMessage: string;
-  unreadCount: number;
-  updatedAt: string;
-  messages?: Message[];
-};
-
-type Tab = "dashboard" | "users" | "orders" | "messages";
-
-// ── Main component ────────────────────────────────────────────────────────────
 export default function AdminPage() {
-  const [tab, setTab] = useState<Tab>("dashboard");
+  const [tab, setTab] = useState<Tab>("buyers");
   const [users, setUsers] = useState<User[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [convos, setConvos] = useState<Conversation[]>([]);
@@ -65,6 +32,9 @@ export default function AdminPage() {
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending_payment">("all");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const notify = (msg: string) => {
@@ -72,54 +42,74 @@ export default function AdminPage() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // ── Fetch helpers ──────────────────────────────────────────────────────────
-  const fetchUsers = useCallback(async () => {
-    const r = await fetch(`${API_BASE}/api/users`, { headers: adminHeaders });
-    if (r.ok) {
-      const d = await r.json();
-      setUsers(d.users);
+  const loadUsers = useCallback(async () => {
+    try {
+      setUsers(await fetchUsers());
+    } catch {
+      notify("Failed to load users");
     }
   }, []);
 
-  const fetchOrders = useCallback(async () => {
-    const r = await fetch(`${API_BASE}/api/orders`, { headers: adminHeaders });
-    if (r.ok) {
-      const d = await r.json();
-      setOrders(d.orders);
+  const loadOrders = useCallback(async () => {
+    try {
+      setOrders(await fetchOrders());
+    } catch {
+      notify("Failed to load orders");
     }
   }, []);
 
-  const fetchConvos = useCallback(async () => {
-    const r = await fetch(`${API_BASE}/api/chat/admin/conversations`, {
-      headers: adminHeaders,
-    });
-    if (r.ok) {
-      const d = await r.json();
-      setConvos(d.conversations);
+  const loadConvos = useCallback(async () => {
+    try {
+      setConvos(await fetchConversations());
+    } catch {
+      notify("Failed to load messages");
     }
   }, []);
 
   const openConvo = useCallback(async (id: string) => {
-    const r = await fetch(`${API_BASE}/api/chat/admin/conversations/${id}`, {
-      headers: adminHeaders,
-    });
-    if (r.ok) {
-      const d = await r.json();
-      setActiveConvo(d.conversation);
+    try {
+      const convo = await fetchConversation(id);
+      setActiveConvo(convo);
       setConvos((prev) =>
         prev.map((c) => (c._id === id ? { ...c, unreadCount: 0 } : c)),
       );
+    } catch {
+      notify("Failed to open conversation");
     }
   }, []);
 
-  // ── Socket setup ───────────────────────────────────────────────────────────
+  // Socket — real-time payment notifications
   useEffect(() => {
     const socket = getSocket();
     if (!socket.connected) socket.connect();
     socket.emit("join_admin");
 
+    socket.on("order_paid", (data) => {
+      const name = data.customer
+        ? `${data.customer.firstName} ${data.customer.lastName}`
+        : "Customer";
+      notify(`Payment confirmed: ${name} — ${formatNaira(data.total)}`);
+      setOrders((prev) => {
+        const exists = prev.find((o) => o.orderId === data.orderId);
+        if (exists) {
+          return prev.map((o) =>
+            o.orderId === data.orderId
+              ? {
+                  ...o,
+                  status: "paid",
+                  paidAt: data.paidAt,
+                  customer: data.customer ?? o.customer,
+                }
+              : o,
+          );
+        }
+        loadOrders();
+        return prev;
+      });
+    });
+
     socket.on("new_message", (data) => {
-      notify(`💬 New message from ${data.userName}`);
+      notify(`New message from ${data.userName}`);
       setConvos((prev) => {
         const exists = prev.find((c) => c._id === data.conversationId);
         if (exists) {
@@ -134,6 +124,7 @@ export default function AdminPage() {
               : c,
           );
         }
+        loadConvos();
         return prev;
       });
       setActiveConvo((prev) => {
@@ -142,151 +133,158 @@ export default function AdminPage() {
       });
     });
 
-    socket.on("order_paid", (data) => {
-      notify(
-        `✅ Payment confirmed: ${data.orderId} — ₦${data.total?.toLocaleString()}`,
-      );
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.orderId === data.orderId
-            ? { ...o, status: "paid", paidAt: data.paidAt }
-            : o,
-        ),
-      );
-    });
-
     return () => {
-      socket.off("new_message");
       socket.off("order_paid");
+      socket.off("new_message");
     };
-  }, []);
+  }, [loadOrders, loadConvos]);
 
-  // ── Load data on tab change ────────────────────────────────────────────────
   useEffect(() => {
-    if (tab === "users") fetchUsers();
-    if (tab === "orders") fetchOrders();
-    if (tab === "messages") fetchConvos();
+    if (tab === "users") loadUsers();
+    if (tab === "orders" || tab === "buyers") loadOrders();
+    if (tab === "messages") loadConvos();
     if (tab === "dashboard") {
-      fetchUsers();
-      fetchOrders();
-      fetchConvos();
+      loadUsers();
+      loadOrders();
+      loadConvos();
     }
-  }, [tab, fetchUsers, fetchOrders, fetchConvos]);
+  }, [tab, loadUsers, loadOrders, loadConvos]);
 
-  // ── Scroll to bottom of active conversation ────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeConvo?.messages]);
 
-  // ── User actions ───────────────────────────────────────────────────────────
-  async function deleteUser(id: string) {
+  // ── Actions ────────────────────────────────────────────────────────────────
+  async function handleDeleteUser(id: string) {
     if (!confirm("Delete this user?")) return;
-    const r = await fetch(`${API_BASE}/api/users/${id}`, {
-      method: "DELETE",
-      headers: adminHeaders,
-    });
-    if (r.ok) {
+    try {
+      await deleteUser(id);
       setUsers((p) => p.filter((u) => u.id !== id));
       notify("User deleted");
+    } catch {
+      notify("Failed to delete user");
     }
   }
 
-  async function toggleRole(user: User) {
+  async function handleToggleRole(user: User) {
     const newRole = user.role === "admin" ? "user" : "admin";
-    const r = await fetch(`${API_BASE}/api/users/${user.id}`, {
-      method: "PATCH",
-      headers: adminHeaders,
-      body: JSON.stringify({ role: newRole }),
-    });
-    if (r.ok) {
-      fetchUsers();
+    try {
+      await updateUser(user.id, { role: newRole });
+      loadUsers();
       notify(`Role updated to ${newRole}`);
+    } catch {
+      notify("Failed to update role");
     }
   }
 
-  // ── Order actions ──────────────────────────────────────────────────────────
-  async function markPaid(orderId: string) {
-    const r = await fetch(`${API_BASE}/api/orders/${orderId}/status`, {
-      method: "PATCH",
-      headers: adminHeaders,
-      body: JSON.stringify({ status: "paid" }),
-    });
-    if (r.ok) {
-      fetchOrders();
+  async function handleMarkPaid(orderId: string) {
+    try {
+      const updated = await updateOrderStatus(orderId, "paid");
+      setOrders((prev) =>
+        prev.map((o) => (o.orderId === orderId ? { ...o, ...updated } : o)),
+      );
       notify("Order marked as paid");
+    } catch {
+      notify("Failed to update order");
     }
   }
 
-  // ── Chat reply ─────────────────────────────────────────────────────────────
-  async function sendReply() {
+  async function handleSendReply() {
     if (!replyText.trim() || !activeConvo) return;
     setLoading(true);
-    const r = await fetch(`${API_BASE}/api/chat/admin/reply`, {
-      method: "POST",
-      headers: adminHeaders,
-      body: JSON.stringify({
-        conversationId: activeConvo._id,
-        text: replyText.trim(),
-      }),
-    });
-    if (r.ok) {
-      const d = await r.json();
+    try {
+      const msg = await sendAdminReply(activeConvo._id, replyText.trim());
       setActiveConvo((prev) =>
-        prev
-          ? { ...prev, messages: [...(prev.messages || []), d.message] }
-          : prev,
+        prev ? { ...prev, messages: [...(prev.messages || []), msg] } : prev,
       );
       setReplyText("");
+    } catch {
+      notify("Failed to send reply");
     }
     setLoading(false);
   }
 
-  // ── Stats ──────────────────────────────────────────────────────────────────
-  const totalRevenue = orders
-    .filter((o) => o.status === "paid")
-    .reduce((s, o) => s + o.total, 0);
-  const pendingOrders = orders.filter(
-    (o) => o.status === "pending_payment",
-  ).length;
+  // ── Derived data ───────────────────────────────────────────────────────────
+  const paidOrders = orders.filter((o) => o.status === "paid");
+  const totalRevenue = paidOrders.reduce((s, o) => s + o.total, 0);
+  const pendingOrders = orders.filter((o) => o.status === "pending_payment").length;
   const unreadMsgs = convos.reduce((s, c) => s + (c.unreadCount || 0), 0);
+  const ticketSales = getTicketSales(orders);
+
+  const matchesSearch = (o: Order) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    const c = o.customer;
+    return (
+      o.orderId.toLowerCase().includes(q) ||
+      c.firstName.toLowerCase().includes(q) ||
+      c.lastName.toLowerCase().includes(q) ||
+      c.email.toLowerCase().includes(q) ||
+      c.phone.includes(q)
+    );
+  };
+
+  const filteredOrders = orders.filter((o) => {
+    if (statusFilter !== "all" && o.status !== statusFilter) return false;
+    return matchesSearch(o);
+  });
+
+  const filteredBuyers = paidOrders.filter(matchesSearch);
 
   const TABS: { id: Tab; label: string; icon: string }[] = [
+    { id: "buyers", label: "Ticket Buyers", icon: "🎫" },
     { id: "dashboard", label: "Dashboard", icon: "📊" },
+    { id: "orders", label: "All Orders", icon: "🎟️" },
     { id: "users", label: "Users", icon: "👥" },
-    { id: "orders", label: "Orders", icon: "🎟️" },
     { id: "messages", label: "Messages", icon: "💬" },
   ];
 
   return (
     <div className="pt-14 min-h-screen bg-[#faf5ff]">
-      {/* Notification toast */}
       {notification && (
-        <div className="fixed top-16 right-4 z-50 bg-[#4c1d95] text-white text-xs px-4 py-2.5 rounded-xl shadow-lg">
+        <div className="fixed top-16 right-4 z-50 bg-[#4c1d95] text-white text-xs px-4 py-2.5 rounded-xl shadow-lg animate-[fadeUp_0.3s_ease]">
           {notification}
         </div>
       )}
 
+      <AddUserModal
+        open={showAddUser}
+        onClose={() => setShowAddUser(false)}
+        onCreated={() => {
+          loadUsers();
+          notify("User created successfully");
+        }}
+      />
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
             <h1 className="font-black text-2xl text-[#1e0a3c]">
-              Admin Panel 🏖️
+              Admin Panel
             </h1>
             <p className="text-purple-400 text-xs mt-0.5">
               BeachBash Party · Lagos 2026
             </p>
           </div>
-          <span className="tag">Internal</span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowAddUser(true)}
+              className="px-4 py-2 bg-[#7c3aed] text-white text-xs font-bold rounded-xl hover:bg-[#6d28d9]"
+            >
+              + Add User
+            </button>
+            <span className="tag">Internal</span>
+          </div>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-white border border-purple-100 rounded-2xl p-1 mb-8 w-fit">
+        <div className="flex gap-1 bg-white border border-purple-100 rounded-2xl p-1 mb-6 w-fit overflow-x-auto max-w-full">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-colors whitespace-nowrap ${
                 tab === t.id
                   ? "bg-[#7c3aed] text-white"
                   : "text-purple-400 hover:text-purple-700"
@@ -298,100 +296,193 @@ export default function AdminPage() {
                   {unreadMsgs}
                 </span>
               )}
+              {t.id === "buyers" && paidOrders.length > 0 && (
+                <span className="w-5 h-5 rounded-full bg-green-500 text-white text-[9px] font-black flex items-center justify-center">
+                  {paidOrders.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
+
+        {/* Search bar for buyers/orders */}
+        {(tab === "buyers" || tab === "orders") && (
+          <div className="flex flex-col sm:flex-row gap-3 mb-6">
+            <input
+              type="search"
+              placeholder="Search by name, email, phone, or order ID…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="flex-1 bg-white border border-purple-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+            />
+            {tab === "orders" && (
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as typeof statusFilter)
+                }
+                className="bg-white border border-purple-100 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+              >
+                <option value="all">All statuses</option>
+                <option value="paid">Paid</option>
+                <option value="pending_payment">Pending</option>
+              </select>
+            )}
+            {tab === "buyers" && paidOrders.length > 0 && (
+              <button
+                onClick={() => exportBuyersCsv(orders)}
+                className="px-4 py-2.5 text-xs font-semibold text-[#7c3aed] border border-purple-200 rounded-xl hover:bg-purple-50 whitespace-nowrap"
+              >
+                Export CSV
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ── TICKET BUYERS (main view) ───────────────────────────────────── */}
+        {tab === "buyers" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+              <StatCard label="Confirmed Buyers" value={paidOrders.length} icon="✅" color="bg-green-50 border-green-100" />
+              <StatCard label="Total Revenue" value={formatNaira(totalRevenue)} icon="💰" color="bg-purple-50 border-purple-100" />
+              <StatCard label="Tickets Sold" value={ticketSales.reduce((s, t) => s + t.quantity, 0)} icon="🎟️" color="bg-blue-50 border-blue-100" />
+            </div>
+
+            <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden">
+              <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between">
+                <p className="font-bold text-sm text-[#1e0a3c]">
+                  Successful Purchases ({filteredBuyers.length})
+                </p>
+                <button onClick={loadOrders} className="text-purple-400 text-xs hover:text-purple-700">
+                  ↻ Refresh
+                </button>
+              </div>
+
+              {filteredBuyers.length === 0 ? (
+                <EmptyState message="No ticket buyers yet. Purchases appear here once payment is confirmed." />
+              ) : (
+                <div className="divide-y divide-purple-50">
+                  {filteredBuyers.map((o) => (
+                    <BuyerCard key={o.orderId} order={o} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── DASHBOARD ───────────────────────────────────────────────────── */}
         {tab === "dashboard" && (
           <div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {[
-                {
-                  label: "Total Users",
-                  val: users.length,
-                  icon: "👥",
-                  color: "bg-purple-50 border-purple-100",
-                },
-                {
-                  label: "Total Orders",
-                  val: orders.length,
-                  icon: "🎟️",
-                  color: "bg-blue-50 border-blue-100",
-                },
-                {
-                  label: "Revenue",
-                  val: `₦${(totalRevenue / 1000).toFixed(0)}k`,
-                  icon: "💰",
-                  color: "bg-green-50 border-green-100",
-                },
-                {
-                  label: "Pending",
-                  val: pendingOrders,
-                  icon: "⏳",
-                  color: "bg-yellow-50 border-yellow-100",
-                },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className={`rounded-2xl p-5 border ${s.color}`}
-                >
-                  <div className="text-2xl mb-2">{s.icon}</div>
-                  <p className="font-black text-2xl text-[#1e0a3c]">{s.val}</p>
-                  <p className="text-xs text-purple-400 mt-0.5">{s.label}</p>
-                </div>
-              ))}
+              <StatCard label="Total Users" value={users.length} icon="👥" color="bg-purple-50 border-purple-100" />
+              <StatCard label="Total Orders" value={orders.length} icon="🎟️" color="bg-blue-50 border-blue-100" />
+              <StatCard label="Revenue" value={formatNaira(totalRevenue)} icon="💰" color="bg-green-50 border-green-100" />
+              <StatCard label="Pending" value={pendingOrders} icon="⏳" color="bg-yellow-50 border-yellow-100" />
             </div>
 
-            {/* Recent orders */}
+            {ticketSales.length > 0 && (
+              <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden mb-8">
+                <div className="px-5 py-4 border-b border-purple-50">
+                  <p className="font-bold text-sm text-[#1e0a3c]">Ticket Sales Breakdown</p>
+                </div>
+                <div className="divide-y divide-purple-50">
+                  {ticketSales.map((t) => (
+                    <div key={t.name} className="px-5 py-3 flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-bold text-[#1e0a3c]">{t.name}</p>
+                        <p className="text-[11px] text-purple-400">{t.quantity} sold</p>
+                      </div>
+                      <p className="text-xs font-black text-[#1e0a3c]">{formatNaira(t.revenue)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden">
               <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between">
-                <p className="font-bold text-sm text-[#1e0a3c]">
-                  Recent Orders
-                </p>
-                <button
-                  onClick={() => setTab("orders")}
-                  className="text-[#7c3aed] text-xs font-semibold"
-                >
+                <p className="font-bold text-sm text-[#1e0a3c]">Recent Purchases</p>
+                <button onClick={() => setTab("buyers")} className="text-[#7c3aed] text-xs font-semibold">
                   View all →
                 </button>
               </div>
               <div className="divide-y divide-purple-50">
-                {orders.slice(0, 5).map((o) => (
-                  <div
-                    key={o.orderId}
-                    className="px-5 py-3 flex items-center justify-between gap-4"
-                  >
+                {paidOrders.slice(0, 5).map((o) => (
+                  <div key={o.orderId} className="px-5 py-3 flex items-center justify-between gap-4">
                     <div>
                       <p className="text-xs font-bold text-[#1e0a3c]">
-                        {o.orderId}
+                        {o.customer.firstName} {o.customer.lastName}
                       </p>
-                      <p className="text-[11px] text-purple-400">
-                        {o.customer?.email}
-                      </p>
+                      <p className="text-[11px] text-purple-400">{o.customer.email} · {o.orderId}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-black text-[#1e0a3c]">
-                        ₦{o.total?.toLocaleString()}
-                      </p>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          o.status === "paid"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {o.status}
-                      </span>
-                    </div>
+                    <p className="text-xs font-black text-[#1e0a3c]">{formatNaira(o.total)}</p>
                   </div>
                 ))}
-                {orders.length === 0 && (
-                  <p className="px-5 py-6 text-center text-purple-300 text-xs">
-                    No orders yet
-                  </p>
-                )}
+                {paidOrders.length === 0 && <EmptyState message="No purchases yet" />}
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── ALL ORDERS ──────────────────────────────────────────────────── */}
+        {tab === "orders" && (
+          <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden">
+            <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between">
+              <p className="font-bold text-sm text-[#1e0a3c]">
+                All Orders ({filteredOrders.length})
+              </p>
+              <button onClick={loadOrders} className="text-purple-400 text-xs hover:text-purple-700">
+                ↻ Refresh
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs min-w-[800px]">
+                <thead className="border-b border-purple-50">
+                  <tr>
+                    {["Order ID", "Customer", "Phone", "Tickets", "Total", "Status", "Paid At", "Actions"].map((h) => (
+                      <th key={h} className="text-left px-5 py-3 text-purple-300 font-medium">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-purple-50">
+                  {filteredOrders.map((o) => (
+                    <tr key={o.orderId} className="hover:bg-purple-50/50">
+                      <td className="px-5 py-3 font-black text-[#1e0a3c] tracking-wide">{o.orderId}</td>
+                      <td className="px-5 py-3">
+                        <p className="font-semibold text-[#1e0a3c]">
+                          {o.customer.firstName} {o.customer.lastName}
+                        </p>
+                        <p className="text-purple-400">{o.customer.email}</p>
+                      </td>
+                      <td className="px-5 py-3 text-purple-500">{o.customer.phone || "—"}</td>
+                      <td className="px-5 py-3 text-purple-500">
+                        {o.tickets?.map((t) => `${t.name} ×${t.quantity}`).join(", ")}
+                      </td>
+                      <td className="px-5 py-3 font-black text-[#1e0a3c]">{formatNaira(o.total)}</td>
+                      <td className="px-5 py-3"><StatusBadge status={o.status} /></td>
+                      <td className="px-5 py-3 text-purple-400">
+                        {o.paidAt ? new Date(o.paidAt).toLocaleString() : "—"}
+                      </td>
+                      <td className="px-5 py-3">
+                        {o.status !== "paid" && (
+                          <button
+                            onClick={() => handleMarkPaid(o.orderId)}
+                            className="text-[10px] text-green-600 border border-green-200 rounded-lg px-2 py-1 hover:bg-green-50"
+                          >
+                            Mark Paid
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredOrders.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="px-5 py-8 text-center text-purple-300">No orders found</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         )}
@@ -400,34 +491,25 @@ export default function AdminPage() {
         {tab === "users" && (
           <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden">
             <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between">
-              <p className="font-bold text-sm text-[#1e0a3c]">
-                All Users ({users.length})
-              </p>
-              <button
-                onClick={fetchUsers}
-                className="text-purple-400 text-xs hover:text-purple-700"
-              >
-                ↻ Refresh
-              </button>
+              <p className="font-bold text-sm text-[#1e0a3c]">All Users ({users.length})</p>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowAddUser(true)}
+                  className="text-[#7c3aed] text-xs font-semibold hover:text-[#6d28d9]"
+                >
+                  + Add User
+                </button>
+                <button onClick={loadUsers} className="text-purple-400 text-xs hover:text-purple-700">
+                  ↻ Refresh
+                </button>
+              </div>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-xs min-w-[600px]">
                 <thead className="border-b border-purple-50">
                   <tr>
-                    {[
-                      "Name",
-                      "Email",
-                      "Phone",
-                      "Role",
-                      "Joined",
-                      "Actions",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left px-5 py-3 text-purple-300 font-medium"
-                      >
-                        {h}
-                      </th>
+                    {["Name", "Email", "Phone", "Role", "Joined", "Actions"].map((h) => (
+                      <th key={h} className="text-left px-5 py-3 text-purple-300 font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -438,151 +520,38 @@ export default function AdminPage() {
                         {u.firstName} {u.lastName}
                       </td>
                       <td className="px-5 py-3 text-purple-500">{u.email}</td>
-                      <td className="px-5 py-3 text-purple-400">
-                        {u.phone || "—"}
-                      </td>
+                      <td className="px-5 py-3 text-purple-400">{u.phone || "—"}</td>
                       <td className="px-5 py-3">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            u.role === "admin"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          u.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-500"
+                        }`}>
                           {u.role}
                         </span>
                       </td>
                       <td className="px-5 py-3 text-purple-300">
                         {new Date(u.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="px-5 py-3 flex items-center gap-2">
-                        <button
-                          onClick={() => toggleRole(u)}
-                          className="text-[10px] text-purple-500 hover:text-purple-800 border border-purple-200 rounded-lg px-2 py-1"
-                        >
-                          {u.role === "admin" ? "→ User" : "→ Admin"}
-                        </button>
-                        <button
-                          onClick={() => deleteUser(u.id)}
-                          className="text-[10px] text-red-400 hover:text-red-600 border border-red-100 rounded-lg px-2 py-1"
-                        >
-                          Delete
-                        </button>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleToggleRole(u)}
+                            className="text-[10px] text-purple-500 hover:text-purple-800 border border-purple-200 rounded-lg px-2 py-1"
+                          >
+                            {u.role === "admin" ? "→ User" : "→ Admin"}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(u.id)}
+                            className="text-[10px] text-red-400 hover:text-red-600 border border-red-100 rounded-lg px-2 py-1"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                   {users.length === 0 && (
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-5 py-8 text-center text-purple-300"
-                      >
-                        No users yet
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* ── ORDERS ──────────────────────────────────────────────────────── */}
-        {tab === "orders" && (
-          <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden">
-            <div className="px-5 py-4 border-b border-purple-50 flex items-center justify-between">
-              <p className="font-bold text-sm text-[#1e0a3c]">
-                All Orders ({orders.length})
-              </p>
-              <button
-                onClick={fetchOrders}
-                className="text-purple-400 text-xs hover:text-purple-700"
-              >
-                ↻ Refresh
-              </button>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[700px]">
-                <thead className="border-b border-purple-50">
-                  <tr>
-                    {[
-                      "Order ID",
-                      "Customer",
-                      "Tickets",
-                      "Total",
-                      "Status",
-                      "Paid At",
-                      "Actions",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left px-5 py-3 text-purple-300 font-medium"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-purple-50">
-                  {orders.map((o) => (
-                    <tr key={o.orderId} className="hover:bg-purple-50/50">
-                      <td className="px-5 py-3 font-black text-[#1e0a3c] tracking-wide">
-                        {o.orderId}
-                      </td>
-                      <td className="px-5 py-3">
-                        <p className="font-semibold text-[#1e0a3c]">
-                          {o.customer?.firstName} {o.customer?.lastName}
-                        </p>
-                        <p className="text-purple-400">{o.customer?.email}</p>
-                      </td>
-                      <td className="px-5 py-3 text-purple-500">
-                        {o.tickets
-                          ?.map((t) => `${t.name} ×${t.quantity}`)
-                          .join(", ")}
-                      </td>
-                      <td className="px-5 py-3 font-black text-[#1e0a3c]">
-                        ₦{o.total?.toLocaleString()}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            o.status === "paid"
-                              ? "bg-green-100 text-green-700"
-                              : o.status === "pending_payment"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : o.status === "failed"
-                                  ? "bg-red-100 text-red-600"
-                                  : "bg-gray-100 text-gray-500"
-                          }`}
-                        >
-                          {o.status}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-purple-400">
-                        {o.paidAt
-                          ? new Date(o.paidAt).toLocaleDateString()
-                          : "—"}
-                      </td>
-                      <td className="px-5 py-3">
-                        {o.status !== "paid" && (
-                          <button
-                            onClick={() => markPaid(o.orderId)}
-                            className="text-[10px] text-green-600 border border-green-200 rounded-lg px-2 py-1 hover:bg-green-50"
-                          >
-                            Mark Paid
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                  {orders.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="px-5 py-8 text-center text-purple-300"
-                      >
-                        No orders yet
-                      </td>
+                      <td colSpan={6} className="px-5 py-8 text-center text-purple-300">No users yet</td>
                     </tr>
                   )}
                 </tbody>
@@ -594,18 +563,10 @@ export default function AdminPage() {
         {/* ── MESSAGES ────────────────────────────────────────────────────── */}
         {tab === "messages" && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]">
-            {/* Conversation list */}
             <div className="bg-white rounded-2xl border border-purple-100 overflow-hidden flex flex-col">
               <div className="px-4 py-3 border-b border-purple-50 flex items-center justify-between">
-                <p className="font-bold text-sm text-[#1e0a3c]">
-                  Conversations
-                </p>
-                <button
-                  onClick={fetchConvos}
-                  className="text-purple-400 text-xs hover:text-purple-700"
-                >
-                  ↻
-                </button>
+                <p className="font-bold text-sm text-[#1e0a3c]">Conversations</p>
+                <button onClick={loadConvos} className="text-purple-400 text-xs hover:text-purple-700">↻</button>
               </div>
               <div className="flex-1 overflow-y-auto divide-y divide-purple-50">
                 {convos.map((c) => (
@@ -617,65 +578,35 @@ export default function AdminPage() {
                     }`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
-                      <p className="font-semibold text-xs text-[#1e0a3c] truncate">
-                        {c.userName}
-                      </p>
+                      <p className="font-semibold text-xs text-[#1e0a3c] truncate">{c.userName}</p>
                       {c.unreadCount > 0 && (
                         <span className="w-4 h-4 rounded-full bg-[#7c3aed] text-white text-[9px] font-black flex items-center justify-center shrink-0">
                           {c.unreadCount}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-purple-400 truncate">
-                      {c.lastMessage || "No messages yet"}
-                    </p>
-                    <p className="text-[10px] text-purple-200 mt-0.5">
-                      {new Date(c.updatedAt).toLocaleTimeString()}
-                    </p>
+                    <p className="text-[11px] text-purple-400 truncate">{c.lastMessage || "No messages yet"}</p>
                   </button>
                 ))}
-                {convos.length === 0 && (
-                  <p className="p-6 text-center text-purple-300 text-xs">
-                    No conversations yet
-                  </p>
-                )}
+                {convos.length === 0 && <EmptyState message="No conversations yet" />}
               </div>
             </div>
 
-            {/* Active conversation */}
             <div className="lg:col-span-2 bg-white rounded-2xl border border-purple-100 flex flex-col overflow-hidden">
               {activeConvo ? (
                 <>
-                  <div className="px-5 py-3 border-b border-purple-50 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-purple-100 text-[#4c1d95] font-black text-[11px] flex items-center justify-center uppercase">
-                      {activeConvo.userName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")
-                        .slice(0, 2)}
-                    </div>
-                    <div>
-                      <p className="font-bold text-sm text-[#1e0a3c]">
-                        {activeConvo.userName}
-                      </p>
-                      <p className="text-[11px] text-purple-400">
-                        {activeConvo.userEmail}
-                      </p>
-                    </div>
+                  <div className="px-5 py-3 border-b border-purple-50">
+                    <p className="font-bold text-sm text-[#1e0a3c]">{activeConvo.userName}</p>
+                    <p className="text-[11px] text-purple-400">{activeConvo.userEmail}</p>
                   </div>
                   <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                     {(activeConvo.messages || []).map((msg, i) => (
-                      <div
-                        key={msg._id || i}
-                        className={`flex ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}
-                      >
-                        <div
-                          className={`max-w-[70%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${
-                            msg.sender === "admin"
-                              ? "bg-[#7c3aed] text-white rounded-br-sm"
-                              : "bg-purple-50 text-[#1e0a3c] border border-purple-100 rounded-bl-sm"
-                          }`}
-                        >
+                      <div key={msg._id || i} className={`flex ${msg.sender === "admin" ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[70%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${
+                          msg.sender === "admin"
+                            ? "bg-[#7c3aed] text-white rounded-br-sm"
+                            : "bg-purple-50 text-[#1e0a3c] border border-purple-100 rounded-bl-sm"
+                        }`}>
                           {msg.text}
                         </div>
                       </div>
@@ -690,14 +621,14 @@ export default function AdminPage() {
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
-                          sendReply();
+                          handleSendReply();
                         }
                       }}
                       placeholder="Reply…"
                       className="flex-1 resize-none bg-purple-50 border border-purple-100 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-purple-300"
                     />
                     <button
-                      onClick={sendReply}
+                      onClick={handleSendReply}
                       disabled={loading || !replyText.trim()}
                       className="px-4 py-2 bg-[#7c3aed] text-white text-xs font-bold rounded-xl hover:bg-[#6d28d9] disabled:opacity-40"
                     >
@@ -714,6 +645,86 @@ export default function AdminPage() {
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+// ── Sub-components ──────────────────────────────────────────────────────────
+
+function StatCard({
+  label,
+  value,
+  icon,
+  color,
+}: {
+  label: string;
+  value: string | number;
+  icon: string;
+  color: string;
+}) {
+  return (
+    <div className={`rounded-2xl p-5 border ${color}`}>
+      <div className="text-2xl mb-2">{icon}</div>
+      <p className="font-black text-2xl text-[#1e0a3c]">{value}</p>
+      <p className="text-xs text-purple-400 mt-0.5">{label}</p>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return <p className="px-5 py-8 text-center text-purple-300 text-xs">{message}</p>;
+}
+
+function BuyerCard({ order }: { order: Order }) {
+  const [open, setOpen] = useState(false);
+  const c = order.customer;
+
+  return (
+    <div className="px-5 py-4">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full text-left flex items-start justify-between gap-4"
+      >
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-green-100 text-green-700 font-black text-sm flex items-center justify-center shrink-0">
+            {c.firstName[0]}{c.lastName[0]}
+          </div>
+          <div>
+            <p className="font-bold text-sm text-[#1e0a3c]">
+              {c.firstName} {c.lastName}
+            </p>
+            <p className="text-[11px] text-purple-400 mt-0.5">{c.email}</p>
+            <p className="text-[11px] text-purple-400">{c.phone}</p>
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="font-black text-sm text-[#1e0a3c]">{formatNaira(order.total)}</p>
+          <p className="text-[10px] text-purple-300 mt-0.5">{order.orderId}</p>
+          <p className="text-[10px] text-green-600 mt-0.5">
+            {order.paidAt ? new Date(order.paidAt).toLocaleString() : "Paid"}
+          </p>
+        </div>
+      </button>
+
+      {open && (
+        <div className="mt-4 ml-[52px] bg-purple-50/50 rounded-xl p-4 border border-purple-100">
+          <p className="text-[11px] font-bold text-purple-400 uppercase tracking-wide mb-2">Tickets Purchased</p>
+          <div className="space-y-2">
+            {order.tickets.map((t, i) => (
+              <div key={i} className="flex items-center justify-between text-xs">
+                <span className="text-[#1e0a3c] font-medium">{t.name} × {t.quantity}</span>
+                <span className="text-purple-500">{formatNaira(t.price * t.quantity)}</span>
+              </div>
+            ))}
+          </div>
+          {order.paystackChannel && (
+            <p className="text-[10px] text-purple-300 mt-3">
+              Paid via {order.paystackChannel}
+              {order.paystackRef ? ` · Ref: ${order.paystackRef}` : ""}
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
