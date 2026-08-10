@@ -1,2 +1,7 @@
 node_modules
 .next
+
+# env — never commit real secrets
+.env
+.env.*
+!.env.example
