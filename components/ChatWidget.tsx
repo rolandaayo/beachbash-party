@@ -225,22 +225,34 @@ export default function ChatWidget() {
                 {messages.map((msg, i) => (
                   <div
                     key={msg._id ?? i}
-                    className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                    className={`flex flex-col gap-0.5 ${msg.sender === "user" ? "items-end" : "items-start"}`}
                   >
-                    {msg.sender === "admin" && (
-                      <div className="w-6 h-6 rounded-full bg-[#4c1d95] text-white text-[10px] flex items-center justify-center mr-2 shrink-0 self-end mb-0.5">
-                        BB
-                      </div>
-                    )}
                     <div
-                      className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${
-                        msg.sender === "user"
-                          ? "bg-[#7c3aed] text-white rounded-br-sm"
-                          : "bg-purple-50 text-[#1e0a3c] rounded-bl-sm border border-purple-100"
-                      }`}
+                      className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} items-end gap-1.5`}
                     >
-                      {msg.text}
+                      {msg.sender === "admin" && (
+                        <div className="w-6 h-6 rounded-full bg-[#4c1d95] text-white text-[10px] flex items-center justify-center shrink-0">
+                          BB
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${
+                          msg.sender === "user"
+                            ? "bg-[#7c3aed] text-white rounded-br-sm"
+                            : "bg-purple-50 text-[#1e0a3c] rounded-bl-sm border border-purple-100"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
                     </div>
+                    {msg.createdAt && (
+                      <span className="text-[10px] text-purple-300 px-1">
+                        {new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    )}
                   </div>
                 ))}
                 <div ref={bottomRef} />

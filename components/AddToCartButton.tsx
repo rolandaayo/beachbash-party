@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCart, TicketType } from "@/context/CartContext";
 import Spinner from "@/components/Spinner";
 import LinkButton from "@/components/LinkButton";
+import { flyToCart } from "@/lib/flyToCart";
 
 type Variant = "light" | "dark";
 
@@ -16,16 +17,18 @@ export default function AddToCartButton({
 }) {
   const { addToCart, items } = useCart();
   const [state, setState] = useState<"idle" | "loading" | "done">("idle");
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const inCart = items.find((i) => i.ticket.id === ticket.id);
 
   async function handleAdd() {
     if (state !== "idle") return;
     setState("loading");
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 280));
+    flyToCart(btnRef.current, "🎟️");
     addToCart(ticket, 1);
     setState("done");
-    setTimeout(() => setState("idle"), 1600);
+    setTimeout(() => setState("idle"), 1400);
   }
 
   const base =
@@ -51,13 +54,14 @@ export default function AddToCartButton({
   return (
     <div className="flex flex-col gap-1.5">
       <button
+        ref={btnRef}
         onClick={handleAdd}
         disabled={state !== "idle"}
         className={state === "idle" ? idleClass : `${base} ${stateClass}`}
       >
         {state === "loading" && <Spinner className="w-3.5 h-3.5" />}
         {state === "loading" && "Adding…"}
-        {state === "done" && "✓ Added"}
+        {state === "done" && "✓ In the bag"}
         {state === "idle" && "Add to Cart"}
       </button>
 

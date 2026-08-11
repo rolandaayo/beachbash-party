@@ -13,14 +13,14 @@
 @theme inline {
   --color-background: var(--bg);
   --color-foreground: var(--fg);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-geist-sans), Arial, sans-serif;
+  font-family: "Montserrat", var(--font-geist-sans), Arial, sans-serif;
 }
 
 /* ── Animations ──────────────────────────────────────────────────────────── */
@@ -74,9 +74,7 @@ body {
 
 /* ── Nav ─────────────────────────────────────────────────────────────────── */
 .nav-blur {
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  background: rgba(250, 245, 255, 0.88);
+  background: #faf5ff;
   border-bottom: 1px solid rgba(124, 58, 237, 0.12);
 }
 
@@ -175,10 +173,76 @@ body {
   background: rgba(124, 58, 237, 0.06);
 }
 
-/* ── Cart badge ──────────────────────────────────────────────────────────── */
+/* ── Cart badge + add-to-cart feedback ───────────────────────────────────── */
 .cart-dot {
   background: #7c3aed;
   color: #ffffff;
+}
+
+@keyframes cartBump {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.18) rotate(-8deg);
+  }
+  50% {
+    transform: scale(0.96) rotate(6deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+.cart-bump {
+  animation: cartBump 0.55s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+@keyframes cartDotPop {
+  0% {
+    transform: scale(0.4);
+  }
+  55% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.cart-dot-pop {
+  animation: cartDotPop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cartFly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+        calc(-50% + var(--cart-dx, 0px)),
+        calc(-50% + var(--cart-dy, 0px))
+      )
+      scale(0.35) rotate(28deg);
+  }
+}
+.cart-flyer {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  font-size: 1.6rem;
+  line-height: 1;
+  filter: drop-shadow(0 4px 10px rgba(76, 29, 149, 0.35));
+  will-change: transform, opacity;
+}
+.cart-flyer-go {
+  animation: cartFly 0.62s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
 }
 
 /* ── Inputs ──────────────────────────────────────────────────────────────── */
@@ -249,6 +313,43 @@ body {
   background: linear-gradient(135deg, #2e1065 0%, #4c1d95 60%, #3b0764 100%);
 }
 
+/* ── Home ticket carousel (mobile-first) ─────────────────────────────────── */
+.home-tickets {
+  --home-ticket-w: calc(100vw - 2rem);
+  --home-ticket-gap: 0.75rem;
+  background:
+    radial-gradient(
+      ellipse 80% 50% at 10% 0%,
+      rgba(124, 58, 237, 0.08),
+      transparent 55%
+    ),
+    #faf5ff;
+}
+@media (min-width: 640px) {
+  .home-tickets {
+    --home-ticket-w: min(22rem, calc(100vw - 3rem));
+    --home-ticket-gap: 1rem;
+  }
+}
+.home-ticket-card {
+  width: var(--home-ticket-w);
+  min-width: var(--home-ticket-w);
+  min-height: 28rem;
+  border-radius: 1.5rem;
+}
+.home-ticket-card-active {
+  box-shadow: 0 22px 50px rgba(76, 29, 149, 0.18);
+}
+.home-ticket-general {
+  background: #ffffff;
+  border: 1.5px solid rgba(124, 58, 237, 0.14);
+}
+.home-ticket-vvip {
+  background: linear-gradient(160deg, #ffffff 0%, #f5f0ff 100%);
+  border: 2px solid rgba(124, 58, 237, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.08);
+}
+
 /* ── Ticket tier cards ───────────────────────────────────────────────────── */
 .ticket-tier-general {
   background: #ffffff;
@@ -280,16 +381,27 @@ body {
 
 /* ── Chat widget ─────────────────────────────────────────────────────────── */
 @keyframes chatBubblePulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5); }
-  50%       { box-shadow: 0 0 0 10px rgba(124, 58, 237, 0); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(124, 58, 237, 0);
+  }
 }
 .chat-bubble-pulse {
   animation: chatBubblePulse 2.4s ease-in-out infinite;
 }
 
 @keyframes chatPanelIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.97); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 .chat-panel-in {
   animation: chatPanelIn 0.2s ease forwards;
@@ -297,12 +409,20 @@ body {
 
 /* ── Hero slideshow ──────────────────────────────────────────────────────── */
 @keyframes heroFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes heroFadeOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 .animate-hero-fade-in {
   animation: heroFadeIn 1.2s ease forwards;

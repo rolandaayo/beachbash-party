@@ -4,47 +4,72 @@ import LinkButton from "@/components/LinkButton";
 
 export const metadata = { title: "Tickets — BEACHBASH PARTY" };
 
+const ICONS: Record<string, string> = {
+  "regular-girls": "👩🏽",
+  "regular-guys": "👨🏽",
+  "table-700": "🥃",
+  "table-1m": "⭐",
+  "table-1.5m": "👑",
+};
+
+const TIER_LABEL: Record<string, string> = {
+  "regular-girls": "Early Bird",
+  "regular-guys": "Early Bird",
+  "table-700": "Standing Table",
+  "table-1m": "Premium Table",
+  "table-1.5m": "Private Cabana",
+};
+
+const CAPACITY: Record<string, string> = {
+  "regular-girls": "per person",
+  "regular-guys": "per person",
+  "table-700": "2–4 people",
+  "table-1m": "2–6 people",
+  "table-1.5m": "2–8 people",
+};
+
 export default function TicketsPage() {
   const [girlsTicket, guysTicket, t700, t1m, t15m] = TICKETS;
 
   return (
     <div className="pt-14">
-      {/* ── HERO ─────────────────────────────────────────────────────── */}
-      <div className="ticket-hero px-5 pt-20 pb-16">
+      {/* ── HERO — compact dark purple ───────────────────────────────── */}
+      <div className="ticket-hero px-5 pt-12 pb-10">
         <div className="max-w-5xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 mb-8">
+          <div className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1 mb-5">
             <span className="live-dot w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-            <span className="text-white/60 text-[11px] tracking-widest uppercase font-medium">
+            <span className="text-white/60 text-[10px] tracking-widest uppercase font-medium">
               Tickets on sale now
             </span>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
             <div>
-              <h1 className="font-black text-5xl sm:text-7xl text-white leading-none tracking-tight mb-4">
+              <h1 className="font-black text-4xl sm:text-6xl text-white leading-none tracking-tight mb-2">
                 Get Your
                 <br />
-                <span className="text-white/30">Tickets</span>
+                <span className="text-white/25">Tickets</span>
               </h1>
-              <p className="text-white/50 text-sm leading-relaxed max-w-sm">
-                One show. One night. October 10, 2026, Lagos, Nigeria. Doors
-                open 4 PM — till dawn.
+              <p className="text-white/45 text-sm max-w-xs">
+                Oct 10, 2026 · Lagos, Nigeria · 4 PM till dawn
               </p>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            <div className="flex flex-wrap gap-2">
               {[
-                { label: "Date", value: "Oct 10, 2026" },
-                { label: "City", value: "Lagos 🇳🇬" },
-                { label: "Doors", value: "4:00 PM" },
-                { label: "From", value: "₦40k" },
+                { icon: "📅", val: "Oct 10, 2026" },
+                { icon: "📍", val: "Lagos 🇳🇬" },
+                { icon: "🕗", val: "4:00 PM" },
+                { icon: "🎟️", val: "From ₦40k" },
               ].map((f) => (
                 <div
-                  key={f.label}
-                  className="bg-white/8 border border-white/12 rounded-2xl px-4 py-3"
+                  key={f.val}
+                  className="flex items-center gap-1.5 bg-white/10 border border-white/12 rounded-full px-3 py-1.5"
                 >
-                  <p className="text-white/30 text-[10px] uppercase tracking-widest mb-1">
-                    {f.label}
-                  </p>
-                  <p className="text-white font-bold text-sm">{f.value}</p>
+                  <span className="text-sm">{f.icon}</span>
+                  <span className="text-white/70 text-xs font-medium">
+                    {f.val}
+                  </span>
                 </div>
               ))}
             </div>
@@ -53,7 +78,7 @@ export default function TicketsPage() {
       </div>
 
       {/* ── MARQUEE ──────────────────────────────────────────────────── */}
-      <div className="overflow-hidden bg-[#2e1065] py-5 select-none border-t border-white/5">
+      <div className="overflow-hidden bg-[#2e1065] py-4 select-none border-t border-white/5">
         <div className="marquee-track-reverse">
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center">
@@ -69,11 +94,15 @@ export default function TicketsPage() {
               ].map((item, j) => (
                 <span key={j} className="flex items-center">
                   <span
-                    className={`whitespace-nowrap font-black tracking-[0.15em] uppercase px-7 ${item.accent ? "text-white text-xl" : "text-white/20 text-sm"}`}
+                    className={`whitespace-nowrap font-black tracking-[0.15em] uppercase px-6 ${
+                      item.accent
+                        ? "text-white text-sm"
+                        : "text-white/20 text-xs"
+                    }`}
                   >
                     {item.text}
                   </span>
-                  <span className="text-purple-500/30 text-base">✦</span>
+                  <span className="text-purple-500/30 text-sm">✦</span>
                 </span>
               ))}
             </div>
@@ -82,200 +111,37 @@ export default function TicketsPage() {
       </div>
 
       {/* ── TICKET CARDS ─────────────────────────────────────────────── */}
-      <div className="bg-[#faf5ff] px-5 py-16">
+      <div className="bg-[#faf5ff] px-4 sm:px-5 py-12">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center gap-4 mb-10">
-            <span className="text-[#1e0a3c] font-black text-xl">
+          <div className="flex items-center gap-3 mb-8">
+            <h2 className="font-black text-xl text-[#1e0a3c]">
               Choose your experience
-            </span>
+            </h2>
             <div className="flex-1 h-px bg-purple-100" />
             <span className="text-purple-300 text-xs">5 options</span>
           </div>
 
-          {/* ── REGULAR ENTRY — split into 2 cards side by side ── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-            {[girlsTicket, guysTicket].map((ticket) => (
-              <div
-                key={ticket.id}
-                className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300"
-              >
-                <div className="flex items-start justify-between mb-5">
-                  <div>
-                    <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
-                      Early Bird
-                    </p>
-                    <h2 className="text-[#1e0a3c] font-black text-2xl leading-none">
-                      {ticket.id === "regular-girls" ? "Girls" : "Guys"}
-                    </h2>
-                  </div>
-                  <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
-                    {ticket.id === "regular-girls" ? "👩🏽" : "👨🏽"}
-                  </div>
-                </div>
-
-                <p className="text-[#1e0a3c] font-black text-4xl leading-none mb-1">
-                  {formatNaira(ticket.price)}
-                </p>
-                <p className="text-purple-300 text-xs mb-5">
-                  per person · early bird
-                </p>
-
-                <div className="flex-1 border-t border-purple-100 pt-4 mb-6">
-                  <ul className="flex flex-col gap-2.5">
-                    {ticket.perks.map((perk) => (
-                      <li
-                        key={perk}
-                        className="flex items-center gap-2.5 text-xs text-purple-500"
-                      >
-                        <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
-                          ✓
-                        </span>
-                        {perk}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <AddToCartButton ticket={ticket} variant="light" />
-              </div>
-            ))}
+          {/* Regular — 2 col on all screens */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 mb-4">
+            <TicketCard ticket={girlsTicket} variant="vip" />
+            <TicketCard ticket={guysTicket} variant="general" />
           </div>
 
-          {/* ── TABLE PACKAGES ── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-14">
-            {/* 700K */}
-            <div className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300">
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold mb-1">
-                    Standing Table
-                  </p>
-                  <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
-                    Table
-                    <br />
-                    700K
-                  </h2>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-purple-100 flex items-center justify-center text-xl">
-                  🥃
-                </div>
-              </div>
-              <p className="text-[#1e0a3c] font-black text-3xl leading-none mb-1">
-                {formatNairaFull(700000)}
-              </p>
-              <p className="text-purple-300 text-xs mb-5">2–4 people</p>
-              <div className="flex-1 border-t border-purple-100 pt-4 mb-6">
-                <ul className="flex flex-col gap-2.5">
-                  {t700.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className="flex items-center gap-2.5 text-xs text-purple-500"
-                    >
-                      <span className="w-4 h-4 rounded-full bg-purple-100 flex items-center justify-center text-[10px] shrink-0 text-purple-400">
-                        ✓
-                      </span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <AddToCartButton ticket={t700} variant="light" />
-            </div>
-
-            {/* 1M — featured */}
-            <div className="ticket-tier-vip rounded-3xl p-7 flex flex-col relative overflow-hidden hover:-translate-y-1 transition-transform duration-300">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-px bg-white/20" />
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/15 rounded-full px-2.5 py-0.5 mb-2">
-                    <span className="live-dot w-1 h-1 rounded-full bg-green-400 inline-block" />
-                    <span className="text-white/60 text-[10px] font-bold tracking-widest uppercase">
-                      Popular
-                    </span>
-                  </div>
-                  <h2 className="text-white font-black text-xl leading-none">
-                    Table
-                    <br />
-                    1M
-                  </h2>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-xl">
-                  ⭐
-                </div>
-              </div>
-              <p className="text-white font-black text-3xl leading-none mb-1">
-                {formatNairaFull(1000000)}
-              </p>
-              <p className="text-white/30 text-xs mb-5">2–6 people</p>
-              <div className="flex-1 border-t border-white/10 pt-4 mb-6">
-                <ul className="flex flex-col gap-2.5">
-                  {t1m.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className="flex items-center gap-2.5 text-xs text-white/60"
-                    >
-                      <span className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-[10px] shrink-0 text-white/50">
-                        ✓
-                      </span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <AddToCartButton ticket={t1m} variant="dark" />
-            </div>
-
-            {/* 1.5M */}
-            <div
-              className="ticket-tier-general rounded-3xl p-7 flex flex-col hover:-translate-y-1 transition-transform duration-300"
-              style={{
-                background: "linear-gradient(135deg, #faf5ff, #f3e8ff)",
-              }}
-            >
-              <div className="flex items-start justify-between mb-5">
-                <div>
-                  <p className="text-purple-400 text-[10px] uppercase tracking-widest font-bold mb-1">
-                    Private Cabana
-                  </p>
-                  <h2 className="text-[#1e0a3c] font-black text-xl leading-none">
-                    Table
-                    <br />
-                    1.5M
-                  </h2>
-                </div>
-                <div className="w-10 h-10 rounded-2xl bg-purple-200 flex items-center justify-center text-xl">
-                  👑
-                </div>
-              </div>
-              <p className="text-[#1e0a3c] font-black text-3xl leading-none mb-1">
-                {formatNairaFull(1500000)}
-              </p>
-              <p className="text-purple-400 text-xs mb-5">2–8 people</p>
-              <div className="flex-1 border-t border-purple-200 pt-4 mb-6">
-                <ul className="flex flex-col gap-2.5">
-                  {t15m.perks.map((perk) => (
-                    <li
-                      key={perk}
-                      className="flex items-center gap-2.5 text-xs text-purple-600"
-                    >
-                      <span className="w-4 h-4 rounded-full bg-purple-200 flex items-center justify-center text-[10px] shrink-0 text-purple-500">
-                        ✓
-                      </span>
-                      {perk}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <AddToCartButton ticket={t15m} variant="light" />
+          {/* Table packages — 2 col mobile, 3 col desktop */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 mb-12">
+            <TicketCard ticket={t700} variant="general" />
+            <TicketCard ticket={t1m} variant="vip" />
+            <div className="col-span-2 md:col-span-1">
+              <TicketCard ticket={t15m} variant="vvip" fullWidth />
             </div>
           </div>
 
           {/* ── COMPARISON TABLE ─────────────────────────────────────── */}
-          <div className="ticket-hero rounded-3xl p-7 mb-10 overflow-x-auto">
+          <div className="ticket-hero rounded-3xl p-5 sm:p-7 mb-8 overflow-x-auto">
             <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-5">
               Quick comparison
             </p>
-            <table className="w-full text-xs min-w-[500px]">
+            <table className="w-full text-xs min-w-[460px]">
               <thead>
                 <tr className="border-b border-white/10">
                   <th className="text-left text-white/30 font-medium pb-3 w-2/5">
@@ -284,12 +150,12 @@ export default function TicketsPage() {
                   <th className="text-center text-white/50 font-bold pb-3">
                     Girls
                     <br />
-                    <span className="text-white/30 font-normal">₦40k</span>
+                    <span className="text-white/25 font-normal">₦40k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     Guys
                     <br />
-                    <span className="text-white/30 font-normal">₦60k</span>
+                    <span className="text-white/25 font-normal">₦60k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     700K
@@ -303,7 +169,7 @@ export default function TicketsPage() {
               <tbody className="divide-y divide-white/5">
                 {[
                   ["General entry", true, true, true, true, true],
-                  ["To & fro boat ride", true, true, false, false, false],
+                  ["To & fro boat", true, true, false, false, false],
                   ["General boat ride", false, false, true, true, false],
                   ["Private boat (×8)", false, false, false, false, true],
                   ["Safari jeep ride", true, true, true, true, true],
@@ -319,11 +185,10 @@ export default function TicketsPage() {
                   ],
                   ["Champagne", false, false, "×1", "×2", "×2"],
                   ["Shisha", false, false, false, true, true],
-                  ["Chivita", false, false, false, "×1", "×2"],
                   ["Private cabana", false, false, false, false, true],
                 ].map(([feature, g, gu, t7, t1, t15]) => (
                   <tr key={feature as string}>
-                    <td className="text-white/40 py-2.5">
+                    <td className="text-white/40 py-2.5 pr-3">
                       {feature as string}
                     </td>
                     {[g, gu, t7, t1, t15].map((val, ci) => (
@@ -346,17 +211,17 @@ export default function TicketsPage() {
           </div>
 
           {/* Trust strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               {
                 icon: "🔒",
                 title: "Secure Checkout",
-                desc: "Payment info is encrypted and never stored.",
+                desc: "Encrypted payment. Your info is never stored.",
               },
               {
                 icon: "📱",
                 title: "Digital Tickets",
-                desc: "Sent instantly to your email. No printing needed.",
+                desc: "QR code sent to your email. No printing needed.",
               },
               {
                 icon: "⚠️",
@@ -366,11 +231,11 @@ export default function TicketsPage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="flex items-start gap-3 p-5 rounded-2xl border border-purple-100 hover:border-purple-200 transition-colors bg-white"
+                className="flex items-start gap-3 p-4 rounded-2xl border border-purple-100 bg-white hover:border-purple-200 transition-colors"
               >
-                <span className="text-2xl mt-0.5">{item.icon}</span>
+                <span className="text-xl mt-0.5">{item.icon}</span>
                 <div>
-                  <p className="text-[#1e0a3c] font-bold text-sm mb-1">
+                  <p className="text-[#1e0a3c] font-bold text-xs mb-1">
                     {item.title}
                   </p>
                   <p className="text-purple-400 text-xs leading-relaxed">
@@ -383,7 +248,7 @@ export default function TicketsPage() {
         </div>
       </div>
 
-      {/* Bottom CTA */}
+      {/* ── BOTTOM CTA ──────────────────────────────────────────────── */}
       <div className="border-t border-purple-100 bg-white py-12 px-5 text-center">
         <p className="text-purple-400 text-sm mb-2">Still deciding?</p>
         <p className="text-[#1e0a3c] font-black text-2xl mb-6">
@@ -393,10 +258,142 @@ export default function TicketsPage() {
           <LinkButton href="/faq" className="btn-outline px-6 py-2.5 text-sm">
             Read the FAQ
           </LinkButton>
-          <LinkButton href="/about" className="btn-ghost  px-6 py-2.5 text-sm">
+          <LinkButton href="/about" className="btn-ghost px-6 py-2.5 text-sm">
             About the Event
           </LinkButton>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Ticket card ──────────────────────────────────────────────────────────────
+function TicketCard({
+  ticket,
+  variant,
+  fullWidth,
+}: {
+  ticket: {
+    id: string;
+    name: string;
+    price: number;
+    description: string;
+    perks: string[];
+  };
+  variant: "general" | "vip" | "vvip";
+  fullWidth?: boolean;
+}) {
+  const isVip = variant === "vip";
+  const isVvip = variant === "vvip";
+  const isDark = isVip;
+
+  return (
+    <div
+      className={`rounded-2xl sm:rounded-3xl flex flex-col overflow-hidden hover:-translate-y-1 transition-transform duration-300 ${
+        fullWidth ? "h-full" : ""
+      } ${
+        isVip
+          ? "ticket-tier-vip"
+          : isVvip
+            ? "ticket-tier-general"
+            : "ticket-tier-general"
+      } ${isVvip ? "border-2 border-purple-200" : ""}`}
+      style={
+        isVvip
+          ? { background: "linear-gradient(135deg,#faf5ff,#f3e8ff)" }
+          : undefined
+      }
+    >
+      {/* Header */}
+      <div
+        className={`px-4 sm:px-6 pt-5 pb-4 border-b ${isDark ? "border-white/10" : "border-purple-100"}`}
+      >
+        <div className="flex items-start justify-between mb-3">
+          <div className="min-w-0">
+            {ticket.id === "table-1m" && (
+              <div className="inline-flex items-center gap-1 bg-white/10 border border-white/15 rounded-full px-2 py-0.5 mb-1.5">
+                <span className="live-dot w-1 h-1 rounded-full bg-green-400 inline-block" />
+                <span className="text-white/70 text-[9px] font-bold tracking-widest uppercase">
+                  Popular
+                </span>
+              </div>
+            )}
+            <p
+              className={`text-[9px] sm:text-[10px] font-bold tracking-widest uppercase mb-1 ${
+                isDark
+                  ? "text-white/50"
+                  : isVvip
+                    ? "text-purple-400"
+                    : "text-purple-300"
+              }`}
+            >
+              {TIER_LABEL[ticket.id]}
+            </p>
+            <h2
+              className={`font-black text-sm sm:text-xl leading-tight ${isDark ? "text-white" : "text-[#1e0a3c]"}`}
+            >
+              {ticket.name}
+            </h2>
+          </div>
+          <span className="text-xl sm:text-2xl shrink-0 ml-1">
+            {ICONS[ticket.id]}
+          </span>
+        </div>
+
+        <p
+          className={`font-black text-2xl sm:text-3xl leading-none ${isDark ? "text-white" : "text-[#1e0a3c]"}`}
+        >
+          {ticket.price >= 1000000
+            ? formatNairaFull(ticket.price)
+            : formatNaira(ticket.price)}
+        </p>
+        <p
+          className={`text-[10px] sm:text-xs mt-1 ${isDark ? "text-white/40" : "text-purple-300"}`}
+        >
+          {CAPACITY[ticket.id]}
+        </p>
+        <p
+          className={`text-[10px] sm:text-xs mt-2 leading-relaxed line-clamp-2 ${isDark ? "text-white/55" : "text-purple-500"}`}
+        >
+          {ticket.description}
+        </p>
+      </div>
+
+      {/* Perks */}
+      <div className="px-4 sm:px-6 py-4 flex-1">
+        <ul className="flex flex-col gap-2">
+          {ticket.perks.slice(0, 5).map((perk) => (
+            <li
+              key={perk}
+              className={`flex items-center gap-2 text-[10px] sm:text-xs ${isDark ? "text-white/65" : isVvip ? "text-purple-600" : "text-purple-500"}`}
+            >
+              <span
+                className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] shrink-0 ${
+                  isDark
+                    ? "bg-white/15 text-white/60"
+                    : isVvip
+                      ? "bg-purple-200 text-purple-500"
+                      : "bg-purple-100 text-purple-400"
+                }`}
+              >
+                ✓
+              </span>
+              {perk}
+            </li>
+          ))}
+          {ticket.perks.length > 5 && (
+            <li
+              className={`text-[10px] ${isDark ? "text-white/30" : "text-purple-300"}`}
+            >
+              +{ticket.perks.length - 5} more
+            </li>
+          )}
+        </ul>
+      </div>
+
+      {/* CTA */}
+      <div className="px-4 sm:px-6 pb-5">
+        <AddToCartButton ticket={ticket} variant={isDark ? "dark" : "light"} />
       </div>
     </div>
   );

@@ -119,6 +119,14 @@ export async function deleteUser(id: string): Promise<void> {
   if (!r.ok) throw new Error("Failed to delete user");
 }
 
+export async function deleteOrder(orderId: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/orders/${orderId}`, {
+    method: "DELETE",
+    headers: adminHeaders,
+  });
+  if (!r.ok) throw new Error("Failed to delete order");
+}
+
 export async function updateOrderStatus(
   orderId: string,
   status: string,

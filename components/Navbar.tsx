@@ -14,11 +14,33 @@ const NAV_LINKS = [
   { href: "/faq", label: "FAQ" },
 ];
 
+function UserAvatar({
+  firstName,
+  lastName,
+  size = "md",
+}: {
+  firstName: string;
+  lastName: string;
+  size?: "sm" | "md";
+}) {
+  const dim = size === "sm" ? "w-7 h-7 text-[10px]" : "w-8 h-8 text-[11px]";
+  return (
+    <span
+      className={`relative ${dim} rounded-full bg-[#7c3aed] text-white font-black flex items-center justify-center uppercase shrink-0`}
+    >
+      {firstName[0]}
+      {lastName[0]}
+      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white" />
+    </span>
+  );
+}
+
 export default function Navbar() {
   const { totalItems } = useCart();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [cartBump, setCartBump] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -28,13 +50,26 @@ export default function Navbar() {
   }, [pathname]);
 
   useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+    function onBump() {
+      setCartBump(true);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => setCartBump(false), 650);
+    }
+    window.addEventListener("bb-cart-bump", onBump);
+    return () => {
+      window.removeEventListener("bb-cart-bump", onBump);
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
   }, [open]);
 
-  // Close user dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -50,6 +85,7 @@ export default function Navbar() {
 
   async function handleLogout() {
     setUserMenuOpen(false);
+    setOpen(false);
     await logout();
     router.push("/");
   }
@@ -58,7 +94,6 @@ export default function Navbar() {
     <>
       <nav className="nav-blur fixed top-0 left-0 right-0 z-50">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 flex items-center justify-between h-14">
-          {/* Logo */}
           <Link
             href="/"
             onClick={() => {
@@ -74,7 +109,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop links */}
           <div className="hidden md:flex items-center gap-1">
             {NAV_LINKS.map(({ href, label }) => (
               <LinkButton
@@ -90,17 +124,16 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center gap-2">
-            {/* Cart */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <Link
+              id="nav-cart-btn"
               href="/cart"
               onClick={() => {
                 if (window.location.pathname !== "/cart") {
                   window.dispatchEvent(new Event("nav-start"));
                 }
               }}
-              className="relative btn-primary text-xs py-2 px-4"
+              className={`relative btn-primary text-xs py-2 px-3 sm:px-4 ${cartBump ? "cart-bump" : ""}`}
             >
               <svg
                 className="w-3.5 h-3.5"
@@ -117,26 +150,29 @@ export default function Navbar() {
               </svg>
               <span className="hidden sm:inline">Cart</span>
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 cart-dot text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">
+                <span
+                  key={totalItems}
+                  className={`absolute -top-1.5 -right-1.5 cart-dot text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none ${cartBump ? "cart-dot-pop" : ""}`}
+                >
                   {totalItems}
                 </span>
               )}
             </Link>
 
-            {/* Auth — desktop only */}
+            {/* Desktop auth */}
             <div className="hidden md:block">
-              {user ? (
+              {!isLoading && user ? (
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={() => setUserMenuOpen((v) => !v)}
-                    className="flex items-center gap-1.5 btn-ghost text-xs font-medium px-3 py-2"
+                    className="flex items-center gap-2 btn-ghost text-xs font-medium pl-1.5 pr-3 py-1.5"
                     aria-label="Account menu"
                   >
-                    <span className="w-6 h-6 rounded-full bg-purple-100 text-[#4c1d95] font-black text-[10px] flex items-center justify-center uppercase">
-                      {user.firstName[0]}
-                      {user.lastName[0]}
-                    </span>
-                    <span className="text-[#4c1d95] max-w-[80px] truncate">
+                    <UserAvatar
+                      firstName={user.firstName}
+                      lastName={user.lastName}
+                    />
+                    <span className="text-[#4c1d95] max-w-[90px] truncate font-semibold">
                       {user.firstName}
                     </span>
                     <svg
@@ -155,11 +191,18 @@ export default function Navbar() {
                   </button>
 
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-1 w-44 bg-white border border-purple-100 rounded-xl shadow-lg py-1 z-50">
-                      <div className="px-3 py-2 border-b border-purple-50">
-                        <p className="text-[11px] text-purple-300 truncate">
+                    <div className="absolute right-0 mt-1 w-52 bg-white border border-purple-100 rounded-xl shadow-lg py-1 z-50">
+                      <div className="px-3 py-2.5 border-b border-purple-50">
+                        <p className="text-xs font-bold text-[#1e0a3c]">
+                          {user.firstName} {user.lastName}
+                        </p>
+                        <p className="text-[11px] text-purple-300 truncate mt-0.5">
                           {user.email}
                         </p>
+                        <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-semibold text-green-600">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                          Signed in
+                        </span>
                       </div>
                       <button
                         onClick={handleLogout}
@@ -170,7 +213,7 @@ export default function Navbar() {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : !isLoading ? (
                 <LinkButton
                   href="/login"
                   spinnerClass="w-3 h-3"
@@ -178,34 +221,48 @@ export default function Navbar() {
                 >
                   Sign In
                 </LinkButton>
-              )}
+              ) : null}
             </div>
 
-            {/* Hamburger */}
-            <button
-              onClick={() => setOpen(true)}
-              aria-label="Open menu"
-              className="md:hidden btn-ghost p-2"
-            >
-              <svg
-                className="w-5 h-5 text-[#4c1d95]"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                viewBox="0 0 24 24"
+            {/* Mobile: avatar when logged in + hamburger */}
+            <div className="flex md:hidden items-center gap-1">
+              {!isLoading && user && (
+                <button
+                  onClick={() => setOpen(true)}
+                  aria-label="Open account menu"
+                  className="btn-ghost p-1"
+                >
+                  <UserAvatar
+                    firstName={user.firstName}
+                    lastName={user.lastName}
+                    size="sm"
+                  />
+                </button>
+              )}
+              <button
+                onClick={() => setOpen(true)}
+                aria-label="Open menu"
+                className="btn-ghost p-2"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h10"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-5 h-5 text-[#4c1d95]"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6h16M4 12h16M4 18h10"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Mobile drawer */}
       {open && (
         <>
           <div
@@ -238,6 +295,28 @@ export default function Navbar() {
               </button>
             </div>
 
+            {/* Logged-in banner at top of drawer */}
+            {!isLoading && user && (
+              <div className="mx-4 mt-4 flex items-center gap-3 rounded-xl bg-white border border-purple-100 px-3 py-3">
+                <UserAvatar
+                  firstName={user.firstName}
+                  lastName={user.lastName}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-[#1e0a3c] truncate">
+                    {user.firstName} {user.lastName}
+                  </p>
+                  <p className="text-[11px] text-purple-300 truncate">
+                    {user.email}
+                  </p>
+                  <span className="inline-flex items-center gap-1 mt-0.5 text-[10px] font-semibold text-green-600">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                    Signed in
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex flex-col gap-1 p-4 flex-1">
               {NAV_LINKS.map(({ href, label }) => (
                 <LinkButton
@@ -254,33 +333,22 @@ export default function Navbar() {
                 </LinkButton>
               ))}
 
-              {/* Auth row in mobile drawer */}
-              {user ? (
-                <>
-                  <div className="px-4 py-3 mt-2 border-t border-purple-100">
-                    <p className="text-xs font-semibold text-[#4c1d95]">
-                      {user.firstName} {user.lastName}
-                    </p>
-                    <p className="text-[11px] text-purple-300 truncate mt-0.5">
-                      {user.email}
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
+              {!isLoading && user ? (
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors mt-2 border-t border-purple-100 pt-3"
+                >
+                  Sign Out
+                </button>
+              ) : !isLoading ? (
                 <LinkButton
                   href="/login"
                   spinnerClass="w-3.5 h-3.5"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-purple-400 hover:text-[#4c1d95] hover:bg-purple-50 transition-colors mt-2 border-t border-purple-100 pt-3"
                 >
-                  Sign In
+                  Sign In / Create Account
                 </LinkButton>
-              )}
+              ) : null}
             </div>
 
             <div className="p-4 border-t border-purple-100">

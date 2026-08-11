@@ -6,7 +6,13 @@ const STEPS: { id: Step; label: string }[] = [
   { id: "confirmation", label: "Confirmed" },
 ];
 
-export default function OrderSteps({ current }: { current: Step }) {
+export default function OrderSteps({
+  current,
+  dark = false,
+}: {
+  current: Step;
+  dark?: boolean;
+}) {
   const currentIdx = STEPS.findIndex((s) => s.id === current);
 
   return (
@@ -23,8 +29,12 @@ export default function OrderSteps({ current }: { current: Step }) {
                   done
                     ? "bg-[#7c3aed] text-white"
                     : active
-                      ? "bg-purple-100 text-[#7c3aed] ring-1 ring-[#7c3aed]/40"
-                      : "bg-purple-50 text-purple-300"
+                      ? dark
+                        ? "bg-white/15 text-white ring-1 ring-white/30"
+                        : "bg-purple-100 text-[#7c3aed] ring-1 ring-[#7c3aed]/40"
+                      : dark
+                        ? "bg-white/8 text-white/25"
+                        : "bg-purple-50 text-purple-300"
                 }`}
               >
                 {done ? "✓" : i + 1}
@@ -32,10 +42,16 @@ export default function OrderSteps({ current }: { current: Step }) {
               <span
                 className={`text-[10px] tracking-wide font-medium ${
                   active
-                    ? "text-[#7c3aed]"
+                    ? dark
+                      ? "text-white"
+                      : "text-[#7c3aed]"
                     : done
-                      ? "text-purple-400"
-                      : "text-purple-200"
+                      ? dark
+                        ? "text-white/50"
+                        : "text-purple-400"
+                      : dark
+                        ? "text-white/25"
+                        : "text-purple-200"
                 }`}
               >
                 {step.label}
@@ -45,7 +61,11 @@ export default function OrderSteps({ current }: { current: Step }) {
             {i < STEPS.length - 1 && (
               <div
                 className={`h-px w-12 sm:w-20 mx-1 mb-4 transition-colors ${
-                  done ? "bg-[#7c3aed]/40" : "bg-purple-100"
+                  done
+                    ? "bg-[#7c3aed]/60"
+                    : dark
+                      ? "bg-white/10"
+                      : "bg-purple-100"
                 }`}
               />
             )}
