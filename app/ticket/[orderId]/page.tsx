@@ -5,15 +5,25 @@ import { useParams } from "next/navigation";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+type TicketLine = {
+  name: string;
+  quantity: number;
+  price: number;
+  total: number;
+};
+
 type TicketInfo = {
   valid: boolean;
   orderId: string;
   firstName: string;
   lastName: string;
   email: string;
-  tickets: { name: string; quantity: number }[];
+  phone: string;
+  tickets: TicketLine[];
   total: number;
   paidAt: string;
+  checkedIn: boolean;
+  checkedInAt: string | null;
 };
 
 export default function TicketScanPage() {
@@ -26,14 +36,22 @@ export default function TicketScanPage() {
     if (!orderId) return;
     fetch(`${API_BASE}/api/orders/ticket/${orderId}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d) => setData(d))
+      .then(setData)
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [orderId]);
 
+  const bgStyle = {
+    background:
+      "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f0520]">
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={bgStyle}
+      >
         <div className="text-white/40 text-sm animate-pulse">
           Verifying ticket…
         </div>
@@ -43,7 +61,10 @@ export default function TicketScanPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0f0520] px-5">
+      <div
+        className="min-h-screen flex items-center justify-center px-5"
+        style={bgStyle}
+      >
         <div className="text-center">
           <div className="text-5xl mb-4">❌</div>
           <h1 className="font-black text-2xl text-white mb-2">
@@ -65,12 +86,8 @@ export default function TicketScanPage() {
   return (
     <div
       className="min-h-screen flex items-center justify-center px-4 py-10"
-      style={{
-        background:
-          "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
-      }}
+      style={bgStyle}
     >
-      {/* Glow blobs */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple-700/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-violet-600/15 blur-3xl" />
@@ -78,14 +95,13 @@ export default function TicketScanPage() {
 
       <div className="relative w-full max-w-sm">
         {/* Header */}
-        <div className="text-center mb-6">
-          <div className="text-4xl mb-2">🏖️</div>
+        <div className="text-center mb-5">
+          <div className="text-3xl mb-1">🏖️</div>
           <p className="text-white/40 text-[10px] tracking-widest uppercase font-bold">
             BeachBash Party · Lagos 2026
           </p>
         </div>
 
-        {/* Main card */}
         <div
           className="rounded-2xl border border-white/10 overflow-hidden"
           style={{
@@ -93,71 +109,103 @@ export default function TicketScanPage() {
             backdropFilter: "blur(20px)",
           }}
         >
-          {/* PAID banner */}
-          <div className="bg-green-500/20 border-b border-green-500/20 px-5 py-3 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-400 shrink-0" />
-            <span className="text-green-400 font-black text-sm tracking-widest uppercase">
-              PAID ✓ VALID ENTRY
+          {/* Status banner */}
+          <div
+            className={`px-5 py-3 flex items-center gap-2 border-b ${
+              data.checkedIn
+                ? "bg-blue-500/20 border-blue-500/20"
+                : "bg-green-500/20 border-green-500/20"
+            }`}
+          >
+            <span
+              className={`w-2.5 h-2.5 rounded-full shrink-0 ${data.checkedIn ? "bg-blue-400" : "bg-green-400"}`}
+            />
+            <span
+              className={`font-black text-sm tracking-widest uppercase ${data.checkedIn ? "text-blue-300" : "text-green-400"}`}
+            >
+              {data.checkedIn ? "✓ CHECKED IN" : "PAID ✓ VALID ENTRY"}
             </span>
           </div>
 
-          <div className="px-5 py-6 space-y-5">
+          <div className="px-5 py-5 space-y-4">
             {/* Guest name */}
-            <div className="text-center">
+            <div className="text-center pb-3 border-b border-white/10">
               <p className="text-white/40 text-[10px] uppercase tracking-widest mb-1">
                 Guest
               </p>
-              <p className="text-white font-black text-2xl">
+              <p className="text-white font-black text-2xl leading-tight">
                 {data.firstName} {data.lastName}
               </p>
               <p className="text-white/50 text-xs mt-0.5">{data.email}</p>
+              {data.phone && (
+                <p className="text-white/35 text-xs">{data.phone}</p>
+              )}
             </div>
 
-            {/* Tickets */}
-            <div className="border-t border-white/10 pt-4">
-              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-3">
-                Tickets
+            {/* Ticket / Package details */}
+            <div>
+              <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2">
+                Package
               </p>
               <div className="space-y-2">
                 {data.tickets.map((t, i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <span className="text-white text-sm font-semibold">
-                      {t.name}
-                    </span>
-                    <span className="text-white/50 text-xs">
-                      × {t.quantity}
-                    </span>
+                  <div
+                    key={i}
+                    className="flex items-center justify-between bg-white/5 rounded-xl px-3 py-2.5"
+                  >
+                    <div>
+                      <p className="text-white font-bold text-sm">{t.name}</p>
+                      <p className="text-white/40 text-[10px]">
+                        × {t.quantity}
+                      </p>
+                    </div>
+                    <p className="text-white font-black text-sm">
+                      ₦{(t.price * t.quantity).toLocaleString("en-NG")}
+                    </p>
                   </div>
                 ))}
               </div>
+              <div className="flex justify-between items-center mt-2 px-3 py-2 bg-purple-500/10 rounded-xl border border-purple-500/20">
+                <span className="text-white/60 text-xs font-semibold">
+                  Total Paid
+                </span>
+                <span className="text-white font-black text-base">
+                  ₦{data.total.toLocaleString("en-NG")}
+                </span>
+              </div>
             </div>
 
-            {/* Details grid */}
-            <div className="border-t border-white/10 pt-4 grid grid-cols-2 gap-4">
+            {/* Order details */}
+            <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
               <div>
-                <p className="text-white/30 text-[10px] uppercase tracking-widest mb-1">
+                <p className="text-white/30 text-[9px] uppercase tracking-widest mb-0.5">
                   Order ID
                 </p>
                 <p className="text-white text-xs font-bold">{data.orderId}</p>
               </div>
               <div>
-                <p className="text-white/30 text-[10px] uppercase tracking-widest mb-1">
-                  Total Paid
-                </p>
-                <p className="text-white text-xs font-bold">
-                  ₦{data.total.toLocaleString("en-NG")}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-white/30 text-[10px] uppercase tracking-widest mb-1">
-                  Payment Confirmed
+                <p className="text-white/30 text-[9px] uppercase tracking-widest mb-0.5">
+                  Paid On
                 </p>
                 <p className="text-white text-xs font-bold">{paidDate}</p>
               </div>
+              {data.checkedIn && data.checkedInAt && (
+                <div className="col-span-2">
+                  <p className="text-blue-300/60 text-[9px] uppercase tracking-widest mb-0.5">
+                    Checked In At
+                  </p>
+                  <p className="text-blue-300 text-xs font-bold">
+                    {new Date(data.checkedInAt).toLocaleString("en-NG", {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Event info */}
-            <div className="border-t border-white/10 pt-4 grid grid-cols-3 gap-3 text-center">
+            <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center">
               {[
                 { label: "Event", val: "BEACHBASH" },
                 { label: "Date", val: "Oct 10, 2026" },
@@ -176,7 +224,7 @@ export default function TicketScanPage() {
           </div>
         </div>
 
-        <p className="text-center text-white/25 text-[10px] mt-5 tracking-wide">
+        <p className="text-center text-white/20 text-[10px] mt-4 tracking-wide">
           This ticket is non-transferable · One entry per ticket
         </p>
       </div>

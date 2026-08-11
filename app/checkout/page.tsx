@@ -174,7 +174,20 @@ export default function CheckoutPage() {
           email: draftEmail,
           amount: totalPrice * 100,
           ref: data.orderId,
-          onSuccess: () => {
+          onSuccess: async (transaction: { reference: string }) => {
+            // Mark order as paid via API (handles localhost where webhook can't fire)
+            try {
+              await fetch(`${API_BASE}/api/orders/${data.orderId}/status`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  status: "paid",
+                  paystackRef: transaction.reference,
+                }),
+              });
+            } catch {
+              // Best-effort — webhook will handle it in production
+            }
             clearCart();
             router.push(`/confirmation?orderId=${data.orderId}&paid=1`);
           },

@@ -72,9 +72,11 @@ export default function AdminPage() {
 
   const loadOrders = useCallback(async () => {
     try {
-      setOrders(await fetchOrders());
-    } catch {
-      notify("Failed to load orders");
+      const result = await fetchOrders();
+      setOrders(result);
+    } catch (e) {
+      console.error("[Admin] loadOrders failed:", e);
+      notify("Failed to load orders — check server is running");
     }
   }, []);
 
@@ -224,6 +226,30 @@ export default function AdminPage() {
     }
   }
 
+  async function handleCheckIn(orderId: string) {
+    try {
+      const result = await checkInOrder(orderId);
+      setOrders((prev) =>
+        prev.map((o) =>
+          o.orderId === orderId
+            ? {
+                ...o,
+                checkedIn: result.checkedIn,
+                checkedInAt: result.checkedInAt,
+              }
+            : o,
+        ),
+      );
+      notify(
+        result.checkedIn
+          ? `✅ ${orderId} checked in`
+          : `↩️ ${orderId} check-in undone`,
+      );
+    } catch {
+      notify("Failed to check in");
+    }
+  }
+
   async function handleSendReply() {
     if (!replyText.trim() || !activeConvo) return;
     setLoading(true);
@@ -247,6 +273,17 @@ export default function AdminPage() {
   ).length;
   const unreadMsgs = convos.reduce((s, c) => s + (c.unreadCount || 0), 0);
   const ticketSales = getTicketSales(orders);
+
+  const filteredPeople = people.filter((p) => {
+    if (!peopleSearch.trim()) return true;
+    const q = peopleSearch.toLowerCase();
+    return (
+      p.firstName.toLowerCase().includes(q) ||
+      p.lastName.toLowerCase().includes(q) ||
+      p.email.toLowerCase().includes(q) ||
+      p.phone.includes(q)
+    );
+  });
 
   const matchesSearch = (o: Order) => {
     if (!search.trim()) return true;
@@ -302,9 +339,85 @@ export default function AdminPage() {
         onClose={() => setShowAddUser(false)}
         onCreated={() => {
           loadUsers();
+          loadPeople();
           notify("User created successfully");
         }}
       />
+
+      {/* ── QR Code Modal ──────────────────────────────────────────── */}
+      {qrOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-[#0f0520]/80 backdrop-blur-sm"
+            onClick={() => setQrOrder(null)}
+          />
+          <div
+            className="relative w-full max-w-xs rounded-2xl border border-white/10 overflow-hidden"
+            style={{
+              background: "rgba(30,10,60,0.97)",
+              backdropFilter: "blur(24px)",
+            }}
+          >
+            <div className="bg-green-500/20 border-b border-green-500/20 px-5 py-2.5 flex items-center justify-between">
+              <span className="text-green-400 font-black text-xs tracking-widest uppercase">
+                Entry QR · {qrOrder.orderId}
+              </span>
+              <button
+                onClick={() => setQrOrder(null)}
+                className="text-white/40 hover:text-white text-lg leading-none"
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6 text-center">
+              <p className="text-white font-bold text-sm mb-0.5">
+                {qrOrder.customer.firstName} {qrOrder.customer.lastName}
+              </p>
+              <p className="text-white/40 text-xs mb-4">
+                {qrOrder.customer.email}
+              </p>
+              <div className="inline-block bg-white p-4 rounded-2xl shadow-xl mb-4">
+                <QRCodeSVG
+                  value={`${CLIENT_URL}/ticket/${qrOrder.orderId}`}
+                  size={200}
+                  bgColor="#ffffff"
+                  fgColor="#1e0a3c"
+                  level="H"
+                />
+              </div>
+              <p className="text-white/40 text-[10px] tracking-widest uppercase mb-3">
+                Scan at entry
+              </p>
+              <div className="text-left space-y-1 mb-4 bg-white/5 rounded-xl p-3">
+                {qrOrder.tickets.map((t, i) => (
+                  <div key={i} className="flex justify-between text-xs">
+                    <span className="text-white/70">
+                      {t.name} × {t.quantity}
+                    </span>
+                    <span className="text-white/50">
+                      {formatNaira(t.price * t.quantity)}
+                    </span>
+                  </div>
+                ))}
+                <div className="border-t border-white/10 pt-1 flex justify-between text-xs font-black">
+                  <span className="text-white">Total</span>
+                  <span className="text-white">
+                    {formatNaira(qrOrder.total)}
+                  </span>
+                </div>
+              </div>
+              {qrOrder.checkedIn && (
+                <div className="bg-green-500/15 border border-green-500/20 rounded-xl px-3 py-2 text-xs text-green-400 font-bold">
+                  ✅ Checked in{" "}
+                  {qrOrder.checkedInAt
+                    ? new Date(qrOrder.checkedInAt).toLocaleString()
+                    : ""}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="relative max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
@@ -615,7 +728,23 @@ export default function AdminPage() {
                         {o.paidAt ? new Date(o.paidAt).toLocaleString() : "—"}
                       </td>
                       <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => setQrOrder(o)}
+                            className="text-[10px] text-purple-300 border border-purple-500/20 bg-purple-500/10 rounded-lg px-2 py-1 hover:bg-purple-500/20 transition-colors"
+                          >
+                            QR
+                          </button>
+                          <button
+                            onClick={() => handleCheckIn(o.orderId)}
+                            className={`text-[10px] border rounded-lg px-2 py-1 transition-colors ${
+                              o.checkedIn
+                                ? "text-green-400 border-green-500/20 bg-green-500/15 hover:bg-green-500/25"
+                                : "text-white/50 border-white/10 bg-white/5 hover:bg-white/10"
+                            }`}
+                          >
+                            {o.checkedIn ? "✓ In" : "Check In"}
+                          </button>
                           {o.status !== "paid" && (
                             <button
                               onClick={() => handleMarkPaid(o.orderId)}
@@ -652,110 +781,221 @@ export default function AdminPage() {
 
         {/* ── USERS ─────────────────────────────────────────────────────── */}
         {tab === "users" && (
-          <div
-            className="rounded-2xl border border-white/10 overflow-hidden"
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              backdropFilter: "blur(16px)",
-            }}
-          >
-            <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-              <p className="font-bold text-sm text-white">
-                All Users ({users.length})
-              </p>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowAddUser(true)}
-                  className="text-purple-400 text-xs font-semibold hover:text-purple-300 transition-colors"
-                >
-                  + Add User
-                </button>
-                <button
-                  onClick={loadUsers}
-                  className="text-white/40 text-xs hover:text-white/70 transition-colors"
-                >
-                  ↻ Refresh
-                </button>
-              </div>
+          <div className="space-y-4">
+            {/* Search */}
+            <input
+              type="search"
+              placeholder="Search by name, email or phone…"
+              value={peopleSearch}
+              onChange={(e) => setPeopleSearch(e.target.value)}
+              className="w-full bg-white/8 border border-white/10 text-white placeholder-white/25 rounded-xl px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-3">
+              <StatCard
+                label="Registered"
+                value={people.filter((p) => p.type === "registered").length}
+                icon="👤"
+              />
+              <StatCard
+                label="Guests (ordered)"
+                value={people.filter((p) => p.type === "guest").length}
+                icon="🎟️"
+              />
+              <StatCard
+                label="Checked In"
+                value={people.filter((p) => p.checkedIn).length}
+                icon="✅"
+              />
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[600px]">
-                <thead className="border-b border-white/10">
-                  <tr>
-                    {[
-                      "Name",
-                      "Email",
-                      "Phone",
-                      "Role",
-                      "Joined",
-                      "Actions",
-                    ].map((h) => (
-                      <th
-                        key={h}
-                        className="text-left px-5 py-3 text-white/40 font-medium"
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/10">
-                  {users.map((u) => (
-                    <tr
-                      key={u.id}
-                      className="hover:bg-white/5 transition-colors"
-                    >
-                      <td className="px-5 py-3 font-semibold text-white">
-                        {u.firstName} {u.lastName}
-                      </td>
-                      <td className="px-5 py-3 text-white/60">{u.email}</td>
-                      <td className="px-5 py-3 text-white/40">
-                        {u.phone || "—"}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            u.role === "admin"
-                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/20"
-                              : "bg-white/10 text-white/40 border border-white/10"
-                          }`}
-                        >
-                          {u.role}
-                        </span>
-                      </td>
-                      <td className="px-5 py-3 text-white/40">
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleToggleRole(u)}
-                            className="text-[10px] text-white/60 border border-white/10 bg-white/5 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors"
-                          >
-                            {u.role === "admin" ? "→ User" : "→ Admin"}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteUser(u.id)}
-                            className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {users.length === 0 && (
+
+            <div
+              className="rounded-2xl border border-white/10 overflow-hidden"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                <p className="font-bold text-sm text-white">
+                  All People ({filteredPeople.length})
+                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setShowAddUser(true)}
+                    className="text-purple-400 text-xs font-semibold hover:text-purple-300 transition-colors"
+                  >
+                    + Add User
+                  </button>
+                  <button
+                    onClick={() => {
+                      loadUsers();
+                      loadPeople();
+                    }}
+                    className="text-white/40 text-xs hover:text-white/70 transition-colors"
+                  >
+                    ↻ Refresh
+                  </button>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs min-w-[700px]">
+                  <thead className="border-b border-white/10">
                     <tr>
-                      <td
-                        colSpan={6}
-                        className="px-5 py-8 text-center text-white/40"
-                      >
-                        No users yet
-                      </td>
+                      {[
+                        "Name",
+                        "Email",
+                        "Phone",
+                        "Type",
+                        "Tickets",
+                        "Checked In",
+                        "Joined",
+                        "Actions",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="text-left px-5 py-3 text-white/40 font-medium"
+                        >
+                          {h}
+                        </th>
+                      ))}
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/10">
+                    {filteredPeople.map((p) => (
+                      <tr
+                        key={p.id}
+                        className="hover:bg-white/5 transition-colors"
+                      >
+                        <td className="px-5 py-3 font-semibold text-white">
+                          {p.firstName} {p.lastName}
+                        </td>
+                        <td className="px-5 py-3 text-white/60">{p.email}</td>
+                        <td className="px-5 py-3 text-white/40">
+                          {p.phone || "—"}
+                        </td>
+                        <td className="px-5 py-3">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              p.role === "admin"
+                                ? "bg-purple-500/20 text-purple-300 border-purple-500/20"
+                                : p.type === "guest"
+                                  ? "bg-blue-500/15 text-blue-300 border-blue-500/20"
+                                  : "bg-white/10 text-white/40 border-white/10"
+                            }`}
+                          >
+                            {p.role === "admin"
+                              ? "admin"
+                              : p.type === "guest"
+                                ? "guest buyer"
+                                : "user"}
+                          </span>
+                        </td>
+                        <td className="px-5 py-3">
+                          {p.hasTicket ? (
+                            <div className="space-y-0.5">
+                              {p.orders.map((o) => (
+                                <div
+                                  key={o.orderId}
+                                  className="flex items-center gap-1.5"
+                                >
+                                  <span className="text-green-400 text-[10px]">
+                                    ✓
+                                  </span>
+                                  <span className="text-white/60 text-[10px]">
+                                    {o.tickets
+                                      .map((t) => `${t.name}×${t.quantity}`)
+                                      .join(", ")}
+                                  </span>
+                                  <span className="text-white/30 text-[10px]">
+                                    {formatNaira(o.total)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-white/25 text-[10px]">
+                              No ticket
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3">
+                          {p.checkedIn ? (
+                            <span className="text-green-400 font-bold text-[10px]">
+                              ✅ Yes
+                            </span>
+                          ) : p.hasTicket ? (
+                            <span className="text-yellow-400/60 text-[10px]">
+                              Not yet
+                            </span>
+                          ) : (
+                            <span className="text-white/20 text-[10px]">—</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-white/40">
+                          {new Date(p.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-5 py-3">
+                          <div className="flex items-center gap-1.5">
+                            {p.orders.map((o) => (
+                              <button
+                                key={o.orderId}
+                                onClick={() =>
+                                  setQrOrder(
+                                    orders.find(
+                                      (ord) => ord.orderId === o.orderId,
+                                    ) || null,
+                                  )
+                                }
+                                className="text-[10px] text-purple-300 border border-purple-500/20 bg-purple-500/10 rounded-lg px-2 py-1 hover:bg-purple-500/20 transition-colors"
+                              >
+                                QR
+                              </button>
+                            ))}
+                            {p.type === "registered" && (
+                              <>
+                                <button
+                                  onClick={() =>
+                                    handleToggleRole({
+                                      id: p.id,
+                                      role: p.role,
+                                      firstName: p.firstName,
+                                      lastName: p.lastName,
+                                      email: p.email,
+                                      phone: p.phone,
+                                      createdAt: p.createdAt,
+                                    })
+                                  }
+                                  className="text-[10px] text-white/60 border border-white/10 bg-white/5 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors"
+                                >
+                                  {p.role === "admin" ? "→ User" : "→ Admin"}
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(p.id)}
+                                  className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors"
+                                >
+                                  Del
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {filteredPeople.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={8}
+                          className="px-5 py-8 text-center text-white/40"
+                        >
+                          No people yet
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
