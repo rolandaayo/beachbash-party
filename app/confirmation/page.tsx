@@ -1,9 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import LinkButton from "@/components/LinkButton";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const CLIENT_URL =
+  process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
 
 const bg = {
   background: "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
@@ -12,8 +16,35 @@ const bg = {
 function ConfirmationContent() {
   const params = useSearchParams();
   const orderId = params.get("orderId") ?? "BB-XXXXXXX";
-  const paid = params.get("paid") === "1";
-  const ticketUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000"}/ticket/${orderId}`;
+  const paidParam = params.get("paid") === "1";
+
+  // Verify actual payment status from server
+  const [paid, setPaid] = useState(paidParam);
+  const [checked, setChecked] = useState(false);
+
+  useEffect(() => {
+    // Always verify with the server — don't trust the URL param alone
+    fetch(`${API_BASE}/api/orders/ticket/${orderId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.valid) setPaid(true);
+      })
+      .catch(() => {})
+      .finally(() => setChecked(true));
+  }, [orderId]);
+
+  const ticketUrl = `${CLIENT_URL}/ticket/${orderId}`;
+
+  // Show a brief loading state while we verify
+  if (!checked && !paidParam) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={bg}>
+        <div className="text-white/40 text-sm animate-pulse">
+          Verifying payment…
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -36,7 +67,6 @@ function ConfirmationContent() {
               backdropFilter: "blur(20px)",
             }}
           >
-            {/* Status bar */}
             <div className="bg-green-500/20 border-b border-green-500/20 px-5 py-2.5 flex items-center justify-center gap-2">
               <span className="w-2 h-2 rounded-full bg-green-400" />
               <span className="text-green-400 font-black text-xs tracking-widest uppercase">
@@ -45,7 +75,6 @@ function ConfirmationContent() {
             </div>
 
             <div className="px-5 py-5 text-center">
-              {/* Event header */}
               <p className="text-white font-black text-base mb-0.5">
                 BEACHBASH PARTY 🏖️
               </p>
@@ -53,7 +82,6 @@ function ConfirmationContent() {
                 October 10, 2026 · Lagos, Nigeria
               </p>
 
-              {/* QR code — centrepiece */}
               <div className="inline-block bg-white p-4 rounded-2xl shadow-2xl shadow-purple-900/60 mb-3">
                 <QRCodeSVG
                   value={ticketUrl}
@@ -68,7 +96,6 @@ function ConfirmationContent() {
                 Scan at entry
               </p>
 
-              {/* Order details — compact */}
               <div className="border-t border-white/10 pt-4 mb-4 grid grid-cols-2 gap-3 text-left">
                 <div>
                   <p className="text-white/30 text-[9px] uppercase tracking-widest mb-0.5">
@@ -96,7 +123,6 @@ function ConfirmationContent() {
                 </div>
               </div>
 
-              {/* Screenshot prompt */}
               <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl px-4 py-3 text-left mb-4">
                 <p className="text-yellow-400 font-black text-xs mb-0.5">
                   📸 Screenshot this page

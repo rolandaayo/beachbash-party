@@ -27,7 +27,7 @@ import {
 } from "@/lib/admin";
 
 const CLIENT_URL =
-  process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
+  process.env.NEXT_PUBLIC_CLIENT_URL || "https://beachbash-server.vercel.app";
 type Tab = "dashboard" | "buyers" | "orders" | "users" | "messages";
 
 export default function AdminPage() {
