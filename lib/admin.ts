@@ -20,6 +20,30 @@ export type User = {
   createdAt: string;
 };
 
+export type PersonOrder = {
+  orderId: string;
+  tickets: OrderTicket[];
+  total: number;
+  paidAt: string | null;
+  checkedIn: boolean;
+  checkedInAt: string | null;
+};
+
+// Merged registered user + guest buyer
+export type Person = {
+  id: string;
+  type: "registered" | "guest";
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  role: string;
+  createdAt: string;
+  hasTicket: boolean;
+  checkedIn: boolean;
+  orders: PersonOrder[];
+};
+
 export type OrderTicket = {
   ticketId?: string;
   name: string;
@@ -33,6 +57,8 @@ export type Order = {
   status: string;
   total: number;
   paidAt: string | null;
+  checkedIn?: boolean;
+  checkedInAt?: string | null;
   paystackRef?: string | null;
   paystackChannel?: string | null;
   customer: {
@@ -79,6 +105,13 @@ export async function fetchUsers(): Promise<User[]> {
   return d.users;
 }
 
+export async function fetchAllPeople(): Promise<Person[]> {
+  const r = await fetch(`${API_BASE}/api/users/all`, { headers: adminHeaders });
+  if (!r.ok) throw new Error("Failed to load people");
+  const d = await r.json();
+  return d.people;
+}
+
 export async function fetchOrders(): Promise<Order[]> {
   const r = await fetch(`${API_BASE}/api/orders`, { headers: adminHeaders });
   if (!r.ok) throw new Error("Failed to load orders");
@@ -117,6 +150,16 @@ export async function deleteUser(id: string): Promise<void> {
     headers: adminHeaders,
   });
   if (!r.ok) throw new Error("Failed to delete user");
+}
+
+export async function checkInOrder(orderId: string): Promise<{ checkedIn: boolean; checkedInAt: string | null }> {
+  const r = await fetch(`${API_BASE}/api/orders/${orderId}/checkin`, {
+    method: "PATCH",
+    headers: adminHeaders,
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Failed to check in");
+  return { checkedIn: d.checkedIn, checkedInAt: d.checkedInAt };
 }
 
 export async function deleteOrder(orderId: string): Promise<void> {

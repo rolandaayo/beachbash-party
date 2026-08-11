@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { QRCodeSVG } from "qrcode.react";
 import { getSocket } from "@/lib/socket";
 import AddUserModal from "@/components/admin/AddUserModal";
 import StatusBadge from "@/components/admin/StatusBadge";
 import {
   type User,
   type Order,
+  type Person,
   type Conversation,
   fetchUsers,
+  fetchAllPeople,
   fetchOrders,
   fetchConversations,
   fetchConversation,
@@ -16,17 +19,21 @@ import {
   deleteOrder,
   updateUser,
   updateOrderStatus,
+  checkInOrder,
   sendAdminReply,
   formatNaira,
   getTicketSales,
   exportBuyersCsv,
 } from "@/lib/admin";
 
+const CLIENT_URL =
+  process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
 type Tab = "dashboard" | "buyers" | "orders" | "users" | "messages";
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("buyers");
   const [users, setUsers] = useState<User[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
@@ -38,6 +45,8 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<
     "all" | "paid" | "pending_payment"
   >("all");
+  const [qrOrder, setQrOrder] = useState<Order | null>(null); // QR modal
+  const [peopleSearch, setPeopleSearch] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const notify = (msg: string) => {
@@ -50,6 +59,14 @@ export default function AdminPage() {
       setUsers(await fetchUsers());
     } catch {
       notify("Failed to load users");
+    }
+  }, []);
+
+  const loadPeople = useCallback(async () => {
+    try {
+      setPeople(await fetchAllPeople());
+    } catch {
+      notify("Failed to load people");
     }
   }, []);
 
@@ -143,15 +160,19 @@ export default function AdminPage() {
   }, [loadOrders, loadConvos]);
 
   useEffect(() => {
-    if (tab === "users") loadUsers();
+    if (tab === "users") {
+      loadUsers();
+      loadPeople();
+    }
     if (tab === "orders" || tab === "buyers") loadOrders();
     if (tab === "messages") loadConvos();
     if (tab === "dashboard") {
       loadUsers();
       loadOrders();
       loadConvos();
+      loadPeople();
     }
-  }, [tab, loadUsers, loadOrders, loadConvos]);
+  }, [tab, loadUsers, loadPeople, loadOrders, loadConvos]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
