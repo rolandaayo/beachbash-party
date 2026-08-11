@@ -176,15 +176,12 @@ export default function CheckoutPage() {
           amount: totalPrice * 100,
           ref: data.orderId,
           onSuccess: async (transaction: { reference: string }) => {
-            // Mark order as paid via API (handles localhost where webhook can't fire)
+            // Confirm payment via public endpoint (verifies with Paystack + marks paid)
             try {
-              await fetch(`${API_BASE}/api/orders/${data.orderId}/status`, {
-                method: "PATCH",
+              await fetch(`${API_BASE}/api/orders/${data.orderId}/confirm`, {
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  status: "paid",
-                  paystackRef: transaction.reference,
-                }),
+                body: JSON.stringify({ reference: transaction.reference }),
               });
             } catch {
               // Best-effort — webhook will handle it in production
