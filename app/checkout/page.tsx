@@ -90,7 +90,8 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  if (items.length === 0) {
+  // Don't flash empty cart while loading (Paystack popup open) or while redirecting
+  if (items.length === 0 && !loading) {
     return (
       <div className="min-h-screen pt-32 pb-20 px-5 text-center" style={bg}>
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -227,6 +228,41 @@ export default function CheckoutPage() {
 
   return (
     <>
+      {/* Full-screen loading overlay while Paystack is initialising */}
+      {loading && (
+        <div
+          className="fixed inset-0 z-[60] flex flex-col items-center justify-center gap-4"
+          style={{
+            background: "rgba(15,5,32,0.92)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <svg
+            className="animate-spin w-10 h-10 text-[#7c3aed]"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v8z"
+            />
+          </svg>
+          <p className="text-white font-bold text-sm">Opening payment…</p>
+          <p className="text-white/40 text-xs">
+            Please wait, do not close this page
+          </p>
+        </div>
+      )}
+
       <div className="min-h-screen pt-20 pb-20 px-5" style={bg}>
         {/* Glow blobs */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
