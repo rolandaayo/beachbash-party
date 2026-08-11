@@ -11,9 +11,7 @@ type TicketLine = {
   price: number;
   total: number;
 };
-
 type TicketInfo = {
-  valid: boolean;
   orderId: string;
   firstName: string;
   lastName: string;
@@ -25,28 +23,31 @@ type TicketInfo = {
   checkedIn: boolean;
   checkedInAt: string | null;
 };
+type ScanState = "loading" | "paid" | "pending" | "notfound";
+
+const bgStyle = {
+  background: "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
+};
 
 export default function TicketScanPage() {
   const { orderId } = useParams<{ orderId: string }>();
   const [data, setData] = useState<TicketInfo | null>(null);
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState<ScanState>("loading");
 
   useEffect(() => {
     if (!orderId) return;
     fetch(`${API_BASE}/api/orders/ticket/${orderId}`)
-      .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then(setData)
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+      .then(async (r) => {
+        if (r.ok) {
+          setData(await r.json());
+          setState("paid");
+        } else if (r.status === 402) setState("pending");
+        else setState("notfound");
+      })
+      .catch(() => setState("notfound"));
   }, [orderId]);
 
-  const bgStyle = {
-    background:
-      "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
-  };
-
-  if (loading) {
+  if (state === "loading") {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
@@ -59,7 +60,36 @@ export default function TicketScanPage() {
     );
   }
 
-  if (error || !data) {
+  if (state === "pending") {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center px-5"
+        style={bgStyle}
+      >
+        <div className="text-center max-w-sm">
+          <div className="text-5xl mb-4">⏳</div>
+          <h1 className="font-black text-2xl text-white mb-2">
+            Payment Processing
+          </h1>
+          <p className="text-white/40 text-sm mb-4">
+            Your order exists but payment hasn&apos;t been confirmed yet. This
+            usually takes a few seconds.
+          </p>
+          <button
+            onClick={() => {
+              setState("loading");
+              window.location.reload();
+            }}
+            className="btn-primary px-6 py-2.5 text-sm"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === "notfound" || !data) {
     return (
       <div
         className="min-h-screen flex items-center justify-center px-5"
@@ -68,10 +98,10 @@ export default function TicketScanPage() {
         <div className="text-center">
           <div className="text-5xl mb-4">❌</div>
           <h1 className="font-black text-2xl text-white mb-2">
-            Invalid Ticket
+            Ticket Not Found
           </h1>
           <p className="text-white/40 text-sm">
-            This ticket was not found or payment has not been confirmed.
+            This ticket ID does not exist in our system.
           </p>
         </div>
       </div>
@@ -94,7 +124,6 @@ export default function TicketScanPage() {
       </div>
 
       <div className="relative w-full max-w-sm">
-        {/* Header */}
         <div className="text-center mb-5">
           <div className="text-3xl mb-1">🏖️</div>
           <p className="text-white/40 text-[10px] tracking-widest uppercase font-bold">
@@ -109,7 +138,6 @@ export default function TicketScanPage() {
             backdropFilter: "blur(20px)",
           }}
         >
-          {/* Status banner */}
           <div
             className={`px-5 py-3 flex items-center gap-2 border-b ${
               data.checkedIn
@@ -128,7 +156,6 @@ export default function TicketScanPage() {
           </div>
 
           <div className="px-5 py-5 space-y-4">
-            {/* Guest name */}
             <div className="text-center pb-3 border-b border-white/10">
               <p className="text-white/40 text-[10px] uppercase tracking-widest mb-1">
                 Guest
@@ -142,7 +169,6 @@ export default function TicketScanPage() {
               )}
             </div>
 
-            {/* Ticket / Package details */}
             <div>
               <p className="text-white/40 text-[10px] uppercase tracking-widest mb-2">
                 Package
@@ -175,7 +201,6 @@ export default function TicketScanPage() {
               </div>
             </div>
 
-            {/* Order details */}
             <div className="grid grid-cols-2 gap-3 border-t border-white/10 pt-4">
               <div>
                 <p className="text-white/30 text-[9px] uppercase tracking-widest mb-0.5">
@@ -204,7 +229,6 @@ export default function TicketScanPage() {
               )}
             </div>
 
-            {/* Event info */}
             <div className="grid grid-cols-3 gap-2 border-t border-white/10 pt-4 text-center">
               {[
                 { label: "Event", val: "BEACHBASH" },
@@ -225,7 +249,7 @@ export default function TicketScanPage() {
         </div>
 
         <p className="text-center text-white/20 text-[10px] mt-4 tracking-wide">
-          This ticket is non-transferable · One entry per ticket
+          Non-transferable · One entry per ticket
         </p>
       </div>
     </div>
