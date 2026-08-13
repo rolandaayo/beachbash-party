@@ -24,8 +24,6 @@ import {
   sendAdminReply,
   sendUserQr,
   sendOrderQr,
-  deleteConversation,
-  deleteMessage,
   formatNaira,
   getTicketSales,
   exportBuyersCsv,
@@ -313,42 +311,6 @@ export default function AdminPage() {
       notify("Failed to send reply");
     }
     setLoading(false);
-  }
-
-  async function handleDeleteConversation(conversationId: string) {
-    if (!confirm("Delete this conversation? This cannot be undone.")) return;
-    const key = `deleteConvo:${conversationId}`;
-    setLoadingAction(key);
-    try {
-      await deleteConversation(conversationId);
-      setConvos((c) => c.filter((x) => x._id !== conversationId));
-      setActiveConvo(null);
-      notify("Conversation deleted");
-    } catch (e) {
-      console.error(e);
-      notify("Failed to delete conversation");
-    } finally {
-      setLoadingAction((s) => (s === key ? null : s));
-    }
-  }
-
-  async function handleDeleteMessage(conversationId: string, messageId: string) {
-    const key = `deleteMsg:${conversationId}:${messageId}`;
-    setLoadingAction(key);
-    try {
-      await deleteMessage(conversationId, messageId);
-      // remove message locally
-      setActiveConvo((prev) => {
-        if (!prev) return prev;
-        return { ...prev, messages: (prev.messages || []).filter((m) => (m._id || m.id || m.tempId) !== messageId) } as Conversation;
-      });
-      notify("Message deleted");
-    } catch (e) {
-      console.error(e);
-      notify("Failed to delete message");
-    } finally {
-      setLoadingAction((s) => (s === key ? null : s));
-    }
   }
 
   // ── Derived data ─────────────────────────────────────────────────────────
@@ -1195,19 +1157,6 @@ export default function AdminPage() {
                     <p className="text-[11px] text-white/40">
                       {activeConvo.userEmail}
                     </p>
-                    <div className="mt-2 flex items-center gap-2">
-                      <button
-                        onClick={() => handleDeleteConversation(activeConvo._id)}
-                        disabled={loadingAction === `deleteConvo:${activeConvo._id}`}
-                        className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 disabled:opacity-60"
-                      >
-                        {loadingAction === `deleteConvo:${activeConvo._id}` ? (
-                          <Spinner className="w-3 h-3 text-red-400" />
-                        ) : (
-                          "Delete Conversation"
-                        )}
-                      </button>
-                    </div>
                   </div>
                   <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                     {(activeConvo.messages || []).map((msg, i) => (
@@ -1225,22 +1174,6 @@ export default function AdminPage() {
                           }`}
                         >
                           {msg.text}
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-white/30">
-                            {msg.createdAt && new Date(msg.createdAt).toLocaleString()}
-                          </span>
-                          <button
-                            onClick={() => handleDeleteMessage(activeConvo._id, msg._id || msg.id || String(i))}
-                            disabled={loadingAction === `deleteMsg:${activeConvo._id}:${msg._id || msg.id || String(i)}`}
-                            className="text-[10px] text-red-400 border border-red-500/10 rounded-lg px-2 py-0.5 hover:bg-red-500/10 disabled:opacity-60"
-                          >
-                            {loadingAction === `deleteMsg:${activeConvo._id}:${msg._id || msg.id || String(i)}` ? (
-                              <Spinner className="w-3 h-3 text-red-400" />
-                            ) : (
-                              "Delete"
-                            )}
-                          </button>
                         </div>
                         {msg.createdAt && (
                           <span className="text-[10px] text-white/30 px-1">
