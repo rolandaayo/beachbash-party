@@ -202,6 +202,24 @@ export async function fetchConversation(id: string): Promise<Conversation> {
   return d.conversation;
 }
 
+export async function deleteConversation(id: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/chat/admin/conversations/${id}`, {
+    method: "DELETE",
+    headers: adminHeaders,
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Failed to delete conversation");
+}
+
+export async function deleteMessage(conversationId: string, messageId: string): Promise<void> {
+  const r = await fetch(
+    `${API_BASE}/api/chat/admin/conversations/${conversationId}/messages/${messageId}`,
+    { method: "DELETE", headers: adminHeaders },
+  );
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Failed to delete message");
+}
+
 export async function sendAdminReply(
   conversationId: string,
   text: string,
