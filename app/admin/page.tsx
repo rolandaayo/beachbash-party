@@ -5,6 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { getSocket } from "@/lib/socket";
 import AddUserModal from "@/components/admin/AddUserModal";
 import StatusBadge from "@/components/admin/StatusBadge";
+import Spinner from "@/components/Spinner";
 import {
   type User,
   type Order,
@@ -41,6 +42,7 @@ export default function AdminPage() {
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
   const [showAddUser, setShowAddUser] = useState(false);
   const [search, setSearch] = useState("");
@@ -185,12 +187,16 @@ export default function AdminPage() {
   // ── Actions ──────────────────────────────────────────────────────────────
   async function handleDeleteUser(id: string) {
     if (!confirm("Delete this user?")) return;
+    const key = `deleteUser:${id}`;
+    setLoadingAction(key);
     try {
       await deleteUser(id);
       setUsers((p) => p.filter((u) => u.id !== id));
       notify("User deleted");
     } catch {
       notify("Failed to delete user");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
@@ -206,26 +212,36 @@ export default function AdminPage() {
   }
 
   async function handleSendQr(userId: string) {
+    const key = `sendUser:${userId}`;
+    setLoadingAction(key);
     try {
       await sendUserQr(userId);
       notify("QR email sent");
     } catch (e) {
       console.error("Failed to send QR email", e);
       notify("Failed to send QR email");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
   async function handleSendOrderQr(orderId: string) {
+    const key = `sendOrder:${orderId}`;
+    setLoadingAction(key);
     try {
       await sendOrderQr(orderId);
       notify("QR email sent");
     } catch (e) {
       console.error("Failed to send order QR email", e);
       notify("Failed to send QR email");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
   async function handleMarkPaid(orderId: string) {
+    const key = `markPaid:${orderId}`;
+    setLoadingAction(key);
     try {
       const updated = await updateOrderStatus(orderId, "paid");
       setOrders((prev) =>
@@ -234,21 +250,29 @@ export default function AdminPage() {
       notify("Order marked as paid");
     } catch {
       notify("Failed to update order");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
   async function handleDeleteOrder(orderId: string) {
     if (!confirm(`Delete order ${orderId}? This cannot be undone.`)) return;
+    const key = `deleteOrder:${orderId}`;
+    setLoadingAction(key);
     try {
       await deleteOrder(orderId);
       setOrders((prev) => prev.filter((o) => o.orderId !== orderId));
       notify("Order deleted");
     } catch {
       notify("Failed to delete order");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
   async function handleCheckIn(orderId: string) {
+    const key = `checkIn:${orderId}`;
+    setLoadingAction(key);
     try {
       const result = await checkInOrder(orderId);
       setOrders((prev) =>
@@ -269,6 +293,8 @@ export default function AdminPage() {
       );
     } catch {
       notify("Failed to check in");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
     }
   }
 
@@ -759,9 +785,14 @@ export default function AdminPage() {
                           </button>
                           <button
                             onClick={() => handleSendOrderQr(o.orderId)}
-                            className="text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors"
+                            disabled={loadingAction === `sendOrder:${o.orderId}`}
+                            className="flex items-center gap-2 text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors disabled:opacity-60"
                           >
-                            Send QR COE
+                            {loadingAction === `sendOrder:${o.orderId}` ? (
+                              <Spinner className="w-3 h-3 text-blue-300" />
+                            ) : (
+                              "Send QR COE"
+                            )}
                           </button>
                           <button
                             onClick={() => handleCheckIn(o.orderId)}
@@ -776,16 +807,26 @@ export default function AdminPage() {
                           {o.status !== "paid" && (
                             <button
                               onClick={() => handleMarkPaid(o.orderId)}
-                              className="text-[10px] text-green-400 border border-green-500/20 bg-green-500/15 rounded-lg px-2 py-1 hover:bg-green-500/25 transition-colors"
+                              disabled={loadingAction === `markPaid:${o.orderId}`}
+                              className="flex items-center gap-2 text-[10px] text-green-400 border border-green-500/20 bg-green-500/15 rounded-lg px-2 py-1 hover:bg-green-500/25 transition-colors disabled:opacity-60"
                             >
-                              Mark Paid
+                              {loadingAction === `markPaid:${o.orderId}` ? (
+                                <Spinner className="w-3 h-3 text-green-400" />
+                              ) : (
+                                "Mark Paid"
+                              )}
                             </button>
                           )}
                           <button
                             onClick={() => handleDeleteOrder(o.orderId)}
-                            className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors"
+                            disabled={loadingAction === `deleteOrder:${o.orderId}`}
+                            className="flex items-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
                           >
-                            Delete
+                            {loadingAction === `deleteOrder:${o.orderId}` ? (
+                              <Spinner className="w-3 h-3 text-red-400" />
+                            ) : (
+                              "Delete"
+                            )}
                           </button>
                         </div>
                       </td>
@@ -984,9 +1025,14 @@ export default function AdminPage() {
                             {p.type === "registered" && p.hasTicket && (
                               <button
                                 onClick={() => handleSendQr(p.id)}
-                                className="text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors"
+                                disabled={loadingAction === `sendUser:${p.id}`}
+                                className="flex items-center gap-2 text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors disabled:opacity-60"
                               >
-                                Send
+                                {loadingAction === `sendUser:${p.id}` ? (
+                                  <Spinner className="w-3 h-3 text-blue-300" />
+                                ) : (
+                                  "Send"
+                                )}
                               </button>
                             )}
                             {p.type === "registered" && (
@@ -1009,9 +1055,14 @@ export default function AdminPage() {
                                 </button>
                                 <button
                                   onClick={() => handleDeleteUser(p.id)}
-                                  className="text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors"
+                                  disabled={loadingAction === `deleteUser:${p.id}`}
+                                  className="flex items-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
                                 >
-                                  Del
+                                  {loadingAction === `deleteUser:${p.id}` ? (
+                                    <Spinner className="w-3 h-3 text-red-400" />
+                                  ) : (
+                                    "Del"
+                                  )}
                                 </button>
                               </>
                             )}
