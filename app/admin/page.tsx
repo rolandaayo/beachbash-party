@@ -21,6 +21,8 @@ import {
   updateOrderStatus,
   checkInOrder,
   sendAdminReply,
+  sendUserQr,
+  sendOrderQr,
   formatNaira,
   getTicketSales,
   exportBuyersCsv,
@@ -200,6 +202,26 @@ export default function AdminPage() {
       notify(`Role updated to ${newRole}`);
     } catch {
       notify("Failed to update role");
+    }
+  }
+
+  async function handleSendQr(userId: string) {
+    try {
+      await sendUserQr(userId);
+      notify("QR email sent");
+    } catch (e) {
+      console.error("Failed to send QR email", e);
+      notify("Failed to send QR email");
+    }
+  }
+
+  async function handleSendOrderQr(orderId: string) {
+    try {
+      await sendOrderQr(orderId);
+      notify("QR email sent");
+    } catch (e) {
+      console.error("Failed to send order QR email", e);
+      notify("Failed to send QR email");
     }
   }
 
@@ -736,6 +758,12 @@ export default function AdminPage() {
                             QR
                           </button>
                           <button
+                            onClick={() => handleSendOrderQr(o.orderId)}
+                            className="text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors"
+                          >
+                            Send QR COE
+                          </button>
+                          <button
                             onClick={() => handleCheckIn(o.orderId)}
                             className={`text-[10px] border rounded-lg px-2 py-1 transition-colors ${
                               o.checkedIn
@@ -953,6 +981,14 @@ export default function AdminPage() {
                                 QR
                               </button>
                             ))}
+                            {p.type === "registered" && p.hasTicket && (
+                              <button
+                                onClick={() => handleSendQr(p.id)}
+                                className="text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors"
+                              >
+                                Send
+                              </button>
+                            )}
                             {p.type === "registered" && (
                               <>
                                 <button

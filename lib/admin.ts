@@ -267,3 +267,21 @@ export function exportBuyersCsv(orders: Order[]) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export async function sendUserQr(userId: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/users/${userId}/send-qr`, {
+    method: "POST",
+    headers: adminHeaders,
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Failed to send QR email");
+}
+
+export async function sendOrderQr(orderId: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/orders/${orderId}/send-qr`, {
+    method: "POST",
+    headers: adminHeaders,
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || "Failed to send QR email");
+}
