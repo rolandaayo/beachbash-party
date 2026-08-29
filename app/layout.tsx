@@ -58,8 +58,16 @@ export default function RootLayout({
               <p className="text-[#1e0a3c] text-xs tracking-wide">
                 © 2026 BEACHBASH PARTY · Lagos, Nigeria
               </p>
-              <p className="text-[#1e0a3c]/60 text-[11px] mt-1 tracking-widest uppercase">
-                One Night · One Vibe · Oct 10 2026
+              <p className="mt-3 text-[11px] tracking-[0.2em] uppercase text-[#1e0a3c]/60">
+                Website built by{" "}
+                <a
+                  href="https://wa.me/2348122447364"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-[#1e0a3c] underline underline-offset-2"
+                >
+                  Cody
+                </a>
               </p>
             </footer>
             <ChatWidget />
