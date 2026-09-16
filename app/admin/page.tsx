@@ -46,6 +46,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [abandonedOrders, setAbandonedOrders] = useState<AbandonedOrder[]>([]);
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
   const [replyText, setReplyText] = useState("");
@@ -89,6 +90,14 @@ export default function AdminPage() {
     } catch (e) {
       console.error("[Admin] loadOrders failed:", e);
       notify("Failed to load orders — check server is running");
+    }
+  }, []);
+
+  const loadAbandonedOrders = useCallback(async () => {
+    try {
+      setAbandonedOrders(await fetchAbandonedOrders());
+    } catch {
+      notify("Failed to load abandoned orders");
     }
   }, []);
 
@@ -179,6 +188,7 @@ export default function AdminPage() {
       loadPeople();
     }
     if (tab === "orders" || tab === "buyers") loadOrders();
+    if (tab === "abandoned") loadAbandonedOrders();
     if (tab === "messages") loadConvos();
     if (tab === "dashboard") {
       loadUsers();
@@ -186,7 +196,7 @@ export default function AdminPage() {
       loadConvos();
       loadPeople();
     }
-  }, [tab, loadUsers, loadPeople, loadOrders, loadConvos]);
+  }, [tab, loadUsers, loadPeople, loadOrders, loadAbandonedOrders, loadConvos]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -365,6 +375,7 @@ export default function AdminPage() {
     { id: "buyers", label: "Ticket Buyers", icon: "🎫" },
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "orders", label: "All Orders", icon: "🎟️" },
+    { id: "abandoned", label: "Abandoned", icon: "🚫" },
     { id: "users", label: "Users", icon: "👥" },
     { id: "messages", label: "Messages", icon: "💬" },
   ];
@@ -518,6 +529,11 @@ export default function AdminPage() {
               {t.id === "buyers" && paidOrders.length > 0 && (
                 <span className="w-5 h-5 rounded-full bg-green-500 text-white text-[9px] font-black flex items-center justify-center">
                   {paidOrders.length}
+                </span>
+              )}
+              {t.id === "abandoned" && abandonedOrders.length > 0 && (
+                <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">
+                  {abandonedOrders.length}
                 </span>
               )}
             </button>
@@ -858,6 +874,135 @@ export default function AdminPage() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* ── ABANDONED ORDERS ──────────────────────────────────────────── */}
+        {tab === "abandoned" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <StatCard
+                label="Abandoned Total"
+                value={abandonedOrders.length}
+                icon="🚫"
+              />
+              <StatCard
+                label="Cancelled by User"
+                value={
+                  abandonedOrders.filter((o) => o.reason === "cancelled").length
+                }
+                icon="✖️"
+              />
+              <StatCard
+                label="Expired (no payment)"
+                value={
+                  abandonedOrders.filter((o) => o.reason === "expired").length
+                }
+                icon="⏰"
+              />
+            </div>
+
+            <div
+              className="rounded-2xl border border-white/10 overflow-hidden"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
+                <div>
+                  <p className="font-bold text-sm text-white">
+                    Incomplete Checkout Attempts ({abandonedOrders.length})
+                  </p>
+                  <p className="text-[11px] text-white/40 mt-0.5">
+                    These are users who started checkout but did not complete
+                    payment. No money was collected.
+                  </p>
+                </div>
+                <button
+                  onClick={loadAbandonedOrders}
+                  className="text-white/40 text-xs hover:text-white/70 transition-colors shrink-0 ml-4"
+                >
+                  ↻ Refresh
+                </button>
+              </div>
+
+              {abandonedOrders.length === 0 ? (
+                <EmptyState message="No abandoned checkouts yet." />
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs min-w-[700px]">
+                    <thead className="border-b border-white/10">
+                      <tr>
+                        {[
+                          "Order ID",
+                          "Customer",
+                          "Phone",
+                          "Tickets",
+                          "Total",
+                          "Reason",
+                          "Abandoned At",
+                        ].map((h) => (
+                          <th
+                            key={h}
+                            className="text-left px-5 py-3 text-white/40 font-medium"
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {abandonedOrders.map((o) => (
+                        <tr
+                          key={o.orderId}
+                          className="hover:bg-white/5 transition-colors"
+                        >
+                          <td className="px-5 py-3 font-black text-white/60 tracking-wide">
+                            {o.orderId}
+                          </td>
+                          <td className="px-5 py-3">
+                            <p className="font-semibold text-white">
+                              {o.customer.firstName} {o.customer.lastName}
+                            </p>
+                            <p className="text-white/40">{o.customer.email}</p>
+                          </td>
+                          <td className="px-5 py-3 text-white/50">
+                            {o.customer.phone || "—"}
+                          </td>
+                          <td className="px-5 py-3 text-white/50">
+                            {o.tickets
+                              ?.map((t) => `${t.name} ×${t.quantity}`)
+                              .join(", ") || "—"}
+                          </td>
+                          <td className="px-5 py-3 font-bold text-white/70">
+                            {formatNaira(o.total)}
+                          </td>
+                          <td className="px-5 py-3">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                                o.reason === "cancelled"
+                                  ? "bg-orange-500/15 text-orange-300 border-orange-500/20"
+                                  : "bg-red-500/15 text-red-300 border-red-500/20"
+                              }`}
+                            >
+                              {o.reason === "cancelled"
+                                ? "Cancelled"
+                                : "Expired"}
+                            </span>
+                          </td>
+                          <td className="px-5 py-3 text-white/40">
+                            {o.abandonedAt
+                              ? new Date(o.abandonedAt).toLocaleString()
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
