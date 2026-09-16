@@ -71,6 +71,22 @@ export type Order = {
   createdAt: string;
 };
 
+export type AbandonedOrder = {
+  orderId: string;
+  userId?: string | null;
+  reason: "cancelled" | "expired";
+  total: number;
+  abandonedAt: string;
+  customer: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  };
+  tickets: OrderTicket[];
+  createdAt: string;
+};
+
 export type Message = {
   _id: string;
   sender: "user" | "admin";
@@ -115,6 +131,13 @@ export async function fetchAllPeople(): Promise<Person[]> {
 export async function fetchOrders(): Promise<Order[]> {
   const r = await fetch(`${API_BASE}/api/orders`, { headers: adminHeaders });
   if (!r.ok) throw new Error("Failed to load orders");
+  const d = await r.json();
+  return d.orders;
+}
+
+export async function fetchAbandonedOrders(): Promise<AbandonedOrder[]> {
+  const r = await fetch(`${API_BASE}/api/orders/abandoned`, { headers: adminHeaders });
+  if (!r.ok) throw new Error("Failed to load abandoned orders");
   const d = await r.json();
   return d.orders;
 }

@@ -190,11 +190,14 @@ export default function CheckoutPage() {
             router.push(`/confirmation?orderId=${data.orderId}&paid=1`);
           },
           onCancel: () => {
+            // Tell the server to move this attempt to the abandoned collection
+            // so it never appears in the real orders list.
+            fetch(`${API_BASE}/api/orders/${data.orderId}/abandon`, {
+              method: "POST",
+            }).catch(() => {}); // fire-and-forget, non-critical
+
             setLoading(false);
-            toast(
-              "Payment cancelled. Your order is saved — contact support to complete payment.",
-              "warning",
-            );
+            toast("Payment cancelled. No charge was made.", "warning");
           },
         });
         return;

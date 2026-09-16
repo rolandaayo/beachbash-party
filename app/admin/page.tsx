@@ -9,11 +9,13 @@ import Spinner from "@/components/Spinner";
 import {
   type User,
   type Order,
+  type AbandonedOrder,
   type Person,
   type Conversation,
   fetchUsers,
   fetchAllPeople,
   fetchOrders,
+  fetchAbandonedOrders,
   fetchConversations,
   fetchConversation,
   deleteUser,
@@ -31,7 +33,13 @@ import {
 
 const CLIENT_URL =
   process.env.NEXT_PUBLIC_CLIENT_URL || "https://www.beachbashparty.com";
-type Tab = "dashboard" | "buyers" | "orders" | "users" | "messages";
+type Tab =
+  | "dashboard"
+  | "buyers"
+  | "orders"
+  | "users"
+  | "messages"
+  | "abandoned";
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("buyers");
@@ -785,7 +793,9 @@ export default function AdminPage() {
                           </button>
                           <button
                             onClick={() => handleSendOrderQr(o.orderId)}
-                            disabled={loadingAction === `sendOrder:${o.orderId}`}
+                            disabled={
+                              loadingAction === `sendOrder:${o.orderId}`
+                            }
                             className="flex items-center gap-2 text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors disabled:opacity-60"
                           >
                             {loadingAction === `sendOrder:${o.orderId}` ? (
@@ -807,7 +817,9 @@ export default function AdminPage() {
                           {o.status !== "paid" && (
                             <button
                               onClick={() => handleMarkPaid(o.orderId)}
-                              disabled={loadingAction === `markPaid:${o.orderId}`}
+                              disabled={
+                                loadingAction === `markPaid:${o.orderId}`
+                              }
                               className="flex items-center gap-2 text-[10px] text-green-400 border border-green-500/20 bg-green-500/15 rounded-lg px-2 py-1 hover:bg-green-500/25 transition-colors disabled:opacity-60"
                             >
                               {loadingAction === `markPaid:${o.orderId}` ? (
@@ -819,7 +831,9 @@ export default function AdminPage() {
                           )}
                           <button
                             onClick={() => handleDeleteOrder(o.orderId)}
-                            disabled={loadingAction === `deleteOrder:${o.orderId}`}
+                            disabled={
+                              loadingAction === `deleteOrder:${o.orderId}`
+                            }
                             className="flex items-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
                           >
                             {loadingAction === `deleteOrder:${o.orderId}` ? (
@@ -1055,7 +1069,9 @@ export default function AdminPage() {
                                 </button>
                                 <button
                                   onClick={() => handleDeleteUser(p.id)}
-                                  disabled={loadingAction === `deleteUser:${p.id}`}
+                                  disabled={
+                                    loadingAction === `deleteUser:${p.id}`
+                                  }
                                   className="flex items-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
                                 >
                                   {loadingAction === `deleteUser:${p.id}` ? (
