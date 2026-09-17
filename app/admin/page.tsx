@@ -20,6 +20,7 @@ import {
   fetchConversation,
   deleteUser,
   deleteOrder,
+  deleteAbandonedOrder,
   updateUser,
   updateOrderStatus,
   checkInOrder,
@@ -283,6 +284,22 @@ export default function AdminPage() {
       notify("Order deleted");
     } catch {
       notify("Failed to delete order");
+    } finally {
+      setLoadingAction((s) => (s === key ? null : s));
+    }
+  }
+
+  async function handleDeleteAbandonedOrder(orderId: string) {
+    if (!confirm(`Delete abandoned attempt ${orderId}? This cannot be undone.`))
+      return;
+    const key = `deleteAbandoned:${orderId}`;
+    setLoadingAction(key);
+    try {
+      await deleteAbandonedOrder(orderId);
+      setAbandonedOrders((prev) => prev.filter((o) => o.orderId !== orderId));
+      notify("Abandoned order deleted");
+    } catch {
+      notify("Failed to delete abandoned order");
     } finally {
       setLoadingAction((s) => (s === key ? null : s));
     }
@@ -943,6 +960,7 @@ export default function AdminPage() {
                           "Total",
                           "Reason",
                           "Abandoned At",
+                          "Actions",
                         ].map((h) => (
                           <th
                             key={h}
@@ -996,6 +1014,24 @@ export default function AdminPage() {
                             {o.abandonedAt
                               ? new Date(o.abandonedAt).toLocaleString()
                               : "—"}
+                          </td>
+                          <td className="px-5 py-3">
+                            <button
+                              onClick={() =>
+                                handleDeleteAbandonedOrder(o.orderId)
+                              }
+                              disabled={
+                                loadingAction === `deleteAbandoned:${o.orderId}`
+                              }
+                              className="flex items-center gap-1.5 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
+                            >
+                              {loadingAction ===
+                              `deleteAbandoned:${o.orderId}` ? (
+                                <Spinner className="w-3 h-3 text-red-400" />
+                              ) : (
+                                "Delete"
+                              )}
+                            </button>
                           </td>
                         </tr>
                       ))}

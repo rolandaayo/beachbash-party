@@ -142,6 +142,14 @@ export async function fetchAbandonedOrders(): Promise<AbandonedOrder[]> {
   return d.orders;
 }
 
+export async function deleteAbandonedOrder(orderId: string): Promise<void> {
+  const r = await fetch(`${API_BASE}/api/orders/abandoned/${orderId}`, {
+    method: "DELETE",
+    headers: adminHeaders,
+  });
+  if (!r.ok) throw new Error("Failed to delete abandoned order");
+}
+
 export async function createUser(payload: CreateUserPayload): Promise<User> {
   const r = await fetch(`${API_BASE}/api/users`, {
     method: "POST",
