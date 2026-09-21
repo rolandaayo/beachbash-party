@@ -1,27 +1,34 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
+import { motion, useInView } from "motion/react";
 import { TICKETS, formatNaira } from "@/lib/tickets";
 import AddToCartButton from "@/components/AddToCartButton";
 import Link from "next/link";
 
 const ICONS: Record<string, string> = {
-  "regular-girls": "👩🏽",
-  "regular-guys": "👨🏽",
+  "regular-girls-25": "👩🏽",
+  "regular-girls-40": "👩🏽",
+  "regular-guys-40": "👨🏽",
+  "regular-guys-60": "👨🏽",
   "table-700": "🥃",
   "table-1m": "⭐",
   "table-1.5m": "👑",
 };
 const LABELS: Record<string, string> = {
-  "regular-girls": "Early Bird",
-  "regular-guys": "Early Bird",
+  "regular-girls-25": "General Entry",
+  "regular-girls-40": "General Entry",
+  "regular-guys-40": "General Entry",
+  "regular-guys-60": "General Entry",
   "table-700": "Standing Table",
   "table-1m": "Premium Table",
   "table-1.5m": "Private Cabana",
 };
 const CAPACITY: Record<string, string> = {
-  "regular-girls": "per person",
-  "regular-guys": "per person",
+  "regular-girls-25": "per person",
+  "regular-girls-40": "per person",
+  "regular-guys-40": "per person",
+  "regular-guys-60": "per person",
   "table-700": "2–4 people",
   "table-1m": "2–6 people",
   "table-1.5m": "2–8 people",
@@ -29,15 +36,18 @@ const CAPACITY: Record<string, string> = {
 
 export default function TicketCarousel() {
   const [active, setActive] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null) as React.MutableRefObject<HTMLDivElement>;
+  const sectionRef = useRef<HTMLElement>(null) as React.MutableRefObject<HTMLElement>;
+  const inView = useInView(sectionRef, {
+    once: true,
+    margin: "-80px 0px",
+  });
 
-  // Scroll to a card by index
   const scrollTo = useCallback((index: number) => {
     const container = scrollRef.current;
     if (!container) return;
     const card = container.children[index] as HTMLElement;
     if (!card) return;
-    // Centre the card within the container
     const offset =
       card.offsetLeft - (container.clientWidth - card.clientWidth) / 2;
     container.scrollTo({ left: offset, behavior: "smooth" });
@@ -51,13 +61,12 @@ export default function TicketCarousel() {
     scrollTo(Math.max(active - 1, 0));
   }
 
-  // Update active dot when user scrolls/swipes natively
   function onScroll() {
     const container = scrollRef.current;
     if (!container) return;
     const center = container.scrollLeft + container.clientWidth / 2;
-    let closest = 0;
-    let minDist = Infinity;
+    let closest = 0,
+      minDist = Infinity;
     Array.from(container.children).forEach((child, i) => {
       const el = child as HTMLElement;
       const cardCenter = el.offsetLeft + el.clientWidth / 2;
@@ -71,10 +80,18 @@ export default function TicketCarousel() {
   }
 
   return (
-    <section className="py-12 sm:py-20 border-t border-purple-100 bg-white">
+    <section
+      ref={sectionRef}
+      className="py-12 sm:py-20 border-t border-purple-100 bg-white overflow-hidden"
+    >
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="flex items-end justify-between mb-8 gap-4 flex-wrap px-5">
+        <motion.div
+          className="flex items-end justify-between mb-8 gap-4 flex-wrap px-5"
+          initial={{ opacity: 0, y: 30 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, ease: "circOut" }}
+        >
           <div>
             <p className="tag mb-3 w-fit">Grab Your Spot</p>
             <h2 className="font-black text-3xl sm:text-4xl text-[#1e0a3c]">
@@ -84,9 +101,9 @@ export default function TicketCarousel() {
           <p className="text-purple-400 text-sm">
             Limited tickets. Don&apos;t sleep on this.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Scroll track — native scroll-snap, no clipping */}
+        {/* Scroll track */}
         <div
           ref={scrollRef}
           onScroll={onScroll}
@@ -98,14 +115,38 @@ export default function TicketCarousel() {
             const isActive = i === active;
 
             return (
-              <div
+              <motion.div
                 key={ticket.id}
                 onClick={() => scrollTo(i)}
-                className={`snap-center shrink-0 w-[78vw] sm:w-72 rounded-2xl flex flex-col overflow-hidden transition-all duration-300 cursor-pointer ${
-                  isActive
-                    ? "opacity-100 shadow-xl shadow-purple-100 scale-100"
-                    : "opacity-55 scale-[0.97]"
-                } ${dark ? "ticket-tier-vip" : "bg-white border border-purple-100"}`}
+                initial={{ opacity: 0, y: 60, rotateX: 25, scale: 0.85 }}
+                animate={
+                  inView
+                    ? {
+                        opacity: isActive ? 1 : 0.55,
+                        y: 0,
+                        rotateX: 0,
+                        scale: isActive ? 1 : 0.97,
+                      }
+                    : { opacity: 0, y: 60, rotateX: 25, scale: 0.85 }
+                }
+                transition={{
+                  delay: 0.1 + i * 0.08,
+                  duration: 0.65,
+                  ease: "circOut",
+                }}
+                whileHover={{
+                  rotateX: -4,
+                  rotateY: isActive ? 4 : 0,
+                  scale: isActive ? 1.03 : 1,
+                  transition: { duration: 0.25 },
+                }}
+                style={{
+                  transformPerspective: 900,
+                  transformStyle: "preserve-3d",
+                }}
+                className={`snap-center shrink-0 w-[78vw] sm:w-72 rounded-2xl flex flex-col overflow-hidden cursor-pointer ${
+                  isActive ? "shadow-xl shadow-purple-100" : ""
+                } ${dark ? "ticket-tier-vip" : "bg-white border border-purple-100"} card-3d`}
               >
                 {/* Card header */}
                 <div
@@ -132,7 +173,18 @@ export default function TicketCarousel() {
                         {ticket.name}
                       </h3>
                     </div>
-                    <span className="text-2xl">{ICONS[ticket.id]}</span>
+                    <motion.span
+                      className="text-2xl"
+                      animate={{ rotate: [0, -8, 8, 0] }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: i * 0.4,
+                        ease: "easeInOut",
+                      }}
+                    >
+                      {ICONS[ticket.id]}
+                    </motion.span>
                   </div>
                   <p
                     className={`font-black text-3xl leading-none ${dark ? "text-white" : "text-black"}`}
@@ -154,9 +206,12 @@ export default function TicketCarousel() {
                 {/* Perks */}
                 <div className="px-5 py-4 flex-1">
                   <ul className="flex flex-col gap-2">
-                    {ticket.perks.slice(0, 5).map((perk) => (
-                      <li
+                    {ticket.perks.slice(0, 5).map((perk, pi) => (
+                      <motion.li
                         key={perk}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={inView ? { opacity: 1, x: 0 } : {}}
+                        transition={{ delay: 0.3 + i * 0.08 + pi * 0.05 }}
                         className={`flex items-center gap-2 text-xs ${dark ? "text-white/70" : "text-black/70"}`}
                       >
                         <span
@@ -165,7 +220,7 @@ export default function TicketCarousel() {
                           ✓
                         </span>
                         {perk}
-                      </li>
+                      </motion.li>
                     ))}
                     {ticket.perks.length > 5 && (
                       <li
@@ -184,76 +239,72 @@ export default function TicketCarousel() {
                     variant={dark ? "dark" : "light"}
                   />
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between mt-6 px-5">
-          {/* Dots */}
+        <motion.div
+          className="flex items-center justify-between mt-6 px-5"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : {}}
+          transition={{ delay: 0.5 }}
+        >
           <div className="flex items-center gap-2">
             {TICKETS.map((_, i) => (
-              <button
+              <motion.button
                 key={i}
                 onClick={() => scrollTo(i)}
                 aria-label={`Go to ticket ${i + 1}`}
-                className={`rounded-full transition-all duration-300 ${
+                animate={
                   i === active
-                    ? "w-6 h-2 bg-[#7c3aed]"
-                    : "w-2 h-2 bg-purple-200 hover:bg-purple-400"
-                }`}
+                    ? { width: 24, backgroundColor: "#7c3aed" }
+                    : { width: 8, backgroundColor: "#ddd6fe" }
+                }
+                className="h-2 rounded-full"
+                transition={{ duration: 0.3 }}
               />
             ))}
           </div>
-
-          {/* Arrows */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={prev}
-              disabled={active === 0}
-              aria-label="Previous"
-              className="w-9 h-9 rounded-full border border-purple-200 flex items-center justify-center text-purple-500 hover:text-purple-800 hover:border-purple-400 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
+            {[
+              { fn: prev, disabled: active === 0, icon: "M15 19l-7-7 7-7" },
+              {
+                fn: next,
+                disabled: active === TICKETS.length - 1,
+                icon: "M9 5l7 7-7 7",
+              },
+            ].map(({ fn, disabled, icon }, bi) => (
+              <motion.button
+                key={bi}
+                onClick={fn}
+                disabled={disabled}
+                whileHover={disabled ? {} : { scale: 1.1 }}
+                whileTap={disabled ? {} : { scale: 0.93 }}
+                className="w-9 h-9 rounded-full border border-purple-200 flex items-center justify-center text-purple-500 hover:text-purple-800 hover:border-purple-400 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={next}
-              disabled={active === TICKETS.length - 1}
-              aria-label="Next"
-              className="w-9 h-9 rounded-full border border-purple-200 flex items-center justify-center text-purple-500 hover:text-purple-800 hover:border-purple-400 transition-all disabled:opacity-20 disabled:cursor-not-allowed"
-            >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d={icon} />
+                </svg>
+              </motion.button>
+            ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between mt-6 pt-6 border-t border-purple-100 px-5">
+        <motion.div
+          className="flex items-center justify-between mt-6 pt-6 border-t border-purple-100 px-5"
+          initial={{ opacity: 0, y: 10 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 0.6 }}
+        >
           <p className="text-purple-300 text-xs">
             Secure checkout · Digital delivery · No printing needed
           </p>
@@ -263,7 +314,7 @@ export default function TicketCarousel() {
           >
             View all details →
           </Link>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

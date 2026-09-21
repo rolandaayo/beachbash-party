@@ -1,22 +1,12 @@
 import { TicketType } from "@/context/CartContext";
 
 export const TICKETS: TicketType[] = [
+  // ── Basic entry — self-transport ──────────────────────────────────────────
   {
     id: "regular-girls-25",
     name: "Girls — ₦25k",
     price: 25000,
-    description: "Entry for ladies. Make your own way to the beach house and enjoy the full party experience.",
-    perks: [
-      "General entry",
-      "1 cocktail",
-      "Full party access",
-    ],
-  },
-  {
-    id: "regular-girls-40",
-    name: "Girls — ₦40k",
-    price: 40000,
-    description: "Entry for ladies. Make your own way to the beach house and enjoy the full party experience.",
+    description: "Ladies' entry. Find your own way to the beach house — no transport included.",
     perks: [
       "General entry",
       "1 cocktail",
@@ -27,9 +17,24 @@ export const TICKETS: TicketType[] = [
     id: "regular-guys-40",
     name: "Guys — ₦40k",
     price: 40000,
-    description: "Entry for guys. Make your own way to the beach house and enjoy the full party experience.",
+    description: "Guys' entry. Find your own way to the beach house — no transport included.",
     perks: [
       "General entry",
+      "1 cocktail",
+      "Full party access",
+    ],
+  },
+
+  // ── Premium entry — boat ride + safari included ───────────────────────────
+  {
+    id: "regular-girls-40",
+    name: "Girls — ₦40k",
+    price: 40000,
+    description: "Premium ladies' entry with to & fro boat ride and safari jeep ride included.",
+    perks: [
+      "General entry",
+      "To & fro boat ride 🚢",
+      "Safari jeep ride 🚙",
       "1 cocktail",
       "Full party access",
     ],
@@ -38,13 +43,17 @@ export const TICKETS: TicketType[] = [
     id: "regular-guys-60",
     name: "Guys — ₦60k",
     price: 60000,
-    description: "Entry for guys. Make your own way to the beach house and enjoy the full party experience.",
+    description: "Premium guys' entry with to & fro boat ride and safari jeep ride included.",
     perks: [
       "General entry",
+      "To & fro boat ride 🚢",
+      "Safari jeep ride 🚙",
       "1 cocktail",
       "Full party access",
     ],
   },
+
+  // ── Tables ────────────────────────────────────────────────────────────────
   {
     id: "table-700",
     name: "Table 700K",
@@ -90,6 +99,77 @@ export const TICKETS: TicketType[] = [
     ],
   },
 ];
+
+// ── Per-ticket display metadata (not stored in cart) ──────────────────────
+// Used by the tickets page for visual differentiation and the detail popup.
+export type TicketMeta = {
+  icon: string;
+  tierLabel: string;
+  capacity: string;
+  isPremium?: boolean;      // boat + safari included — gets gold accent
+  highlights?: string[];    // short bullet points shown prominently in popup
+  badge?: string;           // small badge text on the card
+};
+
+export const TICKET_META: Record<string, TicketMeta> = {
+  "regular-girls-25": {
+    icon: "👩🏽",
+    tierLabel: "General Entry",
+    capacity: "per person",
+    highlights: ["General entry to the party", "1 complimentary cocktail", "Self-transport to venue"],
+  },
+  "regular-guys-40": {
+    icon: "👨🏽",
+    tierLabel: "General Entry",
+    capacity: "per person",
+    highlights: ["General entry to the party", "1 complimentary cocktail", "Self-transport to venue"],
+  },
+  "regular-girls-40": {
+    icon: "👩🏽",
+    tierLabel: "Premium Entry",
+    capacity: "per person",
+    isPremium: true,
+    badge: "🚢 Boat + Safari",
+    highlights: [
+      "General entry to the party",
+      "To & fro boat ride included",
+      "Safari jeep ride included",
+      "1 complimentary cocktail",
+    ],
+  },
+  "regular-guys-60": {
+    icon: "👨🏽",
+    tierLabel: "Premium Entry",
+    capacity: "per person",
+    isPremium: true,
+    badge: "🚢 Boat + Safari",
+    highlights: [
+      "General entry to the party",
+      "To & fro boat ride included",
+      "Safari jeep ride included",
+      "1 complimentary cocktail",
+    ],
+  },
+  "table-700": {
+    icon: "🥃",
+    tierLabel: "Standing Table",
+    capacity: "2–4 people",
+    highlights: ["Standing table for 2–4", "Hennessy VSOP", "1 Champagne + 3 Coke", "1 Food platter"],
+  },
+  "table-1m": {
+    icon: "⭐",
+    tierLabel: "Premium Table",
+    capacity: "2–6 people",
+    badge: "🔥 Popular",
+    highlights: ["Seated table for 2–6", "Casamigos tequila", "2 Champagne + 1 Shisha", "1 Food platter"],
+  },
+  "table-1.5m": {
+    icon: "👑",
+    tierLabel: "Private Cabana",
+    capacity: "2–8 people",
+    highlights: ["Private cabana for 2–8", "Don Julio tequila", "2 Champagne + 1 Shisha", "Private area", "1 Food platter"],
+  },
+};
 
 export function formatNaira(amount: number): string {
   if (amount >= 1000000) return `₦${(amount / 1000000).toFixed(amount % 1000000 === 0 ? 0 : 1)}M`;

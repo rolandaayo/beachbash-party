@@ -464,3 +464,188 @@ body {
 .marquee-track-reverse:hover {
   animation-play-state: paused;
 }
+
+/* ── 3D / Framer Motion utilities ────────────────────────────────────────── */
+
+/* Perspective wrapper for 3D children */
+.perspective-800 {
+  perspective: 800px;
+}
+.perspective-1200 {
+  perspective: 1200px;
+}
+.perspective-2000 {
+  perspective: 2000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+/* ── Floating particles ───────────────────────────────────────────────────── */
+@keyframes floatA {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0.7;
+  }
+  33% {
+    transform: translateY(-22px) translateX(8px) rotate(6deg);
+    opacity: 1;
+  }
+  66% {
+    transform: translateY(-10px) translateX(-6px) rotate(-4deg);
+    opacity: 0.8;
+  }
+}
+@keyframes floatB {
+  0%,
+  100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0.5;
+  }
+  40% {
+    transform: translateY(-30px) translateX(-10px) rotate(-8deg);
+    opacity: 0.9;
+  }
+  70% {
+    transform: translateY(-14px) translateX(12px) rotate(5deg);
+    opacity: 0.6;
+  }
+}
+@keyframes floatC {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-18px) scale(1.12) rotate(12deg);
+    opacity: 1;
+  }
+}
+.particle-a {
+  animation: floatA 6s ease-in-out infinite;
+}
+.particle-b {
+  animation: floatB 8s ease-in-out infinite;
+}
+.particle-c {
+  animation: floatC 5s ease-in-out infinite;
+}
+
+/* ── Glow pulse ring ──────────────────────────────────────────────────────── */
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+  }
+  50% {
+    box-shadow: 0 0 40px 12px rgba(124, 58, 237, 0.35);
+  }
+}
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* ── Neon text flicker ────────────────────────────────────────────────────── */
+@keyframes neonFlicker {
+  0%,
+  19%,
+  21%,
+  23%,
+  25%,
+  54%,
+  56%,
+  100% {
+    text-shadow:
+      0 0 4px #fff,
+      0 0 12px #fff,
+      0 0 28px #7c3aed,
+      0 0 56px #7c3aed;
+  }
+  20%,
+  24%,
+  55% {
+    text-shadow: none;
+  }
+}
+.neon-text {
+  animation: neonFlicker 4s infinite;
+}
+
+/* ── 3D orbit ring ────────────────────────────────────────────────────────── */
+@keyframes orbit {
+  from {
+    transform: rotateY(0deg) translateZ(120px) rotateY(0deg);
+  }
+  to {
+    transform: rotateY(360deg) translateZ(120px) rotateY(-360deg);
+  }
+}
+@keyframes orbitReverse {
+  from {
+    transform: rotateX(0deg) translateZ(90px) rotateX(0deg);
+  }
+  to {
+    transform: rotateX(-360deg) translateZ(90px) rotateX(360deg);
+  }
+}
+.orbit-item {
+  animation: orbit 8s linear infinite;
+}
+.orbit-item-r {
+  animation: orbitReverse 11s linear infinite;
+}
+
+/* ── Scroll reveal helpers (used by Framer via className) ─────────────────── */
+.reveal-hidden {
+  opacity: 0;
+  transform: translateY(40px) rotateX(12deg);
+  transform-origin: top center;
+}
+.reveal-visible {
+  opacity: 1;
+  transform: translateY(0) rotateX(0deg);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Card 3D hover tilt ───────────────────────────────────────────────────── */
+.card-3d {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+  will-change: transform;
+}
+.card-3d:hover {
+  box-shadow: 0 28px 60px rgba(76, 29, 149, 0.22);
+}
+
+/* ── Shimmer sweep (hero text overlay) ───────────────────────────────────── */
+@keyframes shimmerSweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+.shimmer-sweep {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.18) 50%,
+    transparent 100%
+  );
+  background-size: 200% auto;
+  animation: shimmerSweep 3s linear infinite;
+}
+
+/* ── Depth shadow for 3D sections ────────────────────────────────────────── */
+.depth-shadow {
+  box-shadow:
+    0 2px 4px rgba(76, 29, 149, 0.04),
+    0 8px 24px rgba(76, 29, 149, 0.08),
+    0 24px 64px rgba(76, 29, 149, 0.12);
+}
