@@ -13,8 +13,8 @@ const ICONS: Record<string, string> = {
 };
 
 const TIER_LABEL: Record<string, string> = {
-  "regular-girls": "Early Bird",
-  "regular-guys": "Early Bird",
+  "regular-girls": "General Entry",
+  "regular-guys": "General Entry",
   "table-700": "Standing Table",
   "table-1m": "Premium Table",
   "table-1.5m": "Private Cabana",
@@ -60,7 +60,7 @@ export default function TicketsPage() {
                 { icon: "📅", val: "Oct 10, 2026" },
                 { icon: "📍", val: "Lagos 🇳🇬" },
                 { icon: "🕗", val: "4:00 PM" },
-                { icon: "🎟️", val: "From ₦40k" },
+                { icon: "🎟️", val: "From ₦25k" },
               ].map((f) => (
                 <div
                   key={f.val}
@@ -83,13 +83,13 @@ export default function TicketsPage() {
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center">
               {[
-                { text: "₦40K GIRLS · ₦60K GUYS", accent: true },
+                { text: "₦25K GIRLS · ₦40K GUYS", accent: true },
                 { text: "SECURE YOUR SPOT", accent: false },
                 { text: "OCT 10 · LAGOS", accent: true },
                 { text: "LIMITED TABLES", accent: false },
                 { text: "BEACHBASH 2026", accent: true },
                 { text: "PRIVATE CABANA AVAIL.", accent: false },
-                { text: "BOAT · JEEP · VIBES", accent: true },
+                { text: "BEACH HOUSE VIBES", accent: true },
                 { text: "DON'T MISS THIS", accent: false },
               ].map((item, j) => (
                 <span key={j} className="flex items-center">
@@ -150,12 +150,12 @@ export default function TicketsPage() {
                   <th className="text-center text-white/50 font-bold pb-3">
                     Girls
                     <br />
-                    <span className="text-white/25 font-normal">₦40k</span>
+                    <span className="text-white/25 font-normal">₦25k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     Guys
                     <br />
-                    <span className="text-white/25 font-normal">₦60k</span>
+                    <span className="text-white/25 font-normal">₦40k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     700K
@@ -169,10 +169,6 @@ export default function TicketsPage() {
               <tbody className="divide-y divide-white/5">
                 {[
                   ["General entry", true, true, true, true, true],
-                  ["To & fro boat", true, true, false, false, false],
-                  ["General boat ride", false, false, true, true, false],
-                  ["Private boat (×8)", false, false, false, false, true],
-                  ["Safari jeep ride", true, true, true, true, true],
                   ["1 Cocktail", true, true, false, false, false],
                   ["Food platter", false, false, true, true, true],
                   [

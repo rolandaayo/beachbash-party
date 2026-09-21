@@ -34,7 +34,7 @@ export default function AboutPage() {
                 { label: "Date", value: "Oct 10, 2026" },
                 { label: "City", value: "Lagos 🇳🇬" },
                 { label: "Doors", value: "4:00 PM" },
-                { label: "From", value: "₦40k" },
+                { label: "From", value: "₦25k" },
               ].map((f) => (
                 <div
                   key={f.label}

@@ -66,7 +66,7 @@ export default function Home() {
                 },
                 { icon: "🕗", label: "Time", val: "4:00 PM — Till Dawn" },
                 { icon: "📍", label: "City", val: "Lagos, Nigeria" },
-                { icon: "🎟️", label: "From", val: formatNaira(40000) },
+                { icon: "🎟️", label: "From", val: formatNaira(25000) },
               ].map((r) => (
                 <div key={r.label} className="flex items-center gap-3">
                   <span className="text-base w-5 text-center">{r.icon}</span>
