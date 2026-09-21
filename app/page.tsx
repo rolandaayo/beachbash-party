@@ -32,7 +32,7 @@ function Reveal({
       <motion.div
         initial={{ opacity: 0, y: 50, rotateX, scale: 0.97 }}
         animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
-        transition={{ delay, duration: 0.75, ease: "circOut" }}
+        transition={{ delay, duration: 0.75, ease: "circOut" as const }}
         style={{ transformPerspective: 900 }}
       >
         {children}
@@ -132,7 +132,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, x: -60, rotateY: -12 }}
             animate={locationInView ? { opacity: 1, x: 0, rotateY: 0 } : {}}
-            transition={{ duration: 0.8, ease: "circOut" }}
+            transition={{ duration: 0.8, ease: "circOut" as const }}
             style={{ transformPerspective: 1000 }}
           >
             <Reveal delay={0}>
@@ -185,7 +185,7 @@ export default function Home() {
             transition={{
               duration: 0.8,
               delay: 0.15,
-              ease: "circOut",
+              ease: "circOut" as const,
             }}
             style={{ transformPerspective: 1000 }}
             whileHover={{
@@ -203,7 +203,7 @@ export default function Home() {
                 transition={{
                   duration: 3.5,
                   repeat: Infinity,
-                  ease: "easeInOut",
+                  ease: "easeInOut" as const,
                 }}
               >
                 🗺️
@@ -236,7 +236,7 @@ export default function Home() {
               left: "5%",
             }}
             animate={{ x: [0, 30, 0], y: [0, -20, 0], scale: [1, 1.15, 1] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" as const }}
           />
           <motion.div
             className="absolute w-48 h-48 rounded-full"
@@ -250,7 +250,7 @@ export default function Home() {
             transition={{
               duration: 9,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: "easeInOut" as const,
               delay: 2,
             }}
           />
@@ -261,7 +261,7 @@ export default function Home() {
             className="font-black text-4xl sm:text-5xl text-white mb-3"
             initial={{ opacity: 0, y: 40, rotateX: 20 }}
             animate={ctaInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-            transition={{ duration: 0.8, ease: "circOut" }}
+            transition={{ duration: 0.8, ease: "circOut" as const }}
             style={{ transformPerspective: 800 }}
           >
             Don&apos;t Miss Out.
@@ -283,7 +283,7 @@ export default function Home() {
             transition={{
               delay: 0.35,
               duration: 0.6,
-              ease: "circOut",
+              ease: "circOut" as const,
             }}
             whileHover={{ scale: 1.06, y: -3 }}
             whileTap={{ scale: 0.97 }}

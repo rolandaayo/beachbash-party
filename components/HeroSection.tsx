@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  type Variants,
+} from "motion/react";
 import LinkButton from "@/components/LinkButton";
 
 const IMAGES = [
@@ -81,19 +87,16 @@ const PARTICLES = [
 ];
 
 // Stagger config for the title letters
-const LETTER_VARIANTS = {
+const LETTER_VARIANTS: Variants = {
   hidden: { opacity: 0, y: 80, rotateX: -90, scale: 0.6 },
-  visible: (i: number) => ({
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  visible: ((i: number) => ({
     opacity: 1,
     y: 0,
     rotateX: 0,
     scale: 1,
-    transition: {
-      delay: i * 0.07,
-      duration: 0.7,
-      ease: "circOut",
-    },
-  }),
+    transition: { delay: i * 0.07, duration: 0.7, ease: "circOut" as const },
+  })) as any,
 };
 
 const SUBTITLE_VARIANTS = {
@@ -102,7 +105,7 @@ const SUBTITLE_VARIANTS = {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { delay: 0.8, duration: 0.8, ease: "easeOut" },
+    transition: { delay: 0.8, duration: 0.8, ease: "easeOut" as const },
   },
 };
 
@@ -112,7 +115,7 @@ const BUTTON_VARIANTS = {
     opacity: 1,
     y: 0,
     scale: 1,
-    transition: { delay: 1.05, duration: 0.6, ease: "circOut" },
+    transition: { delay: 1.05, duration: 0.6, ease: "circOut" as const },
   },
 };
 
@@ -223,7 +226,7 @@ export default function HeroSection() {
         <motion.div
           initial={{ opacity: 0, x: -30, scale: 0.8 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.6, ease: "circOut" }}
+          transition={{ delay: 0.2, duration: 0.6, ease: "circOut" as const }}
           className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1.5 mb-8"
         >
           <span className="live-dot w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
@@ -365,7 +368,7 @@ export default function HeroSection() {
         }}
         initial={{ scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1.2, ease: "easeOut" }}
+        transition={{ delay: 1.5, duration: 1.2, ease: "easeOut" as const }}
       />
     </section>
   );

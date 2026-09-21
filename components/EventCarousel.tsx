@@ -98,7 +98,7 @@ export default function EventCarousel() {
             right: "10%",
           }}
           animate={{ scale: [1, 1.2, 1], rotate: [0, 20, 0] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" as const }}
         />
         <motion.div
           className="absolute w-56 h-56 rounded-full"
@@ -112,7 +112,7 @@ export default function EventCarousel() {
           transition={{
             duration: 8,
             repeat: Infinity,
-            ease: "easeInOut",
+            ease: "easeInOut" as const,
             delay: 2,
           }}
         />
@@ -124,7 +124,7 @@ export default function EventCarousel() {
           className="mb-10"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.7, ease: "circOut" }}
+          transition={{ duration: 0.7, ease: "circOut" as const }}
         >
           <p className="text-white/30 text-[10px] uppercase tracking-widest font-bold mb-2">
             What to Expect
@@ -170,7 +170,7 @@ export default function EventCarousel() {
                   transition={{
                     delay: 0.15 + i * 0.1,
                     duration: 0.7,
-                    ease: "circOut",
+                    ease: "circOut" as const,
                   }}
                   whileHover={
                     isActive

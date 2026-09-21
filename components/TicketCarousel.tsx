@@ -90,7 +90,7 @@ export default function TicketCarousel() {
           className="flex items-end justify-between mb-8 gap-4 flex-wrap px-5"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, ease: "circOut" }}
+          transition={{ duration: 0.6, ease: "circOut" as const }}
         >
           <div>
             <p className="tag mb-3 w-fit">Grab Your Spot</p>
@@ -132,7 +132,7 @@ export default function TicketCarousel() {
                 transition={{
                   delay: 0.1 + i * 0.08,
                   duration: 0.65,
-                  ease: "circOut",
+                  ease: "circOut" as const,
                 }}
                 whileHover={{
                   rotateX: -4,
@@ -180,7 +180,7 @@ export default function TicketCarousel() {
                         duration: 3,
                         repeat: Infinity,
                         delay: i * 0.4,
-                        ease: "easeInOut",
+                        ease: "easeInOut" as const,
                       }}
                     >
                       {ICONS[ticket.id]}

@@ -41,7 +41,7 @@ function Reveal({
       <motion.div
         initial={{ opacity: 0, y: 40, rotateX: 12, scale: 0.97 }}
         animate={inView ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
-        transition={{ delay, duration: 0.7, ease: "circOut" }}
+        transition={{ delay, duration: 0.7, ease: "circOut" as const }}
         style={{ transformPerspective: 900 }}
       >
         {children}
@@ -107,7 +107,7 @@ function TiltCard({
         transition={{
           delay: delay + index * 0.09,
           duration: 0.75,
-          ease: "circOut",
+          ease: "circOut" as const,
         }}
         style={{
           rotateX,
@@ -461,7 +461,7 @@ function TicketCard({
           <motion.span
             className="text-xl sm:text-2xl shrink-0 ml-1"
             animate={{ rotate: [0, -6, 6, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" as const }}
           >
             {meta?.icon ?? "🎟️"}
           </motion.span>
@@ -685,7 +685,7 @@ export default function TicketsPage() {
               right: "5%",
             }}
             animate={{ scale: [1, 1.2, 1], rotate: [0, 15, 0] }}
-            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" as const }}
           />
           <motion.div
             className="absolute w-48 h-48 rounded-full"
@@ -699,7 +699,7 @@ export default function TicketsPage() {
             transition={{
               duration: 7,
               repeat: Infinity,
-              ease: "easeInOut",
+              ease: "easeInOut" as const,
               delay: 2,
             }}
           />
@@ -710,7 +710,7 @@ export default function TicketsPage() {
             className="inline-flex items-center gap-2 bg-white/10 border border-white/15 rounded-full px-3 py-1 mb-5"
             initial={{ opacity: 0, x: -20 }}
             animate={heroInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ duration: 0.6, ease: "circOut" }}
+            transition={{ duration: 0.6, ease: "circOut" as const }}
           >
             <span className="live-dot w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
             <span className="text-white/60 text-[10px] tracking-widest uppercase font-medium">
@@ -728,7 +728,7 @@ export default function TicketsPage() {
                   transition={{
                     delay: 0.1,
                     duration: 0.8,
-                    ease: "circOut",
+                    ease: "circOut" as const,
                   }}
                   style={{ transformPerspective: 800 }}
                 >
@@ -741,7 +741,7 @@ export default function TicketsPage() {
                     transition={{
                       delay: 0.22,
                       duration: 0.8,
-                      ease: "circOut",
+                      ease: "circOut" as const,
                     }}
                     style={{ transformPerspective: 800 }}
                   >
@@ -976,7 +976,7 @@ export default function TicketsPage() {
             className="ticket-hero rounded-3xl p-5 sm:p-7 mb-8 overflow-x-auto depth-shadow"
             initial={{ opacity: 0, y: 50, rotateX: 10 }}
             animate={tableInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-            transition={{ duration: 0.8, ease: "circOut" }}
+            transition={{ duration: 0.8, ease: "circOut" as const }}
             style={{ transformPerspective: 1000 }}
           >
             <p className="text-white/40 text-[10px] uppercase tracking-widest font-bold mb-5">
@@ -1071,7 +1071,7 @@ export default function TicketsPage() {
                     opacity: 1,
                     y: 0,
                     scale: 1,
-                    transition: { duration: 0.55, ease: "circOut" },
+                    transition: { duration: 0.55, ease: "circOut" as const },
                   },
                 }}
                 whileHover={{
@@ -1114,7 +1114,7 @@ export default function TicketsPage() {
               "radial-gradient(ellipse 60% 50% at 50% 100%, rgba(124,58,237,0.07) 0%, transparent 70%)",
           }}
           animate={{ scale: [1, 1.06, 1] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" as const }}
         />
         <motion.p
           className="text-purple-400 text-sm mb-2"
@@ -1128,7 +1128,7 @@ export default function TicketsPage() {
           className="text-[#1e0a3c] font-black text-2xl mb-6"
           initial={{ opacity: 0, y: 25, rotateX: 15 }}
           animate={ctaInView ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-          transition={{ delay: 0.1, duration: 0.65, ease: "circOut" }}
+          transition={{ delay: 0.1, duration: 0.65, ease: "circOut" as const }}
           style={{ transformPerspective: 700 }}
         >
           Questions? We&apos;ve got answers.
