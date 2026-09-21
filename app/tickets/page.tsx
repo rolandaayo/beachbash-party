@@ -5,31 +5,37 @@ import LinkButton from "@/components/LinkButton";
 export const metadata = { title: "Tickets — BEACHBASH PARTY" };
 
 const ICONS: Record<string, string> = {
-  "regular-girls": "👩🏽",
-  "regular-guys": "👨🏽",
+  "regular-girls-25": "👩🏽",
+  "regular-girls-40": "👩🏽",
+  "regular-guys-40": "👨🏽",
+  "regular-guys-60": "👨🏽",
   "table-700": "🥃",
   "table-1m": "⭐",
   "table-1.5m": "👑",
 };
 
 const TIER_LABEL: Record<string, string> = {
-  "regular-girls": "General Entry",
-  "regular-guys": "General Entry",
+  "regular-girls-25": "General Entry",
+  "regular-girls-40": "General Entry",
+  "regular-guys-40": "General Entry",
+  "regular-guys-60": "General Entry",
   "table-700": "Standing Table",
   "table-1m": "Premium Table",
   "table-1.5m": "Private Cabana",
 };
 
 const CAPACITY: Record<string, string> = {
-  "regular-girls": "per person",
-  "regular-guys": "per person",
+  "regular-girls-25": "per person",
+  "regular-girls-40": "per person",
+  "regular-guys-40": "per person",
+  "regular-guys-60": "per person",
   "table-700": "2–4 people",
   "table-1m": "2–6 people",
   "table-1.5m": "2–8 people",
 };
 
 export default function TicketsPage() {
-  const [girlsTicket, guysTicket, t700, t1m, t15m] = TICKETS;
+  const [girls25, girls40, guys40, guys60, t700, t1m, t15m] = TICKETS;
 
   return (
     <div className="pt-14">
@@ -83,7 +89,10 @@ export default function TicketsPage() {
           {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="flex items-center">
               {[
-                { text: "₦25K GIRLS · ₦40K GUYS", accent: true },
+                {
+                  text: "GIRLS ₦25K OR ₦40K · GUYS ₦40K OR ₦60K",
+                  accent: true,
+                },
                 { text: "SECURE YOUR SPOT", accent: false },
                 { text: "OCT 10 · LAGOS", accent: true },
                 { text: "LIMITED TABLES", accent: false },
@@ -118,16 +127,31 @@ export default function TicketsPage() {
               Choose your experience
             </h2>
             <div className="flex-1 h-px bg-purple-100" />
-            <span className="text-purple-300 text-xs">5 options</span>
+            <span className="text-purple-300 text-xs">7 options</span>
           </div>
 
-          {/* Regular — 2 col on all screens */}
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 mb-4">
-            <TicketCard ticket={girlsTicket} variant="vip" />
-            <TicketCard ticket={guysTicket} variant="general" />
+          {/* Girls tickets */}
+          <p className="text-[11px] font-bold tracking-widest uppercase text-purple-300 mb-2">
+            👩🏽 Girls
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 mb-6">
+            <TicketCard ticket={girls25} variant="vip" />
+            <TicketCard ticket={girls40} variant="vip" />
+          </div>
+
+          {/* Guys tickets */}
+          <p className="text-[11px] font-bold tracking-widest uppercase text-purple-300 mb-2">
+            👨🏽 Guys
+          </p>
+          <div className="grid grid-cols-2 gap-3 sm:gap-5 mb-6">
+            <TicketCard ticket={guys40} variant="general" />
+            <TicketCard ticket={guys60} variant="general" />
           </div>
 
           {/* Table packages — 2 col mobile, 3 col desktop */}
+          <p className="text-[11px] font-bold tracking-widest uppercase text-purple-300 mb-2">
+            🍾 Tables
+          </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5 mb-12">
             <TicketCard ticket={t700} variant="general" />
             <TicketCard ticket={t1m} variant="vip" />
@@ -153,9 +177,19 @@ export default function TicketsPage() {
                     <span className="text-white/25 font-normal">₦25k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
+                    Girls
+                    <br />
+                    <span className="text-white/25 font-normal">₦40k</span>
+                  </th>
+                  <th className="text-center text-white/50 font-bold pb-3">
                     Guys
                     <br />
                     <span className="text-white/25 font-normal">₦40k</span>
+                  </th>
+                  <th className="text-center text-white/50 font-bold pb-3">
+                    Guys
+                    <br />
+                    <span className="text-white/25 font-normal">₦60k</span>
                   </th>
                   <th className="text-center text-white/50 font-bold pb-3">
                     700K
@@ -168,26 +202,46 @@ export default function TicketsPage() {
               </thead>
               <tbody className="divide-y divide-white/5">
                 {[
-                  ["General entry", true, true, true, true, true],
-                  ["1 Cocktail", true, true, false, false, false],
-                  ["Food platter", false, false, true, true, true],
+                  ["General entry", true, true, true, true, true, true, true],
+                  ["1 Cocktail", true, true, true, true, false, false, false],
+                  [
+                    "Food platter",
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    true,
+                    true,
+                  ],
                   [
                     "Premium spirits",
+                    false,
+                    false,
                     false,
                     false,
                     "VSOP",
                     "Casa",
                     "Don Julio",
                   ],
-                  ["Champagne", false, false, "×1", "×2", "×2"],
-                  ["Shisha", false, false, false, true, true],
-                  ["Private cabana", false, false, false, false, true],
-                ].map(([feature, g, gu, t7, t1, t15]) => (
+                  ["Champagne", false, false, false, false, "×1", "×2", "×2"],
+                  ["Shisha", false, false, false, false, false, true, true],
+                  [
+                    "Private cabana",
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                  ],
+                ].map(([feature, g25, g40, gu40, gu60, t7, t1, t15]) => (
                   <tr key={feature as string}>
                     <td className="text-white/40 py-2.5 pr-3">
                       {feature as string}
                     </td>
-                    {[g, gu, t7, t1, t15].map((val, ci) => (
+                    {[g25, g40, gu40, gu60, t7, t1, t15].map((val, ci) => (
                       <td key={ci} className="text-center py-2.5">
                         {val === true ? (
                           <span className="text-green-400">✓</span>
