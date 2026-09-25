@@ -3,29 +3,18 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { getSocket } from "@/lib/socket";
-import AddUserModal from "@/components/admin/AddUserModal";
 import StatusBadge from "@/components/admin/StatusBadge";
 import Spinner from "@/components/Spinner";
 import {
-  type User,
   type Order,
-  type AbandonedOrder,
-  type Person,
   type Conversation,
-  fetchUsers,
-  fetchAllPeople,
   fetchOrders,
-  fetchAbandonedOrders,
   fetchConversations,
   fetchConversation,
-  deleteUser,
   deleteOrder,
-  deleteAbandonedOrder,
-  updateUser,
   updateOrderStatus,
   checkInOrder,
   sendAdminReply,
-  sendUserQr,
   sendOrderQr,
   formatNaira,
   getTicketSales,
@@ -34,33 +23,23 @@ import {
 
 const CLIENT_URL =
   process.env.NEXT_PUBLIC_CLIENT_URL || "https://www.beachbashparty.com";
-type Tab =
-  | "dashboard"
-  | "buyers"
-  | "orders"
-  | "users"
-  | "messages"
-  | "abandoned";
+
+type Tab = "buyers" | "orders" | "messages";
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>("buyers");
-  const [users, setUsers] = useState<User[]>([]);
-  const [people, setPeople] = useState<Person[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [abandonedOrders, setAbandonedOrders] = useState<AbandonedOrder[]>([]);
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeConvo, setActiveConvo] = useState<Conversation | null>(null);
   const [replyText, setReplyText] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingAction, setLoadingAction] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
-  const [showAddUser, setShowAddUser] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     "all" | "paid" | "pending_payment"
   >("all");
-  const [qrOrder, setQrOrder] = useState<Order | null>(null); // QR modal
-  const [peopleSearch, setPeopleSearch] = useState("");
+  const [qrOrder, setQrOrder] = useState<Order | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const notify = (msg: string) => {
@@ -68,37 +47,12 @@ export default function AdminPage() {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const loadUsers = useCallback(async () => {
-    try {
-      setUsers(await fetchUsers());
-    } catch {
-      notify("Failed to load users");
-    }
-  }, []);
-
-  const loadPeople = useCallback(async () => {
-    try {
-      setPeople(await fetchAllPeople());
-    } catch {
-      notify("Failed to load people");
-    }
-  }, []);
-
   const loadOrders = useCallback(async () => {
     try {
-      const result = await fetchOrders();
-      setOrders(result);
+      setOrders(await fetchOrders());
     } catch (e) {
       console.error("[Admin] loadOrders failed:", e);
       notify("Failed to load orders — check server is running");
-    }
-  }, []);
-
-  const loadAbandonedOrders = useCallback(async () => {
-    try {
-      setAbandonedOrders(await fetchAbandonedOrders());
-    } catch {
-      notify("Failed to load abandoned orders");
     }
   }, []);
 
@@ -132,7 +86,7 @@ export default function AdminPage() {
       const name = data.customer
         ? `${data.customer.firstName} ${data.customer.lastName}`
         : "Customer";
-      notify(`Payment confirmed: ${name} — ${formatNaira(data.total)}`);
+      notify(`💰 Payment confirmed: ${name} — ${formatNaira(data.total)}`);
       setOrders((prev) => {
         const exists = prev.find((o) => o.orderId === data.orderId);
         if (exists) {
@@ -184,74 +138,22 @@ export default function AdminPage() {
   }, [loadOrders, loadConvos]);
 
   useEffect(() => {
-    if (tab === "users") {
-      loadUsers();
-      loadPeople();
-    }
-    if (tab === "orders" || tab === "buyers") loadOrders();
-    if (tab === "abandoned") loadAbandonedOrders();
+    if (tab === "buyers" || tab === "orders") loadOrders();
     if (tab === "messages") loadConvos();
-    if (tab === "dashboard") {
-      loadUsers();
-      loadOrders();
-      loadConvos();
-      loadPeople();
-    }
-  }, [tab, loadUsers, loadPeople, loadOrders, loadAbandonedOrders, loadConvos]);
+  }, [tab, loadOrders, loadConvos]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [activeConvo?.messages]);
 
   // ── Actions ──────────────────────────────────────────────────────────────
-  async function handleDeleteUser(id: string) {
-    if (!confirm("Delete this user?")) return;
-    const key = `deleteUser:${id}`;
-    setLoadingAction(key);
-    try {
-      await deleteUser(id);
-      setUsers((p) => p.filter((u) => u.id !== id));
-      notify("User deleted");
-    } catch {
-      notify("Failed to delete user");
-    } finally {
-      setLoadingAction((s) => (s === key ? null : s));
-    }
-  }
-
-  async function handleToggleRole(user: User) {
-    const newRole = user.role === "admin" ? "user" : "admin";
-    try {
-      await updateUser(user.id, { role: newRole });
-      loadUsers();
-      notify(`Role updated to ${newRole}`);
-    } catch {
-      notify("Failed to update role");
-    }
-  }
-
-  async function handleSendQr(userId: string) {
-    const key = `sendUser:${userId}`;
-    setLoadingAction(key);
-    try {
-      await sendUserQr(userId);
-      notify("QR email sent");
-    } catch (e) {
-      console.error("Failed to send QR email", e);
-      notify("Failed to send QR email");
-    } finally {
-      setLoadingAction((s) => (s === key ? null : s));
-    }
-  }
-
   async function handleSendOrderQr(orderId: string) {
     const key = `sendOrder:${orderId}`;
     setLoadingAction(key);
     try {
       await sendOrderQr(orderId);
-      notify("QR email sent");
-    } catch (e) {
-      console.error("Failed to send order QR email", e);
+      notify("QR email sent ✅");
+    } catch {
       notify("Failed to send QR email");
     } finally {
       setLoadingAction((s) => (s === key ? null : s));
@@ -284,22 +186,6 @@ export default function AdminPage() {
       notify("Order deleted");
     } catch {
       notify("Failed to delete order");
-    } finally {
-      setLoadingAction((s) => (s === key ? null : s));
-    }
-  }
-
-  async function handleDeleteAbandonedOrder(orderId: string) {
-    if (!confirm(`Delete abandoned attempt ${orderId}? This cannot be undone.`))
-      return;
-    const key = `deleteAbandoned:${orderId}`;
-    setLoadingAction(key);
-    try {
-      await deleteAbandonedOrder(orderId);
-      setAbandonedOrders((prev) => prev.filter((o) => o.orderId !== orderId));
-      notify("Abandoned order deleted");
-    } catch {
-      notify("Failed to delete abandoned order");
     } finally {
       setLoadingAction((s) => (s === key ? null : s));
     }
@@ -351,22 +237,8 @@ export default function AdminPage() {
   // ── Derived data ─────────────────────────────────────────────────────────
   const paidOrders = orders.filter((o) => o.status === "paid");
   const totalRevenue = paidOrders.reduce((s, o) => s + o.total, 0);
-  const pendingOrders = orders.filter(
-    (o) => o.status === "pending_payment",
-  ).length;
-  const unreadMsgs = convos.reduce((s, c) => s + (c.unreadCount || 0), 0);
   const ticketSales = getTicketSales(orders);
-
-  const filteredPeople = people.filter((p) => {
-    if (!peopleSearch.trim()) return true;
-    const q = peopleSearch.toLowerCase();
-    return (
-      p.firstName.toLowerCase().includes(q) ||
-      p.lastName.toLowerCase().includes(q) ||
-      p.email.toLowerCase().includes(q) ||
-      p.phone.includes(q)
-    );
-  });
+  const unreadMsgs = convos.reduce((s, c) => s + (c.unreadCount || 0), 0);
 
   const matchesSearch = (o: Order) => {
     if (!search.trim()) return true;
@@ -390,10 +262,7 @@ export default function AdminPage() {
 
   const TABS: { id: Tab; label: string; icon: string }[] = [
     { id: "buyers", label: "Ticket Buyers", icon: "🎫" },
-    { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "orders", label: "All Orders", icon: "🎟️" },
-    { id: "abandoned", label: "Abandoned", icon: "🚫" },
-    { id: "users", label: "Users", icon: "👥" },
     { id: "messages", label: "Messages", icon: "💬" },
   ];
 
@@ -405,7 +274,7 @@ export default function AdminPage() {
           "linear-gradient(135deg, #0f0520 0%, #1e0a3c 50%, #2e1065 100%)",
       }}
     >
-      {/* Ambient glow blobs */}
+      {/* Ambient glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-purple-700/20 blur-3xl" />
         <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-violet-600/15 blur-3xl" />
@@ -417,16 +286,6 @@ export default function AdminPage() {
           {notification}
         </div>
       )}
-
-      <AddUserModal
-        open={showAddUser}
-        onClose={() => setShowAddUser(false)}
-        onCreated={() => {
-          loadUsers();
-          loadPeople();
-          notify("User created successfully");
-        }}
-      />
 
       {/* ── QR Code Modal ──────────────────────────────────────────── */}
       {qrOrder && (
@@ -512,17 +371,9 @@ export default function AdminPage() {
               BeachBash Party · Lagos 2026
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowAddUser(true)}
-              className="px-4 py-2 bg-[#7c3aed] text-white text-xs font-bold rounded-xl hover:bg-[#6d28d9] transition-colors"
-            >
-              + Add User
-            </button>
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/20">
-              Internal
-            </span>
-          </div>
+          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/20 w-fit">
+            Internal
+          </span>
         </div>
 
         {/* Tabs */}
@@ -538,26 +389,21 @@ export default function AdminPage() {
               }`}
             >
               {t.icon} {t.label}
-              {t.id === "messages" && unreadMsgs > 0 && (
-                <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">
-                  {unreadMsgs}
-                </span>
-              )}
               {t.id === "buyers" && paidOrders.length > 0 && (
                 <span className="w-5 h-5 rounded-full bg-green-500 text-white text-[9px] font-black flex items-center justify-center">
                   {paidOrders.length}
                 </span>
               )}
-              {t.id === "abandoned" && abandonedOrders.length > 0 && (
-                <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-[9px] font-black flex items-center justify-center">
-                  {abandonedOrders.length}
+              {t.id === "messages" && unreadMsgs > 0 && (
+                <span className="w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-black flex items-center justify-center">
+                  {unreadMsgs}
                 </span>
               )}
             </button>
           ))}
         </div>
 
-        {/* Search bar for buyers/orders */}
+        {/* Search bar */}
         {(tab === "buyers" || tab === "orders") && (
           <div className="flex flex-col sm:flex-row gap-3 mb-6">
             <input
@@ -636,107 +482,22 @@ export default function AdminPage() {
                   ↻ Refresh
                 </button>
               </div>
-
               {filteredBuyers.length === 0 ? (
                 <EmptyState message="No ticket buyers yet. Purchases appear here once payment is confirmed." />
               ) : (
                 <div className="divide-y divide-white/10">
                   {filteredBuyers.map((o) => (
-                    <BuyerCard key={o.orderId} order={o} />
+                    <BuyerCard
+                      key={o.orderId}
+                      order={o}
+                      onQr={() => setQrOrder(o)}
+                      onSendQr={() => handleSendOrderQr(o.orderId)}
+                      onCheckIn={() => handleCheckIn(o.orderId)}
+                      loadingAction={loadingAction}
+                    />
                   ))}
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* ── DASHBOARD ─────────────────────────────────────────────────── */}
-        {tab === "dashboard" && (
-          <div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-              <StatCard label="Total Users" value={users.length} icon="👥" />
-              <StatCard label="Total Orders" value={orders.length} icon="🎟️" />
-              <StatCard
-                label="Revenue"
-                value={formatNaira(totalRevenue)}
-                icon="💰"
-              />
-              <StatCard label="Pending" value={pendingOrders} icon="⏳" />
-            </div>
-
-            {ticketSales.length > 0 && (
-              <div
-                className="rounded-2xl border border-white/10 overflow-hidden mb-8"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  backdropFilter: "blur(16px)",
-                }}
-              >
-                <div className="px-5 py-4 border-b border-white/10">
-                  <p className="font-bold text-sm text-white">
-                    Ticket Sales Breakdown
-                  </p>
-                </div>
-                <div className="divide-y divide-white/10">
-                  {ticketSales.map((t) => (
-                    <div
-                      key={t.name}
-                      className="px-5 py-3 flex items-center justify-between hover:bg-white/5 transition-colors"
-                    >
-                      <div>
-                        <p className="text-xs font-bold text-white">{t.name}</p>
-                        <p className="text-[11px] text-white/40">
-                          {t.quantity} sold
-                        </p>
-                      </div>
-                      <p className="text-xs font-black text-white">
-                        {formatNaira(t.revenue)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div
-              className="rounded-2xl border border-white/10 overflow-hidden"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                backdropFilter: "blur(16px)",
-              }}
-            >
-              <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-                <p className="font-bold text-sm text-white">Recent Purchases</p>
-                <button
-                  onClick={() => setTab("buyers")}
-                  className="text-purple-400 text-xs font-semibold hover:text-purple-300 transition-colors"
-                >
-                  View all →
-                </button>
-              </div>
-              <div className="divide-y divide-white/10">
-                {paidOrders.slice(0, 5).map((o) => (
-                  <div
-                    key={o.orderId}
-                    className="px-5 py-3 flex items-center justify-between gap-4 hover:bg-white/5 transition-colors"
-                  >
-                    <div>
-                      <p className="text-xs font-bold text-white">
-                        {o.customer.firstName} {o.customer.lastName}
-                      </p>
-                      <p className="text-[11px] text-white/40">
-                        {o.customer.email} · {o.orderId}
-                      </p>
-                    </div>
-                    <p className="text-xs font-black text-white">
-                      {formatNaira(o.total)}
-                    </p>
-                  </div>
-                ))}
-                {paidOrders.length === 0 && (
-                  <EmptyState message="No purchases yet" />
-                )}
-              </div>
             </div>
           </div>
         )}
@@ -834,7 +595,7 @@ export default function AdminPage() {
                             {loadingAction === `sendOrder:${o.orderId}` ? (
                               <Spinner className="w-3 h-3 text-blue-300" />
                             ) : (
-                              "Send QR COE"
+                              "Send QR"
                             )}
                           </button>
                           <button
@@ -895,395 +656,6 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ── ABANDONED ORDERS ──────────────────────────────────────────── */}
-        {tab === "abandoned" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-              <StatCard
-                label="Abandoned Total"
-                value={abandonedOrders.length}
-                icon="🚫"
-              />
-              <StatCard
-                label="Cancelled by User"
-                value={
-                  abandonedOrders.filter((o) => o.reason === "cancelled").length
-                }
-                icon="✖️"
-              />
-              <StatCard
-                label="Expired (no payment)"
-                value={
-                  abandonedOrders.filter((o) => o.reason === "expired").length
-                }
-                icon="⏰"
-              />
-            </div>
-
-            <div
-              className="rounded-2xl border border-white/10 overflow-hidden"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                backdropFilter: "blur(16px)",
-              }}
-            >
-              <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-sm text-white">
-                    Incomplete Checkout Attempts ({abandonedOrders.length})
-                  </p>
-                  <p className="text-[11px] text-white/40 mt-0.5">
-                    These are users who started checkout but did not complete
-                    payment. No money was collected.
-                  </p>
-                </div>
-                <button
-                  onClick={loadAbandonedOrders}
-                  className="text-white/40 text-xs hover:text-white/70 transition-colors shrink-0 ml-4"
-                >
-                  ↻ Refresh
-                </button>
-              </div>
-
-              {abandonedOrders.length === 0 ? (
-                <EmptyState message="No abandoned checkouts yet." />
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs min-w-[700px]">
-                    <thead className="border-b border-white/10">
-                      <tr>
-                        {[
-                          "Order ID",
-                          "Customer",
-                          "Phone",
-                          "Tickets",
-                          "Total",
-                          "Reason",
-                          "Abandoned At",
-                          "Actions",
-                        ].map((h) => (
-                          <th
-                            key={h}
-                            className="text-left px-5 py-3 text-white/40 font-medium"
-                          >
-                            {h}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/10">
-                      {abandonedOrders.map((o) => (
-                        <tr
-                          key={o.orderId}
-                          className="hover:bg-white/5 transition-colors"
-                        >
-                          <td className="px-5 py-3 font-black text-white/60 tracking-wide">
-                            {o.orderId}
-                          </td>
-                          <td className="px-5 py-3">
-                            <p className="font-semibold text-white">
-                              {o.customer.firstName} {o.customer.lastName}
-                            </p>
-                            <p className="text-white/40">{o.customer.email}</p>
-                          </td>
-                          <td className="px-5 py-3 text-white/50">
-                            {o.customer.phone || "—"}
-                          </td>
-                          <td className="px-5 py-3 text-white/50">
-                            {o.tickets
-                              ?.map((t) => `${t.name} ×${t.quantity}`)
-                              .join(", ") || "—"}
-                          </td>
-                          <td className="px-5 py-3 font-bold text-white/70">
-                            {formatNaira(o.total)}
-                          </td>
-                          <td className="px-5 py-3">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                o.reason === "cancelled"
-                                  ? "bg-orange-500/15 text-orange-300 border-orange-500/20"
-                                  : "bg-red-500/15 text-red-300 border-red-500/20"
-                              }`}
-                            >
-                              {o.reason === "cancelled"
-                                ? "Cancelled"
-                                : "Expired"}
-                            </span>
-                          </td>
-                          <td className="px-5 py-3 text-white/40">
-                            {o.abandonedAt
-                              ? new Date(o.abandonedAt).toLocaleString()
-                              : "—"}
-                          </td>
-                          <td className="px-5 py-3">
-                            <button
-                              onClick={() =>
-                                handleDeleteAbandonedOrder(o.orderId)
-                              }
-                              disabled={
-                                loadingAction === `deleteAbandoned:${o.orderId}`
-                              }
-                              className="flex items-center gap-1.5 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
-                            >
-                              {loadingAction ===
-                              `deleteAbandoned:${o.orderId}` ? (
-                                <Spinner className="w-3 h-3 text-red-400" />
-                              ) : (
-                                "Delete"
-                              )}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* ── USERS ─────────────────────────────────────────────────────── */}
-        {tab === "users" && (
-          <div className="space-y-4">
-            {/* Search */}
-            <input
-              type="search"
-              placeholder="Search by name, email or phone…"
-              value={peopleSearch}
-              onChange={(e) => setPeopleSearch(e.target.value)}
-              className="w-full bg-white/8 border border-white/10 text-white placeholder-white/25 rounded-xl px-4 py-2.5 text-base focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-3">
-              <StatCard
-                label="Registered"
-                value={people.filter((p) => p.type === "registered").length}
-                icon="👤"
-              />
-              <StatCard
-                label="Guests (ordered)"
-                value={people.filter((p) => p.type === "guest").length}
-                icon="🎟️"
-              />
-              <StatCard
-                label="Checked In"
-                value={people.filter((p) => p.checkedIn).length}
-                icon="✅"
-              />
-            </div>
-
-            <div
-              className="rounded-2xl border border-white/10 overflow-hidden"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                backdropFilter: "blur(16px)",
-              }}
-            >
-              <div className="px-5 py-4 border-b border-white/10 flex items-center justify-between">
-                <p className="font-bold text-sm text-white">
-                  All People ({filteredPeople.length})
-                </p>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setShowAddUser(true)}
-                    className="text-purple-400 text-xs font-semibold hover:text-purple-300 transition-colors"
-                  >
-                    + Add User
-                  </button>
-                  <button
-                    onClick={() => {
-                      loadUsers();
-                      loadPeople();
-                    }}
-                    className="text-white/40 text-xs hover:text-white/70 transition-colors"
-                  >
-                    ↻ Refresh
-                  </button>
-                </div>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs min-w-[700px]">
-                  <thead className="border-b border-white/10">
-                    <tr>
-                      {[
-                        "Name",
-                        "Email",
-                        "Phone",
-                        "Type",
-                        "Tickets",
-                        "Checked In",
-                        "Joined",
-                        "Actions",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          className="text-left px-5 py-3 text-white/40 font-medium"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/10">
-                    {filteredPeople.map((p) => (
-                      <tr
-                        key={p.id}
-                        className="hover:bg-white/5 transition-colors"
-                      >
-                        <td className="px-5 py-3 font-semibold text-white">
-                          {p.firstName} {p.lastName}
-                        </td>
-                        <td className="px-5 py-3 text-white/60">{p.email}</td>
-                        <td className="px-5 py-3 text-white/40">
-                          {p.phone || "—"}
-                        </td>
-                        <td className="px-5 py-3">
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                              p.role === "admin"
-                                ? "bg-purple-500/20 text-purple-300 border-purple-500/20"
-                                : p.type === "guest"
-                                  ? "bg-blue-500/15 text-blue-300 border-blue-500/20"
-                                  : "bg-white/10 text-white/40 border-white/10"
-                            }`}
-                          >
-                            {p.role === "admin"
-                              ? "admin"
-                              : p.type === "guest"
-                                ? "guest buyer"
-                                : "user"}
-                          </span>
-                        </td>
-                        <td className="px-5 py-3">
-                          {p.hasTicket ? (
-                            <div className="space-y-0.5">
-                              {p.orders.map((o) => (
-                                <div
-                                  key={o.orderId}
-                                  className="flex items-center gap-1.5"
-                                >
-                                  <span className="text-green-400 text-[10px]">
-                                    ✓
-                                  </span>
-                                  <span className="text-white/60 text-[10px]">
-                                    {o.tickets
-                                      .map((t) => `${t.name}×${t.quantity}`)
-                                      .join(", ")}
-                                  </span>
-                                  <span className="text-white/30 text-[10px]">
-                                    {formatNaira(o.total)}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <span className="text-white/25 text-[10px]">
-                              No ticket
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3">
-                          {p.checkedIn ? (
-                            <span className="text-green-400 font-bold text-[10px]">
-                              ✅ Yes
-                            </span>
-                          ) : p.hasTicket ? (
-                            <span className="text-yellow-400/60 text-[10px]">
-                              Not yet
-                            </span>
-                          ) : (
-                            <span className="text-white/20 text-[10px]">—</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-3 text-white/40">
-                          {new Date(p.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-1.5">
-                            {p.orders.map((o) => (
-                              <button
-                                key={o.orderId}
-                                onClick={() =>
-                                  setQrOrder(
-                                    orders.find(
-                                      (ord) => ord.orderId === o.orderId,
-                                    ) || null,
-                                  )
-                                }
-                                className="text-[10px] text-purple-300 border border-purple-500/20 bg-purple-500/10 rounded-lg px-2 py-1 hover:bg-purple-500/20 transition-colors"
-                              >
-                                QR
-                              </button>
-                            ))}
-                            {p.type === "registered" && p.hasTicket && (
-                              <button
-                                onClick={() => handleSendQr(p.id)}
-                                disabled={loadingAction === `sendUser:${p.id}`}
-                                className="flex items-center gap-2 text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors disabled:opacity-60"
-                              >
-                                {loadingAction === `sendUser:${p.id}` ? (
-                                  <Spinner className="w-3 h-3 text-blue-300" />
-                                ) : (
-                                  "Send"
-                                )}
-                              </button>
-                            )}
-                            {p.type === "registered" && (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    handleToggleRole({
-                                      id: p.id,
-                                      role: p.role,
-                                      firstName: p.firstName,
-                                      lastName: p.lastName,
-                                      email: p.email,
-                                      phone: p.phone,
-                                      createdAt: p.createdAt,
-                                    })
-                                  }
-                                  className="text-[10px] text-white/60 border border-white/10 bg-white/5 rounded-lg px-2 py-1 hover:bg-white/10 transition-colors"
-                                >
-                                  {p.role === "admin" ? "→ User" : "→ Admin"}
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteUser(p.id)}
-                                  disabled={
-                                    loadingAction === `deleteUser:${p.id}`
-                                  }
-                                  className="flex items-center gap-2 text-[10px] text-red-400 border border-red-500/20 bg-red-500/15 rounded-lg px-2 py-1 hover:bg-red-500/25 transition-colors disabled:opacity-60"
-                                >
-                                  {loadingAction === `deleteUser:${p.id}` ? (
-                                    <Spinner className="w-3 h-3 text-red-400" />
-                                  ) : (
-                                    "Del"
-                                  )}
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {filteredPeople.length === 0 && (
-                      <tr>
-                        <td
-                          colSpan={8}
-                          className="px-5 py-8 text-center text-white/40"
-                        >
-                          No people yet
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ── MESSAGES ──────────────────────────────────────────────────── */}
         {tab === "messages" && (
           <div
@@ -1312,9 +684,7 @@ export default function AdminPage() {
                   <button
                     key={c._id}
                     onClick={() => openConvo(c._id)}
-                    className={`w-full text-left px-4 py-3 hover:bg-white/5 transition-colors ${
-                      activeConvo?._id === c._id ? "bg-white/5" : ""
-                    }`}
+                    className={`w-full text-left px-4 py-3 hover:bg-white/5 transition-colors ${activeConvo?._id === c._id ? "bg-white/5" : ""}`}
                   >
                     <div className="flex items-center justify-between mb-0.5">
                       <p className="font-semibold text-xs text-white truncate">
@@ -1359,9 +729,7 @@ export default function AdminPage() {
                     {(activeConvo.messages || []).map((msg, i) => (
                       <div
                         key={msg._id || i}
-                        className={`flex flex-col gap-1 ${
-                          msg.sender === "admin" ? "items-end" : "items-start"
-                        }`}
+                        className={`flex flex-col gap-1 ${msg.sender === "admin" ? "items-end" : "items-start"}`}
                       >
                         <div
                           className={`max-w-[70%] px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${
@@ -1463,7 +831,19 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-function BuyerCard({ order }: { order: Order }) {
+function BuyerCard({
+  order,
+  onQr,
+  onSendQr,
+  onCheckIn,
+  loadingAction,
+}: {
+  order: Order;
+  onQr: () => void;
+  onSendQr: () => void;
+  onCheckIn: () => void;
+  loadingAction: string | null;
+}) {
   const [open, setOpen] = useState(false);
   const c = order.customer;
 
@@ -1502,7 +882,7 @@ function BuyerCard({ order }: { order: Order }) {
           <p className="text-[11px] font-bold text-white/40 uppercase tracking-wide mb-2">
             Tickets Purchased
           </p>
-          <div className="space-y-2">
+          <div className="space-y-2 mb-4">
             {order.tickets.map((t, i) => (
               <div
                 key={i}
@@ -1516,6 +896,35 @@ function BuyerCard({ order }: { order: Order }) {
                 </span>
               </div>
             ))}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={onQr}
+              className="text-[10px] text-purple-300 border border-purple-500/20 bg-purple-500/10 rounded-lg px-2 py-1 hover:bg-purple-500/20 transition-colors"
+            >
+              View QR
+            </button>
+            <button
+              onClick={onSendQr}
+              disabled={loadingAction === `sendOrder:${order.orderId}`}
+              className="flex items-center gap-1.5 text-[10px] text-blue-300 border border-blue-500/20 bg-blue-500/10 rounded-lg px-2 py-1 hover:bg-blue-500/20 transition-colors disabled:opacity-60"
+            >
+              {loadingAction === `sendOrder:${order.orderId}` ? (
+                <Spinner className="w-3 h-3 text-blue-300" />
+              ) : (
+                "Resend Ticket Email"
+              )}
+            </button>
+            <button
+              onClick={onCheckIn}
+              className={`text-[10px] border rounded-lg px-2 py-1 transition-colors ${
+                order.checkedIn
+                  ? "text-green-400 border-green-500/20 bg-green-500/15 hover:bg-green-500/25"
+                  : "text-white/50 border-white/10 bg-white/5 hover:bg-white/10"
+              }`}
+            >
+              {order.checkedIn ? "✓ Checked In" : "Check In"}
+            </button>
           </div>
           {order.paystackChannel && (
             <p className="text-[10px] text-white/30 mt-3">
